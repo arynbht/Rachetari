@@ -1,6 +1,6 @@
 # T-0053 · feat(shell): mark ready as a previewed plain commit
 
-Status: draft
+Status: ready
 Branch: card/T-0053 · Held by: nobody
 Created: 2026-11-25 · Source: docs/queue-2026-11-25.md §Shell action: mark ready · Gate: needs you (new IPC channels and a first write path from the shell; not a standing pre-approval because the shell has never written before)
 
@@ -52,10 +52,11 @@ Owner approves the gate and the split; then set Status to ready.
 
 - 2026-11-25: Decided for the owner: this card is the shared write path plus mark-ready channels, no UI (alternative: one card with the button, which would exceed five files).
 - 2026-11-25: Decided for the owner: T-0054 imports `card-commit.ts` from here and runs after this card (alternative: T-0054 builds it first).
+- 2026-11-25: Owner approved the gate and the split, 2026-11-25, with the write-path conditions: show the diff before every write, refuse when Held by names anyone, never move a branch ref under a worktree, push fast-forward only, and a test for each refusal.
 
 ## Questions for me
 
-- [ ] Approve the gate (first write path and new IPC channels) and the split into write path then button? — Recommended: approve. Options: build the button in the same card; keep the shell read-only.
+- [x] Approve the gate (first write path and new IPC channels) and the split into write path then button? — Recommended: approve. Options: build the button in the same card; keep the shell read-only.
 
 ## Done
 
