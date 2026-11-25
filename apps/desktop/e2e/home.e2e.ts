@@ -57,7 +57,12 @@ test("the sidebar counts what waits, and a new item raises a notification that o
   // Another machine pushes a new draft; the next fetch brings it in.
   fx.pushToOrigin(
     "T-0013",
-    cardText({ id: "T-0013", title: "feat: from the laptop", status: "draft" }),
+    cardText({
+      id: "T-0013",
+      title: "feat: from the laptop",
+      status: "draft",
+      gate: "needs you",
+    }),
   );
   execFileSync("git", ["fetch", "-q"], { cwd: fx.repo });
 
