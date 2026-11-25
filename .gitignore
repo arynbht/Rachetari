@@ -51,3 +51,6 @@ apps/desktop/playwright-report/
 # Local reference documents (the audit, the shell description, design notes).
 # They stay on this machine and never reach GitHub.
 /files/
+
+# Scratch repos for trying the kit (scripts/kit-trial.mjs).
+/.scratch/

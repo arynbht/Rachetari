@@ -51,6 +51,12 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] The sidebar's empty text still says "Add a local folder to audit it" and the title still says "Rivetari" · seen on T-0006 · `apps/desktop/src/renderer/App.tsx`
 - 2026-11-25 [product] The Docs list shows "No Markdown docs found under docs/ or .rivetari/" while still loading, and names fewer folders than it searches (known gap, carried over) · seen on T-0011 · `apps/desktop/src/renderer/components/Docs.tsx`
 - 2026-11-25 [product] `docs:read` replies aren't zod-checked in main (carried over from the source) · seen on T-0011 · `apps/desktop/src/main/index.ts`
+- 2026-11-25 [tool] `/setup` can't install the four command skills without a person: writes into `.claude/` need approval, which headless mode can't give · seen on T-0015 · `docs/kit-trial-2026-11-25.md`
+- 2026-11-25 [tool] `/setup` found its templates only once reads of `~/.claude/skills/setup/` were allowed; headless mode refuses them by default · seen on T-0015 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] `/setup` doesn't say whether to branch or commit; both trial runs branched and committed nothing · seen on T-0015 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] `/setup`'s "DESIGN.md if there is UI" reads two ways: one run wrote a no-UI DESIGN.md, the other skipped it · seen on T-0015 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] `/done` says to set `blocked` on any failure, but CLAUDE.md says to stop on a draft card; on a draft the trial session kept `draft` and wrote no evidence · seen on T-0015 · `kit/setup/templates/skills/done/SKILL.md`
+- 2026-11-25 [tool] `/park` doesn't say whether to commit the line; it stays uncommitted until something else commits it · seen on T-0015 · `kit/setup/templates/skills/park/SKILL.md`
 
 ## Repo checklist
 
