@@ -1,6 +1,6 @@
 # T-0043 · build(lint): set complexity and file-length limits
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0043 · Held by: nobody
 Created: 2026-11-25 · Source: BACKLOG.md Next up 11 ("Clean code: set `complexity` and `max-lines` at error in `eslint.config.js`"), from CHECKLIST.md "Complexity and file-length limits are set" (T-0039) · Gate: needs you (lint config)
 
@@ -95,12 +95,17 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Tests get the same limits — decided for the owner: one block for all files, since the worst test function (27) and test file (613) are under the recommended limits (alternative: a looser block for `**/*.test.ts`).
 - 2026-11-25: `complexity` uses ESLint's default `classic` variant — decided for the owner: classic (alternative: `variant: "modified"`, where a whole `switch` counts as 1).
 - 2026-11-25: CHECKLIST.md keeps the line's trailing `new` marker, as the ticked "Lint fails on unused code" line does — decided for the owner: keep it (alternative: drop it on ticking).
+- 2026-11-25: Owner (21:40:45): 20/500 at error for every file; tests 800 lines and no complexity limit; one override per file/function over the limits today, at its current value +2 complexity / +50 lines, each with a comment naming the card that will shrink it. Set ready by the foreman.
+- 2026-11-25: Decided for the owner by the foreman: each override's comment names its Next up line ("Shrink <file or function> under the lint limits"), since those cards have no id yet; the PR body lists them and the foreman adds them to Next up (alternative: draft every shrink card first to get ids).
+- 2026-11-25: Decided for the owner by the foreman: measure after T-0035 (PR #57, the Tasks record) merges into develop — it grows Tasks.tsx to 1484 lines — so the overrides fit the code they'll guard (alternative: measure now and let T-0035's lint fail).
 
 ## Questions for me
 
 One question per line, in this shape; options are separated by `;`.
 
-- [ ] What limits should lint enforce (today's worst: complexity 41 in `runTier2`, 1151 lines in `Tasks.tsx`)? — Recommended: `complexity` 45 and `max-lines` 1250 for every file: passes today with about 10% room, catches only growth past today's worst, and leaves `Tasks.tsx` about 100 lines before "Tasks overhaul 3" would have to split it. Options: 20 and 500 for every file, with the 10 files over that today (`tier2.ts`, `tier2.test.ts`, `parse.ts`, `Checklist.tsx`, `Now.tsx`, `Tasks.tsx`, `now.ts`, `source.ts`, `live-shell.mjs`, `live-shell.test.ts`) named in a second block at 45 and 1250, so new files meet the tighter bar now; 20 and 500 for every file, which fails 9 functions and 4 files today and needs a refactor card first.
+- [x] What limits should lint enforce (today's worst: complexity 41 in `runTier2`, 1151 lines in `Tasks.tsx`)? — Recommended: `complexity` 45 and `max-lines` 1250 for every file: passes today with about 10% room, catches only growth past today's worst, and leaves `Tasks.tsx` about 100 lines before "Tasks overhaul 3" would have to split it. Options: 20 and 500 for every file, with the 10 files over that today (`tier2.ts`, `tier2.test.ts`, `parse.ts`, `Checklist.tsx`, `Now.tsx`, `Tasks.tsx`, `now.ts`, `source.ts`, `live-shell.mjs`, `live-shell.test.ts`) named in a second block at 45 and 1250, so new files meet the tighter bar now; 20 and 500 for every file, which fails 9 functions and 4 files today and needs a refactor card first.
+
+Owner, 21:40:45: neither as written. Use the second option, with each existing exception held near its own size: every file complexity 20 and max-lines 500, at error; test files max-lines 800 and no complexity limit; each file or function over those limits today gets its own override at its current value plus a little room (complexity +2, lines +50), listed in eslint.config.js with a comment naming the card that will shrink it. So an exception can't grow, and none is hidden in a blanket.
 
 ## Done
 
@@ -112,7 +117,8 @@ One question per line, in this shape; options are separated by `;`.
 
 ### Evidence
 
-Waiting on the owner (wall clock, UTC): since 2026-11-25 21:29
+Waiting on the owner (wall clock, UTC):
+question 21:31:29 → 21:40:45 9 min 16 s since 2026-11-25 21:29
 
 ```
 Drafting measurement (read-only; develop's T-0034 files checked out temporarily, then restored):
