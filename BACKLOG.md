@@ -79,6 +79,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] GitHub ignores `BACKLOG.md merge=union`, so a card PR whose Parked lines meet the day branch's shows CONFLICTING though `git merge-tree` and the foreman's local merge are clean (PR #37) · seen on the line · `.gitattributes`
 - 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
 - 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
+- 2026-11-25 [product] `history.ts`'s header comment says done cards and nights are read "on the default branch"; after T-0031 they come from the display branch, and the file is outside its scope · seen on T-0031 drafting · `apps/desktop/src/main/engine/history.ts:1`
 
 ## Repo checklist
 
