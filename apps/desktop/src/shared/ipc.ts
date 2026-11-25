@@ -28,6 +28,9 @@ export const IpcChannel = {
   DocsRead: "docs:read",
   HistoryGet: "history:get",
   HistoryNight: "history:night",
+  MapGet: "map:get",
+  /** Push channel (main → renderer): requests the map's session cancelled. */
+  MapBlocked: "map:blocked",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -337,3 +340,27 @@ export const HistoryNight = z.object({
   markdown: z.string(),
 });
 export type HistoryNight = z.infer<typeof HistoryNight>;
+
+// Map — the floorplan skill's static map (floorplan/index.html), shown in a
+// webview whose session cancels every request outside floorplan/.
+
+/** The map webview's session, which main guards; the renderer's webview names it. */
+export const MAP_PARTITION = "rivetari-map";
+
+export const MapGetRequest = z.object({ repoPath: z.string().min(1) });
+
+export const MapView = z.object({
+  repoPath: z.string(),
+  /** The repo's floorplan/ directory, whether or not a map is in it. */
+  dir: z.string(),
+  /** file:// URL of floorplan/index.html, or null when there's no map yet. */
+  url: z.string().nullable(),
+});
+export type MapView = z.infer<typeof MapView>;
+
+/** map:blocked push payload — every request cancelled since the map was opened. */
+export const MapBlocked = z.object({
+  repoPath: z.string(),
+  urls: z.array(z.string()),
+});
+export type MapBlocked = z.infer<typeof MapBlocked>;

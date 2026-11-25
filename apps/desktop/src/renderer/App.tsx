@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Checklist } from "@/components/Checklist";
 import { History } from "@/components/History";
 import { Now } from "@/components/Now";
+import { RepoMap } from "@/components/RepoMap";
 import { Settings } from "@/components/Settings";
 import { Tasks } from "@/components/Tasks";
 import { Button } from "@/components/ui/button";
@@ -412,7 +413,8 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "map"}
               >
-                <NotBuiltYet what="The Map" card="T-0012" />
+                {/* key loads the newly selected repo's map (and fences to it). */}
+                <RepoMap key={selectedRepo.path} repoPath={selectedRepo.path} />
               </div>
             )}
           </div>

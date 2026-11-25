@@ -17,6 +17,8 @@ import {
   HistoryRequest,
   HistoryView,
   IpcChannel,
+  MapGetRequest,
+  MapView,
   NowRepoRequest,
   NowSelectRequest,
   NowState,
@@ -35,6 +37,14 @@ import {
 import { APP_ID } from "./app-id";
 import { readChecklist } from "./engine/checklist";
 import { listDocs, readDoc } from "./engine/docs";
+import {
+  attachMapWebview,
+  getMap,
+  guardMapSession,
+  MapFence,
+  MAP_PARTITION,
+  mapRequestAllowed,
+} from "./engine/map";
 import { readHistory, readNight } from "./engine/history";
 import { NowHub } from "./engine/now";
 import { taskDetail, tasksState } from "./engine/tasks";
@@ -81,6 +91,9 @@ if (isDev) {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+/** The map on show, whose floorplan/ is the only place its session may load from. */
+const mapFence = new MapFence();
 
 /** A push that doesn't match the contract is said and dropped, never thrown into the watcher. */
 function push(channel: string, schema: ZodType, payload: unknown): void {
@@ -237,10 +250,20 @@ function createWindow(): void {
     });
   }
 
-  // No view attaches a webview yet (the Map's arrives with its own card), so
-  // every attach is refused.
-  window.webContents.on("will-attach-webview", (event) => {
-    event.preventDefault();
+  // Only the map's webview attaches, on the map's session, loading the map.
+  window.webContents.on(
+    "will-attach-webview",
+    (event, webPreferences, params) => {
+      if (!attachMapWebview({ params, webPreferences }, mapFence.dir))
+        event.preventDefault();
+    },
+  );
+  // The map opens no windows and navigates nowhere outside floorplan/.
+  window.webContents.on("did-attach-webview", (_event, guest) => {
+    guest.setWindowOpenHandler(() => ({ action: "deny" }));
+    guest.on("will-navigate", (navigation, url) => {
+      if (!mapRequestAllowed(url, mapFence.dir)) navigation.preventDefault();
+    });
   });
 
   // Never open a second window in-app; route an allow-listed link to the browser.
@@ -377,6 +400,12 @@ function registerIpcHandlers(): void {
     return readDoc(repoPath, path);
   });
 
+  ipcMain.handle(IpcChannel.MapGet, async (_event, raw: unknown) => {
+    const { repoPath: asked } = MapGetRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return MapView.parse(await mapFence.open(repoPath, getMap));
+  });
+
   ipcMain.handle(IpcChannel.SettingsLoad, async () =>
     SettingsView.parse(await settingsView()),
   );
@@ -401,6 +430,16 @@ app.whenReady().then(
         },
       });
     });
+
+    guardMapSession(
+      session.fromPartition(MAP_PARTITION),
+      () => mapFence.dir,
+      (url) => {
+        const blocked = mapFence.block(url);
+        if (blocked)
+          mainWindow?.webContents.send(IpcChannel.MapBlocked, blocked);
+      },
+    );
 
     // Windows shows an app's notifications only under its app id, the one
     // the installer registers (electron-builder.yml's appId).
