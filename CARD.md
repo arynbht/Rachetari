@@ -1,7 +1,7 @@
 # T-0045 · test(shell): make the real-git and child-process tests reliable on Windows
 
-Status: in progress <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0045 · Held by: builder C (this session)
+Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0045 · Held by: nobody
 Created: 2026-11-25 · Gate: low · Source: `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
 
 ## Why
@@ -12,9 +12,9 @@ Three Windows CI runs hung or timed out today in tests that drive real git or ch
 
 Each one is checked by something that can be run or looked at. No criterion without a check.
 
-- [ ] A1: Before any change, the affected tests' times on Windows are recorded: 20 local runs of `apps/desktop/src/main` and `packages/engine/src/ai/call-limit.test.ts` on `develop`'s code, giving pass count and min, median and max per test for `source.test.ts`, `display-branch.test.ts`, `source-timeout.test.ts` and `call-limit.test.ts`, and per file for the other real-git files (`kit/checklist-file`, `engine/branch-states`, `checklist`, `history`, `now`, `tasks`, `tasks-needs`, `tasks-questions`). The Windows CI times for the same tests are recorded from PR #56 attempt 2 and `develop`'s last green `build-test (windows-latest)` · check: the loop's command and its summary pasted under Evidence (the loop and its summariser stay in the scratchpad, not committed)
-- [ ] A2: The cause is tested. A scratch repro on this machine, one node process with two worker threads, has one thread spawn a short child that exits (`node -e "process.exit(3)"`, and `git log`) while the other spawns a child that lives about 5 s. It records the gap between each short child's `exit` and its `close` over at least 200 spawns. Paste the count of gaps over 1 s, and the same repro with both threads in separate processes. If the repro shows no gap, write that, and A3 still stands on `vitest.config.ts`'s own rule that tests driving real git and child processes run in the single fork · check: the repro's output pasted under Evidence (the script stays in the scratchpad)
-- [ ] A3: `vitest.config.ts` runs `apps/desktop/src/main/**` and `packages/engine/src/ai/call-limit.test.ts` in the single fork (two more `inOneFork(…)` lines in `poolMatchGlobs`), and on win32 its `test.env` sets `RIVETARI_GIT_READ_LIMIT_MS` to 20 000 unless it is already set. `source.ts`'s limits are unchanged: 10 s per read, 60 s per fetch. `source-timeout.test.ts` still sets its own 2 s and passes · check: `git diff origin/develop -- vitest.config.ts` (read); `git diff --stat origin/develop -- apps/desktop/src/main/kit/source.ts` (empty); `pnpm exec vitest run apps/desktop/src/main/kit/source-timeout.test.ts`
+- [x] A1: Before any change, the affected tests' times on Windows are recorded: 20 local runs of `apps/desktop/src/main` and `packages/engine/src/ai/call-limit.test.ts` on `develop`'s code, giving pass count and min, median and max per test for `source.test.ts`, `display-branch.test.ts`, `source-timeout.test.ts` and `call-limit.test.ts`, and per file for the other real-git files (`kit/checklist-file`, `engine/branch-states`, `checklist`, `history`, `now`, `tasks`, `tasks-needs`, `tasks-questions`). The Windows CI times for the same tests are recorded from PR #56 attempt 2 and `develop`'s last green `build-test (windows-latest)` · check: the loop's command and its summary pasted under Evidence (the loop and its summariser stay in the scratchpad, not committed)
+- [x] A2: The cause is tested. A scratch repro on this machine, one node process with two worker threads, has one thread spawn a short child that exits (`node -e "process.exit(3)"`, and `git log`) while the other spawns a child that lives about 5 s. It records the gap between each short child's `exit` and its `close` over at least 200 spawns. Paste the count of gaps over 1 s, and the same repro with both threads in separate processes. If the repro shows no gap, write that, and A3 still stands on `vitest.config.ts`'s own rule that tests driving real git and child processes run in the single fork · check: the repro's output pasted under Evidence (the script stays in the scratchpad)
+- [x] A3: `vitest.config.ts` runs `apps/desktop/src/main/**` and `packages/engine/src/ai/call-limit.test.ts` in the single fork (two more `inOneFork(…)` lines in `poolMatchGlobs`), and on win32 its `test.env` sets `RIVETARI_GIT_READ_LIMIT_MS` to 20 000 unless it is already set. `source.ts`'s limits are unchanged: 10 s per read, 60 s per fetch. `source-timeout.test.ts` still sets its own 2 s and passes · check: `git diff origin/develop -- vitest.config.ts` (read); `git diff --stat origin/develop -- apps/desktop/src/main/kit/source.ts` (empty); `pnpm exec vitest run apps/desktop/src/main/kit/source-timeout.test.ts`
 - [ ] A4: After the change, the same 20-run loop as A1 passes 20 of 20, with min, median and max per test or file as in A1, and no test file changes · check: the loop's summary pasted under Evidence; `git diff --stat origin/develop -- '*.test.ts' 'apps/desktop/test' 'apps/desktop/e2e'` (empty)
 - [ ] A5: `pnpm test`, `pnpm lint`, `pnpm typecheck` and `pnpm --filter @arynbht/rivetari-desktop typecheck` pass locally. On the PR the Ubuntu jobs and `ci` are green. The Windows test shards are reported (they don't gate): each shard's result and the times of the tests named in A1. A red Windows shard is re-run once and both runs are pasted. The Windows shards' wall-clock time is compared with PR #56 attempt 2 · check: the commands' output; `gh pr checks <PR>`; `gh run view <run> --log` for the Windows shards, pasted under Evidence
 
@@ -58,7 +58,10 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Start at A1: run the 20-run timing loop on `develop`'s code before changing anything.
+Blocked on "Questions for me". A1–A3 are done and pushed; the change is in `vitest.config.ts`.
+Once the owner answers: re-run A4's loop (`bash <scratchpad>/loop.sh <dir> 20`, then
+`summarise.js` and `filetimes.js`, all re-creatable from the A1 evidence) on a machine with
+memory to spare, then A5 from the draft PR's Windows shards.
 
 ## Decisions
 
@@ -69,14 +72,20 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The fix for the close-wait: decided for the owner: the real-git desktop tests and `call-limit.test.ts` join the single fork, as `vitest.config.ts` already does for such tests (alternative: settle on `exit` plus a grace in `source.ts` and `call-limit.ts`, a product change, out of scope and parked if A2 confirms).
 - 2026-11-25: Split: decided for the owner: the 0.3 s child-start race in `call-limit.test.ts` goes to a follow-on card. Its fix changes an expected value or the test's helper, which needs the owner. This card stays `low` (alternative: one `needs you` card holding both).
 - 2026-11-25: Gate `low`: one config file plus the card, five criteria, nothing on the stop-and-ask list. No test is edited.
+- 2026-11-25: The timing loop runs with `--coverage.enabled=false`, as CI's test shards do: decided for the owner (alternative: coverage on, which fails the global floor on any subset and slows every run). Per-file times come from the default reporter, because the JSON reporter leaves out `beforeAll` time (A1's first pass, kept in the scratchpad, gave `now.test.ts` 6 ms).
+- 2026-11-25: The new `apps/desktop/src/main/**` fork line also takes in the files develop added since drafting (`fetch-loop`, `live-status`, `now-sections` tests): decided for the owner, since it is the card's own glob (alternative: list the real-git files one by one).
 
 ## Questions for me
 
-None.
+- [ ] A4 stopped at run 2 of 20, and the card says an affected test failing in A4's runs is a stop. Run 1 passed (53 s wall, against a 22–31 s baseline, because the whole subset now runs one file at a time). In run 2, `tasks-needs.test.ts`'s `beforeAll` sat 859 s in the fixture's `git checkout -q main` and then failed, and `history.test.ts`'s fixture failed at `git init -q -b main`. At that moment the machine had 870–921 MB free of 32 GB, and Claude Code then killed the loop for low memory and asked that it not be restarted. Failing in `git init` inside the fixture looks like the machine, not the change, but I can't show that. What next? — Recommended: re-run A4's 20 runs when the machine has memory to spare (no other builders running tests), and treat run 2 as void if those 20 pass. Options: accept CI's Windows shards on the draft PR as A4's evidence instead of a local loop; re-run A4 with 10 runs; hold the card.
 
 ## Parked
 
 - 2026-11-25 [tool] `call-limit.test.ts` gives its hanging node child 0.3 s (0.005 min; the tree test 0.6 s) to start and write its pid before the kill. On a loaded Windows runner node starts later than that: "the child never wrote its pid" (PR #56, run 45704718735 attempt 2, `a budget ends the call in flight…`, 6077 ms). Follow-on card, `needs you`: raise the limits to 0.05 min together with the expected `minutes` and message (recommended), or take the pid from `spawn` instead of the child's file · seen on T-0045 drafting · `packages/engine/src/ai/call-limit.test.ts`
+- 2026-11-25 [product] A2 confirms the inherited-pipe wait: on Windows a child's `close` can wait ~5 s on an unrelated child started from another thread (94 of 400 in one process, none across two). `git()` in `source.ts` and `spawnWithLimit` in `call-limit.ts` settle on `close`, so in the shell a read beside a fetch could hit its limit the same way. Fix: settle on `exit` plus a short wait for the pipes · seen on T-0045 · `apps/desktop/src/main/kit/source.ts`, `packages/engine/src/ai/call-limit.ts`
+- 2026-11-25 [tool] `source-timeout.test.ts › a git read that hangs…` failed on PR #60 (run 45710215889 attempt 1) with "expected 0 to be greater than 0": under load the 2 s read limit ran out before git's lazy fetch reached the silent remote, so `connections` was 0. The single fork lightens the load but doesn't remove the race; a fix (a longer test limit, or not asserting a connection) changes the test, so it needs the owner · seen on T-0045 · `apps/desktop/src/main/kit/source-timeout.test.ts`
+- 2026-11-25 [tool] `kit-fixture.ts`'s `execFileSync("git", …)` has no timeout, so a git that stalls in a fixture holds a `beforeAll` far past `hookTimeout` (859 s in A4's run 2) · seen on T-0045 · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-25 [tool] A background loop that Claude Code killed for low memory left its bash shell and vitest running, and the shell went on starting runs; this session killed them by pid · seen on T-0045 · Claude Code background shells on Windows
 
 ## Done
 
