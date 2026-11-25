@@ -87,16 +87,6 @@ export default tseslint.config(
   // size then plus room (complexity +2, lines +50) so it can't grow. Each names
   // the Next up line that will shrink it; delete the block when that lands.
   {
-    // Shrink Tasks.tsx under the lint limits (1356 lines).
-    files: ["apps/desktop/src/renderer/components/Tasks.tsx"],
-    rules: { "max-lines": maxLines(1406) },
-  },
-  {
-    // Shrink TaskRecord (Tasks.tsx) under the lint limits (complexity 35).
-    files: ["apps/desktop/src/renderer/components/Tasks.tsx"],
-    rules: { complexity: ["error", 37] },
-  },
-  {
     // Shrink tier2.ts under the lint limits (961 lines).
     files: ["packages/runtime/src/judge/tier2.ts"],
     rules: { "max-lines": maxLines(1011) },
