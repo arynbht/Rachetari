@@ -1,7 +1,7 @@
 # T-0051 · feat(shell): CI state part 2, a CI badge per card
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0051 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0051 · Held by: session-T-0051
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Shell: CI state; BACKLOG Next up line 6 · Gate: low
 
 ## Why
