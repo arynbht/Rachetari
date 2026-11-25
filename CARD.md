@@ -1,7 +1,7 @@
 # T-0032 · feat(shell): the Tasks board, its columns and the selected-card list
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0032 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0032 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 2: layout and columns, §Tasks overhaul: the owner's pick (2026-11-25), §Tasks overhaul 1: design only · Gate: needs you
 
 ## Why
