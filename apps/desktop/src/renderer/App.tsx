@@ -415,6 +415,7 @@ export function App() {
                   key={selectedRepo.path}
                   repoPath={selectedRepo.path}
                   focus={tasksFocus}
+                  onOpenHistory={() => showView("history")}
                 />
               </div>
             )}
