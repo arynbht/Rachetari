@@ -14,6 +14,7 @@ import {
   type NightCounts,
   parseBacklog,
   parseCard,
+  parseChecklist,
   parseNight,
   parseSkills,
   type SkillRow,
@@ -418,14 +419,25 @@ export async function readLiveCards(
   return cards.sort((a, b) => a.branch.localeCompare(b.branch));
 }
 
-/** The backlog on the display branch, or null when there is none. */
+/**
+ * The backlog on the display branch, or null when there is none. Its
+ * checklist comes from CHECKLIST.md when the branch has one, else from
+ * BACKLOG.md's "Repo checklist" (a repo /setup hasn't moved yet).
+ */
 export async function readBacklog(
   repo: string,
   display?: DisplayBranch | null,
 ): Promise<Backlog | null> {
   const { ref } = await shown(repo, display);
-  const text = await show(repo, ref, "BACKLOG.md");
-  return text === null ? null : parseBacklog(text);
+  const [text, checklist] = await Promise.all([
+    show(repo, ref, "BACKLOG.md"),
+    show(repo, ref, "CHECKLIST.md"),
+  ]);
+  if (text === null) return null;
+  const backlog = parseBacklog(text);
+  return checklist === null
+    ? backlog
+    : { ...backlog, checklist: parseChecklist(checklist) };
 }
 
 export interface DoneCard {
