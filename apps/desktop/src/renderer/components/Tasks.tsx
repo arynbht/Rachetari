@@ -13,6 +13,7 @@ import type {
   TaskItem,
   TasksState,
 } from "../../shared/ipc";
+import { DisplayBranchLine } from "./DisplayBranch";
 
 // The tab shows where each card stands, as a board by status or as a list,
 // and one card in full: what it is for, its criteria, what it may touch, its
@@ -607,6 +608,7 @@ export function Tasks({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold">Tasks</h2>
+          <DisplayBranchLine display={state?.display} />
           <p className="text-xs text-muted-foreground">
             Every card where it stands, on this machine&apos;s branches and the
             remote&apos;s, with the backlog&apos;s &quot;Next up&quot;. Pick one
