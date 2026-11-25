@@ -1,7 +1,7 @@
 # T-0016 · test: give tests a longer timeout on Windows
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0016 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0016 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: owner, after PR #30's Windows test timeout
 
 ## Why
@@ -17,9 +17,10 @@ records how long the test really takes on Windows.
 
 Each one is checked by something that can be run or looked at. No criterion without a check.
 
-- [ ] A1: On Windows, `testTimeout` and `hookTimeout` are 90 s; elsewhere they stay 30 s · check: read `vitest.config.ts`, and `node -e` printing the resolved values under `process.platform` win32 and linux
-- [ ] A2: How long the fetch test takes on Windows is recorded: 20 local runs (min, median, max) and its time in this PR's Windows CI shard · check: the loop's output and the CI log line, pasted under Evidence
-- [ ] A3: Tests, lint and typecheck pass locally, and `ci` is green on the PR, Ubuntu and Windows · check: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `gh pr checks`
+- [ ] A1: How long the fetch test takes on Windows is recorded first: 20 local runs (min, median, max) and its time in this PR's Windows CI shard · check: the loop's output and the CI log line, pasted under Evidence
+- [ ] A2: Only if A1 shows the test slow but finishing: `testTimeout` and `hookTimeout` are 90 s on Windows and stay 30 s elsewhere. If A1 shows it normally finishes well under 30 s, the timeout is left alone, the hang is parked with what was seen, and the session stops and tells the owner · check: A1's numbers, and `git diff main -- vitest.config.ts`
+- [ ] A3: "Next up" in `BACKLOG.md` lists only work not yet done; the PR body lists every line removed · check: read `BACKLOG.md` and the PR body
+- [ ] A4: Tests, lint and typecheck pass locally, and `ci` is green on the PR, Ubuntu and Windows · check: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `gh pr checks`
 
 ## Files in scope
 
@@ -56,7 +57,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Owner marks this `ready`; then change `vitest.config.ts` and run the A2 loop.
+Run A1's 20-run loop of the fetch test on Windows, then decide A2 from its numbers.
 
 ## Decisions
 
@@ -65,6 +66,8 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The timeout is set once in `vitest.config.ts` for win32, not per test file — owner's choice when the card was drafted; it touches no test.
 - 2026-11-25: `hookTimeout` too, not only `testTimeout` — the kit-fixture tests build their git repos in `beforeAll`.
 - 2026-11-25: Id T-0016, not T-0014 — T-0014 is the shelved GitHub sign-in card (S-16).
+- 2026-11-25: Owner set ready with a change: measure first; raise the timeout only if the test is slow but finishing, else park the hang and stop.
+- 2026-11-25: Owner: remove the already-done lines from "Next up" in this card and list them in the PR body.
 
 ## Questions for me
 
@@ -81,5 +84,7 @@ Appended by the session, one line each, newest last.
 ### Evidence
 
 ```
-Waiting on the owner (wall clock): /card question 17:36:17 → 17:40:00 UTC (3 min 43 s)
+Waiting on the owner (wall clock, UTC):
+  /card question   17:36:17 → 17:40:00   3 min 43 s
+  draft → ready    17:40:35 → 17:42:06   1 min 31 s
 ```
