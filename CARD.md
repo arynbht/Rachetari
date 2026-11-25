@@ -1,6 +1,6 @@
 # T-0029 · feat(kit): a checklist by section, drawn from the old catalog
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0029 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4g (part 1 of 2) · Gate: needs you
 
@@ -161,11 +161,17 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Per-section counts, decided for the owner: step 4 prints them, and step 7's report (T-0027's) isn't touched. Alternative: add them to step 7 after T-0027 merges.
 - 2026-11-25: Checks, decided for the owner: one local headless `/setup` trial on the kit-trial scratch repo, run twice (about $0.50 a run, going by the kit trial). The deliverable is prose, so only a run shows it works. Alternative: reading checks only.
 - 2026-11-25: Base, on the foreman's word: `develop` replaces `day/2026-11-25`. The card merges `origin/develop`, and its PR targets `develop`.
+- 2026-11-25: Owner (19:47:11): mapping confirmed; per-line stage tags are owner-editable and kept by /setup on a re-run (make sure the rewritten steps say so); part 2 runs straight after this card, before 4h; reinstalling the kit for part 2 approved. Set ready by the foreman.
 
 ## Questions for me
 
-- [ ] Map the nine old phases onto the four stages as follows? scaffold → foundation (CI, lint, lockfile and README are what Foundation means). discovery → building (brief, risk register and build-vs-buy are the spec that Building works through; a sound repo shouldn't stay at Foundation over a document). requirements → building (stories, NFRs and out-of-scope are the spec and backlog). design → building (tokens, breakpoints and states are set while features are built). architecture → building (ADRs, diagrams and IaC are decided while features are built). build → building (same stage). harden → hardening (same stage). launch → hardening (privacy policy, terms, load test and go/no-go must pass before going live, so they close in Hardening). operate → live (on-call, dashboards, runbooks and restore drills only mean something once deployed). That gives 22 foundation, 51 building, 31 hardening and 7 live — Recommended: yes, as listed. Options: launch → live; discovery → foundation; per-control overrides as a stage column in `sections.md`.
-- [ ] Approve the card as drafted (part 1 of 2, part 2 after §4h)? — Recommended: yes. Options: one card for all of §4g; hold.
+- [x] Map the nine old phases onto the four stages as follows? scaffold → foundation (CI, lint, lockfile and README are what Foundation means). discovery → building (brief, risk register and build-vs-buy are the spec that Building works through; a sound repo shouldn't stay at Foundation over a document). requirements → building (stories, NFRs and out-of-scope are the spec and backlog). design → building (tokens, breakpoints and states are set while features are built). architecture → building (ADRs, diagrams and IaC are decided while features are built). build → building (same stage). harden → hardening (same stage). launch → hardening (privacy policy, terms, load test and go/no-go must pass before going live, so they close in Hardening). operate → live (on-call, dashboards, runbooks and restore drills only mean something once deployed). That gives 22 foundation, 51 building, 31 hardening and 7 live — Recommended: yes, as listed. Options: launch → live; discovery → foundation; per-control overrides as a stage column in `sections.md`.
+- [x] Approve the card as drafted (part 1 of 2, part 2 after §4h)? — Recommended: yes. Options: one card for all of §4g; hold.
+
+Owner, 19:47:11:
+
+1. Yes, the mapping as recommended. Each line in CHECKLIST.md keeps its own stage tag, which the owner can edit, and /setup keeps those edits on a re-run; that covers per-control overrides without a separate column.
+2. Yes, two parts, with one change of order: part 2 runs straight after part 1, before 4h, so the shell is built against this repo's real CHECKLIST.md and not only a fixture. Reinstalling the kit on this machine for part 2 is approved.
 
 ## Done
 
@@ -179,6 +185,7 @@ Appended by the session, one line each, newest last.
 
 ```
 Waiting on the owner (wall clock, UTC):
+  questions        19:44:55 → 19:47:11   2 min 16 s
   draft 19:36:10 →
 
 Drafting: A1's check script was tried on a scratch sections.md generated from
