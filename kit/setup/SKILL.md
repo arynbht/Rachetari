@@ -38,13 +38,21 @@ Notes from me: $ARGUMENTS
 
 ## 3. Draft the fit files
 
-Only if they're missing. Read the code and write down what it already does, not what it
-should do: `DESIGN.md` (tokens, components, layout and naming patterns) and
-`CONSTRAINTS.md` (dependencies policy, error handling, test style, what must not
-change). Mark each one you write `Status: draft, written by /setup` at the top.
+Only if they're missing, with one exception: the `## Slop` section below. Read the code
+and write down what it already does, not what it should do: `DESIGN.md` (tokens,
+components, layout and naming patterns) and `CONSTRAINTS.md` (dependencies policy, error
+handling, test style, what must not change). Mark each one you write `Status: draft,
+written by /setup` at the top.
 
 Write `DESIGN.md` only when the repo has UI. Without UI, skip it: don't write a
 placeholder or a "no UI" version, and say in your report that you skipped it and why.
+
+End every `CONSTRAINTS.md` you write with the `## Slop` section from
+`templates/CONSTRAINTS-slop.md`, copied as it is: its lines are defaults for me to edit
+for this repo. When `CONSTRAINTS.md` already exists without a `## Slop` heading, show me
+the section appended to it as a diff and wait for my yes, as for `CLAUDE.md`. If nobody
+is there to answer, write the section alone to `CONSTRAINTS.kit.md` beside it and say
+so. Never change a `CONSTRAINTS.md` that already has a `## Slop` heading.
 
 ## 4. Build the checklist
 
