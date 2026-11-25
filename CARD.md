@@ -1,7 +1,7 @@
 # T-0053 · feat(shell): mark ready as a previewed plain commit
 
-Status: ready
-Branch: card/T-0053 · Held by: nobody
+Status: in progress
+Branch: card/T-0053 · Held by: builder session T-0053
 Created: 2026-11-25 · Source: docs/queue-2026-11-25.md §Shell action: mark ready · Gate: needs you (new IPC channels and a first write path from the shell; not a standing pre-approval because the shell has never written before)
 
 ## Why
@@ -46,13 +46,17 @@ The shell only reads. Phase 7's first action is "mark ready": flip a draft card 
 
 ## Next step
 
-Owner approves the gate and the split; then set Status to ready.
+Waiting for the test lock: code, tests, lint and typecheck are in. Run `pnpm --filter desktop test card-commit`, tick A1-A4, done check, draft PR.
 
 ## Decisions
 
 - 2026-11-25: Decided for the owner: this card is the shared write path plus mark-ready channels, no UI (alternative: one card with the button, which would exceed five files).
 - 2026-11-25: Decided for the owner: T-0054 imports `card-commit.ts` from here and runs after this card (alternative: T-0054 builds it first).
 - 2026-11-25: Owner approved the gate and the split, 2026-11-25, with the write-path conditions: show the diff before every write, refuse when Held by names anyone, never move a branch ref under a worktree, push fast-forward only, and a test for each refusal.
+- 2026-11-25: Decided for the owner: card-commit.ts runs its own small git runner, since the helper in kit/source.ts is unexported and read-only and that file is out of scope (alternative: export it, a one-line change in another card).
+- 2026-11-25: Decided for the owner: apply must be handed the diff the person was shown and refuses if the card has since changed (alternative: apply without the check).
+- 2026-11-25: Decided for the owner: the handler logic lives in card-commit.ts as markReadyHandlers, because main/index.ts is at the 500-line lint limit (alternative: raise the limit, a lint change).
+- 2026-11-25: Decided for the owner: a card with no local branch is refused (alternative: create the local branch from origin).
 
 ## Questions for me
 

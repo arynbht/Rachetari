@@ -6,6 +6,10 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import {
   ChecklistRequest,
+  MarkReadyApplyRequest,
+  MarkReadyPreview,
+  MarkReadyPreviewRequest,
+  MarkReadyResult,
   ChecklistView,
   DocContent,
   DocList,
@@ -212,6 +216,25 @@ const api = {
         request,
       );
       return DocContent.parse(raw);
+    },
+  },
+
+  card: {
+    /** The diff mark ready would commit, or why it can't; writes nothing. */
+    async markReadyPreview(repoPath: string, branch: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardMarkReadyPreview,
+        MarkReadyPreviewRequest.parse({ repoPath, branch }),
+      );
+      return MarkReadyPreview.parse(raw);
+    },
+    /** Commit and push the diff the person was shown, or refuse and say why. */
+    async markReadyApply(repoPath: string, branch: string, diff: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardMarkReadyApply,
+        MarkReadyApplyRequest.parse({ repoPath, branch, diff }),
+      );
+      return MarkReadyResult.parse(raw);
     },
   },
 

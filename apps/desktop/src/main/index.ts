@@ -47,6 +47,7 @@ import {
   TasksState,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
+import { markReadyHandlers } from "./engine/card-commit";
 import { readChecklist } from "./engine/checklist";
 import { listDocs, readDoc } from "./engine/docs";
 import { FETCH_INTERVAL_MS, FetchLoop } from "./engine/fetch-loop";
@@ -535,6 +536,14 @@ function registerIpcHandlers(): void {
       await taskDetail(repoPath, nowHub.snapshot(repoPath), key),
     );
   });
+
+  const markReadyIpc = markReadyHandlers(registered);
+  ipcMain.handle(IpcChannel.CardMarkReadyPreview, (_e, raw: unknown) =>
+    markReadyIpc.preview(raw),
+  );
+  ipcMain.handle(IpcChannel.CardMarkReadyApply, (_e, raw: unknown) =>
+    markReadyIpc.apply(raw),
+  );
 
   ipcMain.handle(IpcChannel.ChecklistGet, async (_event, raw: unknown) => {
     const { repoPath: asked } = ChecklistRequest.parse(raw);
