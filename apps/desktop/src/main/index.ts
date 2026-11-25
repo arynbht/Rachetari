@@ -40,6 +40,7 @@ import {
   RepoRemoveRequest,
   SettingsSaveRequest,
   SettingsView,
+  ShellStatus,
   TaskDetail,
   TaskDetailRequest,
   TasksRequest,
@@ -48,6 +49,7 @@ import {
 import { APP_ID } from "./app-id";
 import { readChecklist } from "./engine/checklist";
 import { listDocs, readDoc } from "./engine/docs";
+import { FETCH_INTERVAL_MS, FetchLoop } from "./engine/fetch-loop";
 import {
   attachMapWebview,
   getMap,
@@ -58,6 +60,7 @@ import {
 } from "./engine/map";
 import { readHistory, readNight } from "./engine/history";
 import { readHome } from "./engine/home";
+import { liveStatus, type LiveStatus } from "./engine/live-status";
 import { itemKey, NowHub } from "./engine/now";
 import { taskDetail, tasksState } from "./engine/tasks";
 import { fetchRepo } from "./kit/source";
@@ -205,8 +208,67 @@ const nowHub = new NowHub({
   onGone: withdrawNotice,
 });
 
+/**
+ * How long after a background fetch settles the next one starts; the env var
+ * is for the e2e only (as T-0024's git limits are).
+ */
+function fetchIntervalMs(): number {
+  const set = Number(process.env.RIVETARI_FETCH_INTERVAL_MS);
+  return Number.isFinite(set) && set > 0 ? set : FETCH_INTERVAL_MS;
+}
+
+/** Every sidebar repo fetched in the background, beside the NowHub (see engine/fetch-loop). */
+const fetchLoop = new FetchLoop({
+  fetch: fetchRepo,
+  intervalMs: fetchIntervalMs(),
+  onChange: () => pushShellStatus(),
+});
+
+/** The repo on show, as `now:select` last named it. */
+let shownRepo: string | null = null;
+/** The live shell's status as last read, null when not live. */
+let live: LiveStatus | null = null;
+
+/** The header's status: the live shell, and the repo on show's fetch. */
+function shellStatus(): ShellStatus {
+  return {
+    live,
+    fetch: shownRepo === null ? null : fetchLoop.state(shownRepo),
+  };
+}
+
+function pushShellStatus(): void {
+  push(IpcChannel.ShellStatusUpdate, ShellStatus, shellStatus());
+}
+
+/** The live status is read every 2 s while the window is open, when live. */
+const LIVE_STATUS_MS = 2000;
+let liveTimer: ReturnType<typeof setTimeout> | null = null;
+/** Bumped on each start and stop, so a read that lands late starts nothing. */
+let liveRun = 0;
+
+/** Read the live status now and every 2 s after each read settles; told on a change. */
+function readLiveStatus(run: number): void {
+  liveTimer = null;
+  void liveStatus().then((read) => {
+    if (run !== liveRun) return;
+    if (JSON.stringify(read) !== JSON.stringify(live)) {
+      live = read;
+      pushShellStatus();
+    }
+    liveTimer = setTimeout(() => readLiveStatus(run), LIVE_STATUS_MS);
+  });
+}
+
+function stopLiveStatus(): void {
+  liveRun += 1;
+  if (liveTimer) clearTimeout(liveTimer);
+  liveTimer = null;
+}
+
 /** Watch exactly these repos (the sidebar's list); a failure is said, not thrown. */
 function watchRepos(repos: { path: string }[]): void {
+  fetchLoop.setRepos(repos.map((r) => r.path));
   nowHub
     .setRepos(repos.map((r) => r.path))
     .catch((err: unknown) =>
@@ -301,8 +363,14 @@ function createWindow(): void {
   window.on("closed", () => {
     if (mainWindow === window) mainWindow = null;
     void nowHub.stop();
+    fetchLoop.stop();
+    stopLiveStatus();
   });
   watchSidebarRepos();
+  if (process.env.RIVETARI_LIVE_STATUS) {
+    stopLiveStatus();
+    readLiveStatus(liveRun);
+  }
 
   // Show as soon as the first paint is ready; in E2E show immediately so a slow or
   // non-painting headless renderer can't keep the window (and Playwright) waiting.
@@ -415,7 +483,8 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle(IpcChannel.ReposFetch, async (_event, raw: unknown) => {
     const { repoPath: asked } = RepoFetchRequest.parse(raw);
-    await fetchRepo(await registered(asked));
+    // Through the loop: joins a background fetch that runs, never a second.
+    await fetchLoop.fetchNow(await registered(asked));
   });
 
   ipcMain.handle(IpcChannel.HomeGet, async () =>
@@ -439,8 +508,14 @@ function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.NowSelect, async (_event, raw: unknown) => {
     const { repoPath: asked } = NowSelectRequest.parse(raw);
     const repoPath = asked === null ? null : await registered(asked);
+    shownRepo = repoPath;
+    pushShellStatus();
     await nowHub.select(repoPath);
   });
+
+  ipcMain.handle(IpcChannel.ShellStatus, () =>
+    ShellStatus.parse(shellStatus()),
+  );
 
   ipcMain.handle(IpcChannel.TasksGet, async (_event, raw: unknown) => {
     const { repoPath: asked } = TasksRequest.parse(raw);
