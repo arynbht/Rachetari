@@ -49,6 +49,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] The old skill scan matches hook declarations but not hook-installer code or remote scripts in HTML (hallmark, skill-creator); reading each body caught them · seen on T-0005 · `SHELVED.md` S-12, S-13
 - 2026-11-25 [tool] `r28-forged-marker.test.ts` timed out at 30 s once in a full run that took 391 s (machine under load); alone it takes under 1 s and the rerun passed in 27 s · seen on T-0006 · `pnpm test`
 - 2026-11-25 [product] The sidebar's empty text still says "Add a local folder to audit it" and the title still says "Rivetari" · seen on T-0006 · `apps/desktop/src/renderer/App.tsx`
+- 2026-11-25 [product] The Docs list shows "No Markdown docs found under docs/ or .rivetari/" while still loading, and names fewer folders than it searches (known gap, carried over) · seen on T-0011 · `apps/desktop/src/renderer/components/Docs.tsx`
+- 2026-11-25 [product] `docs:read` replies aren't zod-checked in main (carried over from the source) · seen on T-0011 · `apps/desktop/src/main/index.ts`
 
 ## Repo checklist
 

@@ -54,7 +54,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy the files verbatim, then cut.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
@@ -62,6 +62,8 @@ Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
 - 2026-11-25: Docs keeps its `.rivetari/**/*.md` glob: dropping it would change a kept feature, and the owner's rule takes the smallest cut that keeps behaviour
+- 2026-11-25: The e2e test caught a bug of this card's own: the night-date regex lost its backslashes when written by a script; fixed before commit
+- 2026-11-25: Docs renders task-list checkboxes without labels (axe critical); a fix changes a kept component, so it is shelved (S-18, #28) with a test.fixme in its place
 
 ## Questions for me
 
