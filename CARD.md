@@ -1,7 +1,7 @@
 # T-0049 · chore(agents): drafter, builder and inspector subagent definitions
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0049 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0049 · Held by: builder (this session)
 Created: 2026-11-25 · Source: owner, 2026-11-25 (models per role) · Gate: needs you (agent config)
 
 ## Why
