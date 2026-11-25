@@ -1,7 +1,7 @@
 # T-0035 · feat(shell): the Tasks record header and its tabs
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0035 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0035 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 3: record header and tabs, §Tasks overhaul: the owner's pick (2026-11-25), §Tasks overhaul 1: design only · Gate: needs you
 
 ## Why
