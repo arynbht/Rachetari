@@ -22,7 +22,9 @@
 6. **Leave a resume point.** Before the session ends, rewrite the card's "Next step",
    append any decision to "Decisions", then commit and push the card's branch. Unpushed
    work doesn't exist for the other machine. Use `/handoff` to release the card.
-7. **Never merge, never push to the default branch.** Work on a branch, open a draft PR.
+7. **Never merge, never push to the integration branch or the default branch.** The
+   integration branch is `develop` (or its like) when the repo has one, else the default
+   branch. Cut the card's branch from it and open a draft PR against it.
 8. **Tool problems are not this session's work.** If a tool (Rivetari, the shell, CI) gets
    in the way, work around it, park it with `[tool]`, and continue.
 

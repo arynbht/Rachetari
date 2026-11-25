@@ -129,7 +129,8 @@ Everything the kit knows is a file in the repo, so git is the transport. No serv
 sync service, no shared state outside the repo.
 
 - **A live card lives on its own branch.** `CARD.md` is committed only on `card/<id>`,
-  never on the default branch. Two machines on two cards never touch the same file.
+  never on `develop` or the default branch. Two machines on two cards never touch the
+  same file.
 - **The branch name is the claim.** `/card` pushes `card/<id>` as soon as it picks an id.
   If the push is refused because the branch exists, it takes the next id.
 - **One machine holds a card at a time.** The card's `Held by:` line names the machine. A
@@ -148,6 +149,22 @@ What does not travel: the chat history of a session, uncommitted or git-ignored 
 local env files, installed dependencies, and each machine's sign-ins. The card's "Next
 step", "Decisions" and "Evidence" are the memory; if it isn't written there, the other
 machine doesn't know it.
+
+**Branches**
+
+`develop` is the standing integration branch; `main` is the default branch.
+
+- Card branches are cut from `develop`, their draft PRs target it, and passed cards are
+  merged into it.
+- Next up, Parked and `docs/open-questions.md` live on `develop`, pushed after every
+  change.
+- A ruleset on `develop` blocks force-push and deletion.
+- `ci` runs on every push to `develop`. If it goes red, no more cards are merged until a
+  card that fixes it lands.
+- Changes reach `main` only by a `develop` → `main` PR, opened when I ask for it. I merge
+  it.
+- `main` takes changes only through a PR with `ci` passing, and the rule binds admins
+  too.
 
 ## Done tests
 
