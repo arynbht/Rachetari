@@ -92,6 +92,20 @@ export type SettingsSaveRequest = z.infer<typeof SettingsSaveRequest>;
 // health of the repo, what waits on the owner, the cards in progress, and
 // what just happened. The watcher pushes a new state on every change.
 export const NowRepoRequest = z.object({ repoPath: z.string().min(1) });
+
+/**
+ * The branch the shell shows a repo's kit files from: `develop`, from the
+ * newer of local `develop` and `origin/develop`, else the default branch.
+ */
+export const DisplayBranch = z.object({
+  /** What the header names: "develop", or the default branch, e.g. "main". */
+  name: z.string(),
+  /** The ref it was read from, e.g. refs/heads/develop. */
+  ref: z.string(),
+  /** Local develop and origin/develop have diverged: local is shown. */
+  diverged: z.boolean(),
+});
+export type DisplayBranch = z.infer<typeof DisplayBranch>;
 export const NowSelectRequest = z.object({
   repoPath: z.string().min(1).nullable(),
 });
@@ -203,6 +217,12 @@ export const NowState = z.object({
   questions: z.array(NowQuestionGroup),
   running: z.array(NowRunning),
   recent: z.array(RecentEvent),
+  /**
+   * The branch it was read from, null before the first read. Optional in the
+   * type only, so a NowState built by hand without it still checks; the
+   * engine always sets it.
+   */
+  display: DisplayBranch.nullable().optional(),
 });
 export type NowState = z.infer<typeof NowState>;
 
@@ -257,6 +277,19 @@ export const TaskItem = z.object({
   unreadable: z.boolean(),
   /** Where it was read: a card branch, cards/done/, or "Next up" in BACKLOG.md. */
   source: z.enum(["card", "done", "next-up"]),
+  /**
+   * What it waits on the owner for, from the same items as Now's Needs you
+   * (matched by branch): empty when nothing waits on the owner.
+   */
+  needs: z.array(
+    z.object({
+      kind: NeedsYouItem.shape.kind,
+      /** Short, for the board: "Needs your approval", "1 open question". */
+      label: z.string(),
+      /** Exactly what to do, and where, as Needs you says it. */
+      todo: z.string(),
+    }),
+  ),
 });
 export type TaskItem = z.infer<typeof TaskItem>;
 
@@ -265,6 +298,8 @@ export const TasksState = z.object({
   ready: z.boolean(),
   error: z.string().nullable(),
   items: z.array(TaskItem),
+  /** The branch it was read from, null before the first read. */
+  display: DisplayBranch.nullable(),
 });
 export type TasksState = z.infer<typeof TasksState>;
 
@@ -311,15 +346,16 @@ export const TaskDetail = z.object({
 });
 export type TaskDetail = z.infer<typeof TaskDetail>;
 
-// Checklist — the repo checklist in BACKLOG.md on the default branch: the
-// stage and what decides it, and each line with its status and its check, as
-// /setup last recorded them. Read on demand; nothing here runs a check.
+// Checklist — the repo checklist on the display branch, from CHECKLIST.md
+// (by section) or else BACKLOG.md's "Repo checklist" (by stage): the stage and
+// what decides it, and each line with its status and its check, as /setup last
+// recorded them. Read on demand; nothing here runs a check.
 export const ChecklistStatus = z.enum(["pass", "fail", "unchecked", "n/a"]);
 export type ChecklistStatus = z.infer<typeof ChecklistStatus>;
 
 export const ChecklistView = z.object({
   repoPath: z.string(),
-  /** Whether the default branch has a BACKLOG.md at all. */
+  /** Whether the display branch has a BACKLOG.md at all. */
   hasBacklog: z.boolean(),
   stage: z.string().nullable(),
   stageWhy: z.string().nullable(),
@@ -333,10 +369,20 @@ export const ChecklistView = z.object({
           status: ChecklistStatus,
           check: z.string().nullable(),
           isNew: z.boolean(),
+          /** The catalog id (CHECKLIST.md only), or null. */
+          id: z.string().nullable(),
+          /** The `stage:` tag (CHECKLIST.md only), or null. */
+          stage: z.string().nullable(),
         }),
       ),
+      /** Why the whole section doesn't apply (CHECKLIST.md only), or null. */
+      na: z.string().nullable(),
     }),
   ),
+  /** The branch it was read from, null before the first read. */
+  display: DisplayBranch.nullable(),
+  /** The file the checklist was read from: CHECKLIST.md, else BACKLOG.md. */
+  source: z.enum(["CHECKLIST.md", "BACKLOG.md"]).nullable(),
 });
 export type ChecklistView = z.infer<typeof ChecklistView>;
 

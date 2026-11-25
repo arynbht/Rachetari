@@ -3,8 +3,10 @@
 // looked up by the key the board gave it, never by a path the renderer sends,
 // so a record can only be read from the repo's own cards. Nothing here writes.
 import type { KitSnapshot } from "../kit/watch";
+import { needsYouItems } from "./now";
 import { cardRef, readCardCommits, readDoneCard } from "../kit/source";
 import type {
+  NeedsYouItem,
   TaskColumn,
   TaskDetail,
   TaskItem,
@@ -30,8 +32,39 @@ export function columnOf(status: string, pr: number | null): TaskColumn {
   }
 }
 
+/** What a Needs you item says on the board, in a few words. */
+function needLabel(item: NeedsYouItem, snapshot: KitSnapshot): string {
+  switch (item.kind) {
+    case "approve":
+      return "Needs your approval";
+    case "question": {
+      const card = snapshot.cards.find((c) => c.branch === item.branch)?.card;
+      const open = card?.questions.filter((q) => q.open).length ?? 0;
+      return open === 0
+        ? "Blocked, no question written"
+        : `${open} open question${open === 1 ? "" : "s"}`;
+    }
+    case "merge":
+      return "PR to merge";
+    case "unreadable":
+      return "Can't be read";
+    case "held":
+      return "Held overnight";
+  }
+}
+
 /** Every card in the repo, in board order within each column. */
 export function taskItems(snapshot: KitSnapshot): TaskItem[] {
+  // What waits on the owner, as Now's Needs you lists it, by branch.
+  const waiting = needsYouItems(snapshot);
+  const needsOf = (branch: string): TaskItem["needs"] =>
+    waiting
+      .filter((n) => n.branch === branch)
+      .map((n) => ({
+        kind: n.kind,
+        label: needLabel(n, snapshot),
+        todo: n.todo,
+      }));
   const nextUp = (snapshot.backlog?.nextUp ?? []).map((line, i): TaskItem => ({
     key: `next-up:${i + 1}`,
     id: `Next up ${i + 1}`,
@@ -44,6 +77,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
     pr: null,
     unreadable: false,
     source: "next-up",
+    needs: [],
   }));
   const live = snapshot.cards.map((c): TaskItem =>
     c.card
@@ -59,6 +93,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
           pr: c.card.pr,
           unreadable: false,
           source: "card",
+          needs: needsOf(c.branch),
         }
       : c.drafting
         ? {
@@ -73,6 +108,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
             pr: null,
             unreadable: false,
             source: "card",
+            needs: needsOf(c.branch),
           }
         : {
             key: `branch:${c.branch}`,
@@ -86,6 +122,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
             pr: null,
             unreadable: true,
             source: "card",
+            needs: needsOf(c.branch),
           },
   );
   // A card whose branch is still live is shown from its branch, not twice.
@@ -104,6 +141,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
       pr: d.pr,
       unreadable: d.status === "unreadable",
       source: "done",
+      needs: [],
     }));
   return [...nextUp, ...live, ...done];
 }
@@ -114,7 +152,13 @@ export function tasksState(
   ready: boolean,
   error: string | null,
 ): TasksState {
-  return { repoPath, ready, error, items: taskItems(snapshot) };
+  return {
+    repoPath,
+    ready,
+    error,
+    items: taskItems(snapshot),
+    display: snapshot.display,
+  };
 }
 
 /** One card in full: the card, and the commits on its branch (or to its done file). */
@@ -136,12 +180,12 @@ export async function taskDetail(
 
   if (item.source === "done") {
     const path = key.slice("done:".length);
-    const card = await readDoneCard(repoPath, path);
+    const card = await readDoneCard(repoPath, path, snapshot.display);
     return {
       item,
       card,
       error: card ? null : `unreadable: ${path} isn't a card`,
-      commits: await readCardCommits(repoPath, { path }),
+      commits: await readCardCommits(repoPath, { path }, 50, snapshot.display),
     };
   }
 
@@ -152,6 +196,8 @@ export async function taskDetail(
     item,
     card: live.card,
     error: live.card || live.drafting ? null : (live.error ?? "unreadable"),
-    commits: ref ? await readCardCommits(repoPath, { ref }) : [],
+    commits: ref
+      ? await readCardCommits(repoPath, { ref }, 50, snapshot.display)
+      : [],
   };
 }

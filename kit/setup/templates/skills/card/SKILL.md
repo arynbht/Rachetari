@@ -14,8 +14,9 @@ Request: $ARGUMENTS
 4. Ask me one question at a time until every acceptance criterion has a check that can be
    run or looked at. Stop asking as soon as that's true.
 5. Fetch, pick the next id not used by any `card/*` branch or file in `cards/`, create
-   branch `card/<id>` from the default branch and push it at once. If the push is refused
-   because the branch exists, take the next id and try again.
+   branch `card/<id>` from the integration branch (`develop` or its like; the default
+   branch when there is none) and push it at once. If the push is refused because the
+   branch exists, take the next id and try again.
    Write `CARD.md` on that branch from the template in `cards/TEMPLATE.md`. Fill
    "Out of scope" with the two or three adjacent things most likely to tempt a session.
    Under "Skills", propose at most three from `skills/INDEX.md` that match the files and

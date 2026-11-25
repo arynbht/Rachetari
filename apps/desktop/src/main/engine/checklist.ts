@@ -1,10 +1,12 @@
-// Checklist adapter: the repo checklist in BACKLOG.md on the default branch,
-// read fresh each time it's asked for (Reload reads it again). Read-only.
-import { readBacklog } from "../kit/source";
+// Checklist adapter: the repo checklist on the display branch, from
+// CHECKLIST.md or else BACKLOG.md's "Repo checklist", read fresh each time
+// it's asked for (Reload reads it again). Read-only.
+import { displayBranch, readBacklog } from "../kit/source";
 import type { ChecklistView } from "../../shared/ipc";
 
 export async function readChecklist(repoPath: string): Promise<ChecklistView> {
-  const backlog = await readBacklog(repoPath);
+  const display = await displayBranch(repoPath);
+  const backlog = await readBacklog(repoPath, display);
   const checklist = backlog?.checklist;
   return {
     repoPath,
@@ -13,5 +15,7 @@ export async function readChecklist(repoPath: string): Promise<ChecklistView> {
     stageWhy: checklist?.stageWhy ?? null,
     lastSetup: checklist?.lastSetup ?? null,
     groups: checklist?.groups ?? [],
+    display,
+    source: checklist?.source ?? null,
   };
 }
