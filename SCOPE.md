@@ -88,8 +88,8 @@ and a report.
 
 **During the night, per card**
 
-1. A fresh session on the card's branch, rebased onto the night branch `night/<date>`, in
-   its own worktree, with the card held by this machine. The session gets the card and the rules, nothing else.
+1. A fresh session on the card's branch, with the night branch `night/<date>` merged into
+   it (never rebased), in its own worktree, with the card held by this machine. The session gets the card and the rules, nothing else.
 2. One build. When it stops, the runner (not the agent) runs the card's checks, the
    repo's tests, lint and typecheck, and compares the diff against "Files in scope"
    (the card and the backlog aside).
@@ -105,7 +105,11 @@ and a report.
 
 - Nothing is pushed to or merged into the default branch. I merge in the morning.
 - Any stop-and-ask trigger (dependency, schema, auth, existing test, lint or CI config)
-  holds the card. Nothing is decided on my behalf.
+  holds the card. A small question is decided and logged, as by day: if it is reversible,
+  stays inside the card's files in scope and touches nothing on the stop-and-ask list,
+  the session takes its recommended answer and writes it under the card's Decisions as
+  "decided for the owner", with the alternative. The morning report lists every such
+  decision.
 - Per card: a time cap and one fix attempt. Per night: a card cap, a time cap, and stop
   when the usage limit is hit. First nights are capped at three cards.
 - The session's credentials can push only to its own branches.
@@ -213,7 +217,9 @@ Not built, not extended, not fixed:
    done test showing it would save my time.
 2. Tool work and product work never share a session. A tool problem found during product
    work gets a workaround and a `[tool]` line in `BACKLOG.md`.
-3. No more than two build sessions at once by day. Night mode runs cards one after another.
+3. By day, the line runs at most three builders; one builder runs a chain of dependent
+   cards. Night mode runs one card at a time until a six-card night meets the
+   "Parallel night cards" condition.
 4. This file is reviewed once a week, not mid-session.
 
 ## Later, each only after it's measured
