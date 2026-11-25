@@ -17,15 +17,14 @@ Ordered. The top line becomes the next `CARD.md`.
 9. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
 10. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
 11. Timeouts on the shell's git calls (T-0024): `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
-12. Questions panel on Now (T-0026, read-only half): one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
-13. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-14. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-15. (paused) Clean code 2 (T-0025): the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
-16. (paused) Clean code 1b (T-0027): `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
-17. (paused) Kit and scope: `SCOPE.md` and the kit's CLAUDE.md section describe `develop` · from `docs/queue-2026-11-25.md` §Kit and scope: describe develop
-18. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
-19. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-20. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
+12. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+13. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+14. (paused) Clean code 2 (T-0025): the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
+15. (paused) Clean code 1b (T-0027): `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
+16. (paused) Kit and scope: `SCOPE.md` and the kit's CLAUDE.md section describe `develop` · from `docs/queue-2026-11-25.md` §Kit and scope: describe develop
+17. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
+18. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
+19. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
@@ -73,12 +72,16 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] `BACKLOG.md merge=union` suits the append-only Parked list but stacks an ordered, renumbered list like Next up; Next up may need its own file · seen on T-0017 · `.gitattributes`
 - 2026-11-25 [product] Needs you runs several questions for one card together on one line; each question should be its own row · seen on the line · `apps/desktop/src/main/engine/now.ts`
 - 2026-11-25 [product] The Docs viewer's ☑ draws as a colour emoji on Windows (Segoe UI Emoji picks it up), while ☐ stays a plain text glyph, so ticked and unticked boxes differ in size and colour; a U+FE0E text selector or a font choice would even them · seen on T-0020 · `apps/desktop/src/renderer/lib/markdown.ts`
+- 2026-11-25 [tool] `skills/INDEX.md`'s "Used on a real task" column cites Rivetari's card ids (`animate`: "routed on T-0026, abandoned before build"), which collide with this repo's own ids · seen on T-0026 · `skills/INDEX.md`
 - 2026-11-25 [product] An empty `Gate:` (no value) parses as null and raises nothing, though a gate line is written; it arguably should ask, like any gate that is not `low` · seen on T-0019 inspection · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] `playwright-cli` suggests an unpinned global install, `npm install -g @playwright/cli@latest`, when the CLI is missing; a pinned version installed ahead of time would keep runs reproducible · seen on T-0022 · `skills/testing/playwright-cli/SKILL.md:415`
 - 2026-11-25 [product] `playwright-cli` bootstraps a missing Playwright install with the unpinned scaffolder `npm init playwright@latest` · seen on T-0022 · `skills/testing/playwright-cli/references/test-generation.md:159`
 - 2026-11-25 [tool] GitHub ignores `BACKLOG.md merge=union`, so a card PR whose Parked lines meet the day branch's shows CONFLICTING though `git merge-tree` and the foreman's local merge are clean (PR #37) · seen on the line · `.gitattributes`
+- 2026-11-25 [product] The parser reads only a question's first line, so a question written over several lines (T-0020's numbered options) loses its options in Needs you and the Questions panel · seen on T-0026 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `- [ ] None.` (T-0017) is read as an open question; only `(none)` and `<…>` are skipped as placeholders · seen on T-0026 · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
 - 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
+- 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- questions.e2e.ts` runs the whole e2e suite, not the one file: pnpm passes the `--` on to `playwright test` as an argument; `pnpm --filter … exec playwright test questions.e2e.ts` (after a build) runs one · seen on T-0026 · `apps/desktop/package.json`
 
 ## Repo checklist
 
