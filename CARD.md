@@ -1,6 +1,6 @@
 # T-0054 · feat(shell): answer questions from the Questions panel
 
-Status: draft
+Status: ready
 Branch: card/T-0054 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Questions panel: answers · Gate: needs you (new IPC channels and a write from the shell; owner has not approved)
 
@@ -52,10 +52,11 @@ Owner approves the gate; after T-0053 merges, set ready.
 
 - 2026-11-25: Split by the coordinator: T-0053 is the shared write path; this card is the answer channels and logic; the Now.tsx buttons and e2e are a follow-up UI card, not drafted.
 - 2026-11-25: Decided for the owner: the answer is written as a line under the ticked question (alternative: replace the "Recommended:" line).
+- 2026-11-25: Owner approved the gate, 2026-11-25, after T-0053, with the write-path conditions: show the diff before every write, refuse when Held by names anyone, never move a branch ref under a worktree, push fast-forward only, and a test for each refusal.
 
 ## Questions for me
 
-- [ ] Approve the gate (new IPC channels and write)? — Recommended: approve, after T-0053. Options: keep the shell read-only.
+- [x] Approve the gate (new IPC channels and write)? — Recommended: approve, after T-0053. Options: keep the shell read-only.
 
 ## Done
 
