@@ -63,16 +63,12 @@ export function RepoMap({ repoPath }: { repoPath: string }) {
         <p className="text-sm text-muted-foreground">Looking for the map…</p>
       ) : view && view.url === null ? (
         <Card className="space-y-2 p-4 text-sm">
-          <p className="font-medium">No map for this repository yet.</p>
-          <p className="text-muted-foreground">
-            Rivetari draws one when the repo&apos;s profile has{" "}
-            <code>floorplan: true</code>: at <code>rivetari init</code>, and
-            again each time a task&apos;s PR is merged and the task is closed.
+          <p className="font-medium">
+            No map has been drawn for this repository yet.
           </p>
-          <p className="text-xs text-muted-foreground">
-            {view.floorplanOn
-              ? "The profile has floorplan on; the map appears after the next init or merged close."
-              : "The profile doesn't have floorplan on. Turning it on is a change to .rivetari/profile.yml."}
+          <p className="text-muted-foreground">
+            The tab shows <code>floorplan/index.html</code> as soon as the repo
+            has one.
           </p>
         </Card>
       ) : view?.url ? (

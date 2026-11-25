@@ -1,6 +1,5 @@
 // Map adapter: the floorplan skill's static map of the repo (floorplan/index.html,
-// drawn at init and on a merged close when the profile has `floorplan: true`),
-// shown in a <webview> on its own session. The map's server (serve.mjs) is the
+// whenever the repo has one), shown in a <webview> on its own session. The map's server (serve.mjs) is the
 // only part of floorplan that reaches the network and is never started; the page
 // itself still has buttons that would ("Notify me" posts to the waitlist), so
 // the map's session cancels every request that isn't a file inside that repo's
@@ -12,10 +11,10 @@ import { access } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { loadProfile } from "@arynbht/rivetari-engine";
-import { FLOORPLAN_DIR, isFloorplanMap } from "@arynbht/rivetari-runtime";
-
 import { MAP_PARTITION, type MapView } from "../../shared/ipc";
+
+/** Where the floorplan skill draws its map, at the repo's root. */
+const FLOORPLAN_DIR = "floorplan";
 
 // The map's session (in memory only, shared by nothing else in the app) is named in
 // the IPC contract so the renderer's webview names the same one.
@@ -94,18 +93,11 @@ const exists = (path: string) =>
 export async function getMap(repoPath: string): Promise<MapView> {
   const dir = join(repoPath, FLOORPLAN_DIR);
   const index = join(dir, "index.html");
-  const ready = (await isFloorplanMap(dir)) && (await exists(index));
-  let floorplanOn = false;
-  try {
-    floorplanOn = (await loadProfile(repoPath))?.floorplan === true;
-  } catch {
-    // An unreadable profile reads as off; the empty state says how to turn it on.
-  }
+  const ready = await exists(index);
   return {
     repoPath,
     dir,
     url: ready ? pathToFileURL(index).href : null,
-    floorplanOn,
   };
 }
 
