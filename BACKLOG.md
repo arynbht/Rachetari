@@ -68,6 +68,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] A draft with no `Gate:` line raises nothing in Needs you; the kit's `/card` and `cards/TEMPLATE.md` don't write a gate yet · seen on T-0019 · `kit/setup/templates/CARD.md`
 - 2026-11-25 [tool] `BACKLOG.md merge=union` suits the append-only Parked list but stacks an ordered, renumbered list like Next up; Next up may need its own file · seen on T-0017 · `.gitattributes`
 - 2026-11-25 [product] Needs you runs several questions for one card together on one line; each question should be its own row · seen on the line · `apps/desktop/src/main/engine/now.ts`
+- 2026-11-25 [product] The Docs viewer's ☑ draws as a colour emoji on Windows (Segoe UI Emoji picks it up), while ☐ stays a plain text glyph, so ticked and unticked boxes differ in size and colour; a U+FE0E text selector or a font choice would even them · seen on T-0020 · `apps/desktop/src/renderer/lib/markdown.ts`
 
 ## Repo checklist
 
