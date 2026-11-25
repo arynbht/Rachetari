@@ -20,7 +20,12 @@
     evidence: "$ pnpm test -> 3 passed",
     questions: [],
     criteria: [
-      { id: "A1", text: "The thing works", state: "unticked", check: "pnpm test" },
+      {
+        id: "A1",
+        text: "The thing works",
+        state: "unticked",
+        check: "pnpm test",
+      },
     ],
   };
 
@@ -28,7 +33,9 @@
     const c = Object.assign({}, defaults, spec);
     c.key = c.id;
     c.branch = c.branch === undefined ? "card/" + c.id : c.branch;
-    c.why = c.unreadable ? "" : "Because " + c.title.toLowerCase() + " is missing.";
+    c.why = c.unreadable
+      ? ""
+      : "Because " + c.title.toLowerCase() + " is missing.";
     return c;
   }
 
@@ -43,7 +50,13 @@
       gate: "needs you",
       where: "local only",
       updated: "2026-11-24 09:41",
-      commits: [{ at: "2026-11-24 09:41", subject: "chore(card): T-0004", author: "Fixture" }],
+      commits: [
+        {
+          at: "2026-11-24 09:41",
+          subject: "chore(card): T-0004",
+          author: "Fixture",
+        },
+      ],
     }),
     card({
       id: "T-0003",
@@ -56,11 +69,25 @@
       where: "checked out",
       updated: "2026-11-24 16:12",
       criteria: [
-        { id: "A1", text: "A CSV downloads", state: "ticked", check: "pnpm test" },
-        { id: "A2", text: "Commas are quoted", state: "unticked", check: "pnpm test" },
+        {
+          id: "A1",
+          text: "A CSV downloads",
+          state: "ticked",
+          check: "pnpm test",
+        },
+        {
+          id: "A2",
+          text: "Commas are quoted",
+          state: "unticked",
+          check: "pnpm test",
+        },
       ],
       commits: [
-        { at: "2026-11-24 16:12", subject: "feat: the CSV button", author: "Fixture" },
+        {
+          at: "2026-11-24 16:12",
+          subject: "feat: the CSV button",
+          author: "Fixture",
+        },
       ],
     }),
     card({
@@ -76,7 +103,13 @@
         // Added for the prototype (A7): the fixture's card has one question.
         { text: "Round the totals row too, or only each line?", open: true },
       ],
-      commits: [{ at: "2026-11-23 18:05", subject: "chore(card): T-0005", author: "Fixture" }],
+      commits: [
+        {
+          at: "2026-11-23 18:05",
+          subject: "chore(card): T-0005",
+          author: "Fixture",
+        },
+      ],
     }),
     card({
       id: "T-0006",
@@ -89,7 +122,13 @@
       where: "local only",
       updated: "2026-11-24 10:02",
       nextStep: null,
-      commits: [{ at: "2026-11-24 10:02", subject: "chore(card): T-0006", author: "Fixture" }],
+      commits: [
+        {
+          at: "2026-11-24 10:02",
+          subject: "chore(card): T-0006",
+          author: "Fixture",
+        },
+      ],
     }),
   ];
 
@@ -111,7 +150,9 @@
       nextStep: null,
       updated: at,
       merged: at.slice(0, 10),
-      criteria: criteria || [{ id: "A1", text: "It works", state: "ticked", check: "pnpm test" }],
+      criteria: criteria || [
+        { id: "A1", text: "It works", state: "ticked", check: "pnpm test" },
+      ],
       commits: [{ at, subject: "chore: the kit", author: "Fixture" }],
     });
   }
@@ -122,7 +163,12 @@
       { id: "A1", text: "It builds", state: "ticked", check: "pnpm test" },
     ]),
     done("T-0002", "feat: add the report page", 2, "2026-11-21 15:20", [
-      { id: "A1", text: "The page renders", state: "ticked", check: "pnpm test" },
+      {
+        id: "A1",
+        text: "The page renders",
+        state: "ticked",
+        check: "pnpm test",
+      },
       { id: "A2", text: "It's fast", state: "untested", check: "pnpm test" },
     ]),
   ];
@@ -151,12 +197,18 @@
 
   function doneCards(n) {
     const extra = [];
-    for (let i = 0; i < Math.max(0, n - fixtureDone.length) && i < madeUp.length; i++) {
+    for (
+      let i = 0;
+      i < Math.max(0, n - fixtureDone.length) && i < madeUp.length;
+      i++
+    ) {
       const num = 7 + i;
       const day = 22 + Math.floor(i / 6);
       const hour = 9 + (i % 6);
       const at = "2026-11-" + day + " " + String(hour).padStart(2, "0") + ":15";
-      extra.push(done("T-" + String(num).padStart(4, "0"), madeUp[i], num + 1, at));
+      extra.push(
+        done("T-" + String(num).padStart(4, "0"), madeUp[i], num + 1, at),
+      );
     }
     // Newest first, as the Done rail lists them.
     return fixtureDone.concat(extra).reverse();

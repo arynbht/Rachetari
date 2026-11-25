@@ -324,17 +324,14 @@
           focusTab: false,
         };
 
-        const visibleLive = () =>
-          state.needsMe ? live.filter(needsMe) : live;
+        const visibleLive = () => (state.needsMe ? live.filter(needsMe) : live);
         const visibleDone = () =>
           state.needsMe ? [] : done.slice(0, DONE_SHOWN);
 
         /** Every card in the list's order: by stage, then the latest done. */
         function listOrder() {
           const cards = visibleLive();
-          return GROUPS.flatMap((g) => inGroup(cards, g)).concat(
-            visibleDone(),
-          );
+          return GROUPS.flatMap((g) => inGroup(cards, g)).concat(visibleDone());
         }
 
         function open(key) {
@@ -427,7 +424,11 @@
               { class: "flex items-center justify-between gap-2" },
               h("span", { class: "font-mono text-muted-foreground" }, c.id),
               c.heldBy &&
-                h("span", { class: "truncate text-muted-foreground" }, c.heldBy),
+                h(
+                  "span",
+                  { class: "truncate text-muted-foreground" },
+                  c.heldBy,
+                ),
             ),
             h("span", { class: "line-clamp-2 text-sm font-medium" }, c.title),
             r &&
@@ -444,10 +445,14 @@
                 {
                   class:
                     "flex items-center gap-1 " +
-                    (c.column === "pr" ? "text-sky-300" : "text-muted-foreground"),
+                    (c.column === "pr"
+                      ? "text-sky-300"
+                      : "text-muted-foreground"),
                 },
                 icon("git-pull-request", "h-3.5 w-3.5"),
-                c.column === "pr" ? "PR #" + c.pr + " waiting to merge" : "Draft PR #" + c.pr,
+                c.column === "pr"
+                  ? "PR #" + c.pr + " waiting to merge"
+                  : "Draft PR #" + c.pr,
               ),
           );
         }
@@ -493,7 +498,10 @@
                 !state.nextOpen &&
                   h(
                     "span",
-                    { class: "min-w-0 flex-1 truncate font-normal text-muted-foreground" },
+                    {
+                      class:
+                        "min-w-0 flex-1 truncate font-normal text-muted-foreground",
+                    },
                     "First: " + nextUp[0],
                   ),
               ),
@@ -517,10 +525,16 @@
             },
             h(
               "div",
-              { class: "flex items-baseline justify-between gap-2 px-3 pb-1 pt-2" },
+              {
+                class:
+                  "flex items-baseline justify-between gap-2 px-3 pb-1 pt-2",
+              },
               h(
                 "h3",
-                { id: "rail-done", class: "flex items-baseline gap-2 text-xs font-semibold" },
+                {
+                  id: "rail-done",
+                  class: "flex items-baseline gap-2 text-xs font-semibold",
+                },
                 "Done",
                 h(
                   "span",
@@ -566,10 +580,27 @@
                         "flex w-full items-baseline gap-3 rounded-md px-2 py-1 text-left text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       onclick: () => open(c.key),
                     },
-                    h("span", { class: "w-14 shrink-0 font-mono text-muted-foreground" }, c.id),
+                    h(
+                      "span",
+                      {
+                        class: "w-14 shrink-0 font-mono text-muted-foreground",
+                      },
+                      c.id,
+                    ),
                     h("span", { class: "min-w-0 flex-1 truncate" }, c.title),
-                    h("span", { class: "shrink-0 tabular-nums text-muted-foreground" }, "PR #" + c.pr),
-                    h("span", { class: "w-20 shrink-0 text-right tabular-nums text-muted-foreground" }, c.merged),
+                    h(
+                      "span",
+                      { class: "shrink-0 tabular-nums text-muted-foreground" },
+                      "PR #" + c.pr,
+                    ),
+                    h(
+                      "span",
+                      {
+                        class:
+                          "w-20 shrink-0 text-right tabular-nums text-muted-foreground",
+                      },
+                      c.merged,
+                    ),
                   ),
                 ),
               ),
@@ -579,11 +610,20 @@
 
         function board() {
           const cards = visibleLive();
-          if (!state.boardFocus || !cards.some((c) => c.key === state.boardFocus))
-            state.boardFocus = cards.length ? GROUPS.flatMap((g) => inGroup(cards, g))[0].key : null;
+          if (
+            !state.boardFocus ||
+            !cards.some((c) => c.key === state.boardFocus)
+          )
+            state.boardFocus = cards.length
+              ? GROUPS.flatMap((g) => inGroup(cards, g))[0].key
+              : null;
           const grid = h(
             "div",
-            { "data-board": "", class: "grid grid-cols-5 gap-2", onkeydown: boardKeys },
+            {
+              "data-board": "",
+              class: "grid grid-cols-5 gap-2",
+              onkeydown: boardKeys,
+            },
             GROUPS.map((g) => {
               const all = inGroup(live, g);
               const headingId = "stage-" + g.id;
@@ -591,21 +631,30 @@
                 "section",
                 {
                   "aria-labelledby": headingId,
-                  class: "flex min-w-0 flex-col" + (g.columns.length > 1 ? " col-span-2" : ""),
+                  class:
+                    "flex min-w-0 flex-col" +
+                    (g.columns.length > 1 ? " col-span-2" : ""),
                 },
                 h(
                   "h3",
                   {
                     id: headingId,
                     "data-stage": g.id,
-                    class: "mb-1.5 flex items-center justify-between gap-2 px-1 text-xs font-semibold",
+                    class:
+                      "mb-1.5 flex items-center justify-between gap-2 px-1 text-xs font-semibold",
                   },
                   g.label,
                   load(all.length, g.limit),
                 ),
                 h(
                   "div",
-                  { class: "flex-1 " + (g.columns.length > 1 ? "grid grid-cols-2 gap-2" : "flex flex-col") },
+                  {
+                    class:
+                      "flex-1 " +
+                      (g.columns.length > 1
+                        ? "grid grid-cols-2 gap-2"
+                        : "flex flex-col"),
+                  },
                   g.columns.map((col) => {
                     const here = inColumn(cards, col.id);
                     return h(
@@ -619,9 +668,16 @@
                       g.columns.length > 1 &&
                         h(
                           "h4",
-                          { class: "flex justify-between text-xs text-muted-foreground" },
+                          {
+                            class:
+                              "flex justify-between text-xs text-muted-foreground",
+                          },
                           col.label,
-                          h("span", { class: "tabular-nums" }, String(inColumn(live, col.id).length)),
+                          h(
+                            "span",
+                            { class: "tabular-nums" },
+                            String(inColumn(live, col.id).length),
+                          ),
                         ),
                       here.length
                         ? h(
@@ -629,7 +685,11 @@
                             { class: "space-y-2" },
                             here.map((c) => h("li", null, boardCard(c))),
                           )
-                        : h("p", { class: "text-xs text-muted-foreground" }, "None"),
+                        : h(
+                            "p",
+                            { class: "text-xs text-muted-foreground" },
+                            "None",
+                          ),
                     );
                   }),
                 ),
@@ -662,7 +722,8 @@
         }
 
         function boardKeys(e) {
-          const key = e.target.getAttribute && e.target.getAttribute("data-key");
+          const key =
+            e.target.getAttribute && e.target.getAttribute("data-key");
           if (!key) return;
           const cols = boardColumns();
           const ci = cols.findIndex((col) => col.includes(key));
@@ -685,7 +746,10 @@
           state.boardFocus = target;
           const grid = e.currentTarget;
           grid.querySelectorAll("[data-card]").forEach((b) => {
-            b.setAttribute("tabindex", b.getAttribute("data-key") === target ? "0" : "-1");
+            b.setAttribute(
+              "tabindex",
+              b.getAttribute("data-key") === target ? "0" : "-1",
+            );
           });
           grid.querySelector('[data-key="' + target + '"]').focus();
         }
@@ -694,7 +758,10 @@
         function list(wide) {
           const cards = visibleLive();
           const order = listOrder().map((c) => c.key);
-          const rovingKey = state.selected && order.includes(state.selected) ? state.selected : order[0];
+          const rovingKey =
+            state.selected && order.includes(state.selected)
+              ? state.selected
+              : order[0];
           function row(c) {
             const current = c.key === state.selected;
             const r = reason(c);
@@ -712,34 +779,68 @@
                   tabindex: c.key === rovingKey ? "0" : "-1",
                   class:
                     "flex w-full min-w-0 flex-col rounded-md px-2 py-1 text-left text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
-                    (current ? "bg-accent text-accent-foreground" : "hover:bg-accent/40"),
+                    (current
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-accent/40"),
                   onclick: () => open(c.key),
                   onkeydown: (e) => {
                     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
                     e.preventDefault();
-                    const i = order.indexOf(c.key) + (e.key === "ArrowDown" ? 1 : -1);
+                    const i =
+                      order.indexOf(c.key) + (e.key === "ArrowDown" ? 1 : -1);
                     if (i >= 0 && i < order.length) open(order[i]);
                   },
                 },
                 h(
                   "span",
                   { class: "flex w-full min-w-0 items-baseline gap-2" },
-                  h("span", { class: "w-12 shrink-0 font-mono text-muted-foreground" }, c.id),
+                  h(
+                    "span",
+                    { class: "w-12 shrink-0 font-mono text-muted-foreground" },
+                    c.id,
+                  ),
                   h("span", { class: "min-w-0 flex-1 truncate" }, c.title),
-                  !wide && r && h("span", { class: "h-1.5 w-1.5 shrink-0 self-center rounded-full " + (c.unreadable ? "bg-rose-400" : "bg-amber-400"), "aria-hidden": "true" }),
+                  !wide &&
+                    r &&
+                    h("span", {
+                      class:
+                        "h-1.5 w-1.5 shrink-0 self-center rounded-full " +
+                        (c.unreadable ? "bg-rose-400" : "bg-amber-400"),
+                      "aria-hidden": "true",
+                    }),
                   !wide && r && h("span", { class: "sr-only" }, ", " + r.text),
                 ),
                 wide &&
                   h(
                     "span",
-                    { class: "flex gap-2 pl-14 text-muted-foreground" },
-                    c.column === "done"
-                      ? "merged " + c.merged + ", PR #" + c.pr
-                      : [c.status, c.heldBy ? "held by " + c.heldBy : null].filter(Boolean).join(", "),
-                    r && h("span", { class: "font-medium " + r.tone }, r.text),
+                    { class: "flex min-w-0 gap-2 pl-14 text-muted-foreground" },
+                    meta(c) &&
+                      h("span", { class: "min-w-0 truncate" }, meta(c)),
+                    r &&
+                      h(
+                        "span",
+                        {
+                          class:
+                            "shrink-0 whitespace-nowrap font-medium " + r.tone,
+                        },
+                        r.text,
+                      ),
                   ),
               ),
             );
+          }
+          /** The wide list's second line: what the group heading doesn't say. */
+          function meta(c) {
+            return c.column === "done"
+              ? "merged " + c.merged + ", PR #" + c.pr
+              : [
+                  c.column === "draft" || c.column === "ready"
+                    ? c.status
+                    : null,
+                  c.heldBy ? "held by " + c.heldBy : null,
+                ]
+                  .filter(Boolean)
+                  .join(", ");
           }
           function group(id, label, count, items) {
             return h(
@@ -750,12 +851,15 @@
                 {
                   id: "list-" + id,
                   "data-stage": id,
-                  class: "flex items-center justify-between gap-2 px-2 pt-2 text-xs font-semibold",
+                  class:
+                    "flex items-center justify-between gap-2 px-2 pt-2 text-xs font-semibold",
                 },
                 label,
                 count,
               ),
-              items.length ? h("ul", { class: "space-y-0.5" }, items.map(row)) : null,
+              items.length
+                ? h("ul", { class: "space-y-0.5" }, items.map(row))
+                : null,
             );
           }
           return h(
@@ -763,16 +867,30 @@
             {
               "aria-label": "Cards",
               "data-list": "",
-              class: "min-h-0 space-y-1 overflow-y-auto rounded-lg border border-border/60 bg-background/40 p-1",
+              class:
+                "min-h-0 space-y-1 overflow-y-auto rounded-lg border border-border/60 bg-background/40 p-1",
             },
             !state.needsMe &&
               h(
                 "p",
-                { class: "flex justify-between px-2 pt-2 text-xs font-semibold" },
+                {
+                  class: "flex justify-between px-2 pt-2 text-xs font-semibold",
+                },
                 "Next up",
-                h("span", { class: "font-normal tabular-nums text-muted-foreground" }, String(nextUp.length)),
+                h(
+                  "span",
+                  { class: "font-normal tabular-nums text-muted-foreground" },
+                  String(nextUp.length),
+                ),
               ),
-            GROUPS.map((g) => group(g.id, g.label, load(inGroup(live, g).length, g.limit), inGroup(cards, g))),
+            GROUPS.map((g) =>
+              group(
+                g.id,
+                g.label,
+                load(inGroup(live, g).length, g.limit),
+                inGroup(cards, g),
+              ),
+            ),
             !state.needsMe &&
               group(
                 "done",
@@ -785,7 +903,8 @@
                     "a",
                     {
                       href: "#history",
-                      class: "rounded text-sky-400 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      class:
+                        "rounded text-sky-400 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       onclick: (e) => e.preventDefault(),
                     },
                     "History",
@@ -799,13 +918,21 @@
         function field(label, value, wide) {
           return [
             h("dt", { class: "text-muted-foreground" }, label),
-            h("dd", { class: "min-w-0 break-words" + (wide ? " col-span-3" : "") }, value),
+            h(
+              "dd",
+              { class: "min-w-0 break-words" + (wide ? " col-span-3" : "") },
+              value,
+            ),
           ];
         }
 
         function bullets(items, none) {
           return items.length
-            ? h("ul", { class: "list-disc space-y-0.5 pl-5 text-xs" }, items.map((s) => h("li", { class: "break-words" }, s)))
+            ? h(
+                "ul",
+                { class: "list-disc space-y-0.5 pl-5 text-xs" },
+                items.map((s) => h("li", { class: "break-words" }, s)),
+              )
             : h("p", { class: "text-xs text-muted-foreground" }, none);
         }
 
@@ -814,15 +941,28 @@
           unticked: "border-border text-muted-foreground",
           untested: "border-amber-500/50 text-amber-300",
         };
-        const STATE_LABEL = { ticked: "ticked", unticked: "unticked", untested: "UNTESTED" };
+        const STATE_LABEL = {
+          ticked: "ticked",
+          unticked: "unticked",
+          untested: "UNTESTED",
+        };
 
         function part(title, body) {
-          return h("section", { class: "space-y-1.5" }, h("h4", { class: "text-xs font-semibold" }, title), body);
+          return h(
+            "section",
+            { class: "space-y-1.5" },
+            h("h4", { class: "text-xs font-semibold" }, title),
+            body,
+          );
         }
 
         function cardPanel(c) {
           if (c.unreadable)
-            return h("p", { class: "text-xs text-muted-foreground" }, "Nothing to show until the card can be read.");
+            return h(
+              "p",
+              { class: "text-xs text-muted-foreground" },
+              "Nothing to show until the card can be read.",
+            );
           return h(
             "div",
             { class: "space-y-4" },
@@ -843,13 +983,30 @@
                   h(
                     "li",
                     { class: "flex items-start gap-2 text-xs" },
-                    h("span", { class: "shrink-0 rounded border px-1.5 py-0.5 text-[11px] " + STATE_CLASS[k.state] }, STATE_LABEL[k.state]),
+                    h(
+                      "span",
+                      {
+                        class:
+                          "shrink-0 rounded border px-1.5 py-0.5 text-[11px] " +
+                          STATE_CLASS[k.state],
+                      },
+                      STATE_LABEL[k.state],
+                    ),
                     h(
                       "span",
                       { class: "min-w-0 flex-1 break-words" },
-                      h("span", { class: "font-mono text-muted-foreground" }, k.id),
+                      h(
+                        "span",
+                        { class: "font-mono text-muted-foreground" },
+                        k.id,
+                      ),
                       " " + k.text,
-                      h("span", { class: "block text-muted-foreground" }, "check: ", h("code", null, k.check)),
+                      h(
+                        "span",
+                        { class: "block text-muted-foreground" },
+                        "check: ",
+                        h("code", null, k.check),
+                      ),
                     ),
                   ),
                 ),
@@ -869,8 +1026,19 @@
 
         function evidencePanel(c) {
           return c.unreadable || !c.evidence
-            ? h("p", { class: "text-xs text-muted-foreground" }, "No evidence written yet.")
-            : h("pre", { class: "overflow-auto whitespace-pre-wrap rounded-md bg-background/60 p-3 text-xs" }, c.evidence);
+            ? h(
+                "p",
+                { class: "text-xs text-muted-foreground" },
+                "No evidence written yet.",
+              )
+            : h(
+                "pre",
+                {
+                  class:
+                    "overflow-auto whitespace-pre-wrap rounded-md bg-background/60 p-3 text-xs",
+                },
+                c.evidence,
+              );
         }
 
         function commitsPanel(c) {
@@ -880,7 +1048,9 @@
             h(
               "p",
               { class: "text-xs text-muted-foreground" },
-              c.column === "done" ? "That touched its file." : "On its branch, not on the default branch.",
+              c.column === "done"
+                ? "That touched its file."
+                : "On its branch, not on the default branch.",
             ),
             h(
               "ol",
@@ -889,8 +1059,23 @@
                 h(
                   "li",
                   { class: "flex gap-3" },
-                  h("span", { class: "w-28 shrink-0 tabular-nums text-muted-foreground" }, k.at),
-                  h("span", { class: "min-w-0 flex-1 break-words" }, k.subject, h("span", { class: "ml-1 text-muted-foreground" }, "(" + k.author + ")")),
+                  h(
+                    "span",
+                    {
+                      class: "w-28 shrink-0 tabular-nums text-muted-foreground",
+                    },
+                    k.at,
+                  ),
+                  h(
+                    "span",
+                    { class: "min-w-0 flex-1 break-words" },
+                    k.subject,
+                    h(
+                      "span",
+                      { class: "ml-1 text-muted-foreground" },
+                      "(" + k.author + ")",
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -907,7 +1092,8 @@
           const i = TABS.findIndex((t) => t.id === state.tab);
           let next = i;
           if (e.key === "ArrowRight") next = (i + 1) % TABS.length;
-          else if (e.key === "ArrowLeft") next = (i - 1 + TABS.length) % TABS.length;
+          else if (e.key === "ArrowLeft")
+            next = (i - 1 + TABS.length) % TABS.length;
           else if (e.key === "Home") next = 0;
           else if (e.key === "End") next = TABS.length - 1;
           else return;
@@ -922,25 +1108,79 @@
           if (c.unreadable)
             return h(
               "section",
-              { role: "note", "aria-label": "Can't be read", class: "rounded-md border border-rose-500/50 bg-rose-500/10 p-3 text-xs" },
-              h("p", { class: "flex items-center gap-1.5 text-sm font-semibold text-rose-300" }, icon("circle-alert", "h-4 w-4"), "CARD.md can't be read"),
-              h("p", { class: "mt-1" }, "The CARD.md on " + c.branch + " isn't in the card template's layout. Fix it on the branch and the board reads it again."),
+              {
+                role: "note",
+                "aria-label": "Can't be read",
+                class:
+                  "rounded-md border border-rose-500/50 bg-rose-500/10 p-3 text-xs",
+              },
+              h(
+                "p",
+                {
+                  class:
+                    "flex items-center gap-1.5 text-sm font-semibold text-rose-300",
+                },
+                icon("circle-alert", "h-4 w-4"),
+                "CARD.md can't be read",
+              ),
+              h(
+                "p",
+                { class: "mt-1" },
+                "The CARD.md on " +
+                  c.branch +
+                  " isn't in the card template's layout. Fix it on the branch and the board reads it again.",
+              ),
             );
           if (awaitsApproval(c))
             return h(
               "section",
-              { role: "note", "aria-label": "Needs your approval", class: "rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs" },
-              h("p", { class: "text-sm font-semibold text-amber-300" }, "Needs your approval"),
-              h("p", { class: "mt-1" }, "Its gate is \u201cneeds you\u201d: it stays a draft until you mark it ready."),
+              {
+                role: "note",
+                "aria-label": "Needs your approval",
+                class:
+                  "rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs",
+              },
+              h(
+                "p",
+                { class: "text-sm font-semibold text-amber-300" },
+                "Needs your approval",
+              ),
+              h(
+                "p",
+                { class: "mt-1" },
+                "Its gate is \u201cneeds you\u201d: it stays a draft until you mark it ready.",
+              ),
             );
           const qs = openQuestions(c);
           if (!qs.length) return null;
           return h(
             "section",
-            { "aria-labelledby": "open-questions", "data-questions": String(qs.length), class: "rounded-md border border-amber-500/50 bg-amber-500/10 p-3" },
-            h("h4", { id: "open-questions", class: "text-sm font-semibold text-amber-300" }, qs.length === 1 ? "1 open question" : qs.length + " open questions"),
-            h("ol", { class: "mt-1.5 list-decimal space-y-1 pl-5 text-sm" }, qs.map((q) => h("li", null, q.text))),
-            h("p", { class: "mt-2 text-xs text-muted-foreground" }, "Answered under \u201cQuestions for me\u201d in the card; it stays blocked until then."),
+            {
+              "aria-labelledby": "open-questions",
+              "data-questions": String(qs.length),
+              class:
+                "rounded-md border border-amber-500/50 bg-amber-500/10 p-3",
+            },
+            h(
+              "h4",
+              {
+                id: "open-questions",
+                class: "text-sm font-semibold text-amber-300",
+              },
+              qs.length === 1
+                ? "1 open question"
+                : qs.length + " open questions",
+            ),
+            h(
+              "ol",
+              { class: "mt-1.5 list-decimal space-y-1 pl-5 text-sm" },
+              qs.map((q) => h("li", null, q.text)),
+            ),
+            h(
+              "p",
+              { class: "mt-2 text-xs text-muted-foreground" },
+              "Answered under \u201cQuestions for me\u201d in the card; it stays blocked until then.",
+            ),
           );
         }
 
@@ -951,7 +1191,8 @@
             {
               "aria-labelledby": "record-title",
               "data-record": c.key,
-              class: "flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+              class:
+                "flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-sm",
             },
             h(
               "header",
@@ -959,15 +1200,33 @@
               h(
                 "h3",
                 { id: "record-title", class: "text-base font-semibold" },
-                h("span", { class: "font-mono text-sm text-muted-foreground" }, c.id),
+                h(
+                  "span",
+                  { class: "font-mono text-sm text-muted-foreground" },
+                  c.id,
+                ),
                 " " + c.title,
               ),
               h(
                 "dl",
-                { class: "grid grid-cols-[4.5rem_1fr_4.5rem_1fr] gap-x-3 gap-y-1 text-xs" },
+                {
+                  class:
+                    "grid grid-cols-[4.5rem_1fr_4.5rem_1fr] gap-x-3 gap-y-1 text-xs",
+                },
                 field("Status", c.status),
                 field("Held by", c.heldBy || "nobody"),
-                field("PR", c.pr ? "#" + c.pr + (c.column === "done" ? ", merged" : c.column === "pr" ? ", waiting to merge" : ", draft") : "none"),
+                field(
+                  "PR",
+                  c.pr
+                    ? "#" +
+                        c.pr +
+                        (c.column === "done"
+                          ? ", merged"
+                          : c.column === "pr"
+                            ? ", waiting to merge"
+                            : ", draft")
+                    : "none",
+                ),
                 field("Branch", c.branch || "cards/done/"),
                 c.nextStep ? field("Next step", c.nextStep, true) : null,
               ),
@@ -978,7 +1237,12 @@
               pinned(c),
               h(
                 "div",
-                { role: "tablist", "aria-label": c.id + " record", class: "flex gap-4 border-b border-border text-sm", onkeydown: tabKeys },
+                {
+                  role: "tablist",
+                  "aria-label": c.id + " record",
+                  class: "flex gap-4 border-b border-border text-sm",
+                  onkeydown: tabKeys,
+                },
                 TABS.map((t) =>
                   h(
                     "button",
@@ -991,7 +1255,9 @@
                       tabindex: t.id === state.tab ? "0" : "-1",
                       class:
                         "-mb-px rounded-t-sm border-b-2 px-1 pb-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
-                        (t.id === state.tab ? "border-sky-500 text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"),
+                        (t.id === state.tab
+                          ? "border-sky-500 text-foreground"
+                          : "border-transparent text-muted-foreground hover:text-foreground"),
                       onclick: () => {
                         state.tab = t.id;
                         state.focusTab = true;
@@ -1002,7 +1268,18 @@
                   ),
                 ),
               ),
-              h("div", { role: "tabpanel", id: "record-panel", "aria-labelledby": "record-tab-" + tab.id, tabindex: "0", class: "rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" }, tab.panel(c)),
+              h(
+                "div",
+                {
+                  role: "tabpanel",
+                  id: "record-panel",
+                  "aria-labelledby": "record-tab-" + tab.id,
+                  tabindex: "0",
+                  class:
+                    "rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                },
+                tab.panel(c),
+              ),
             ),
           );
         }
@@ -1010,9 +1287,17 @@
         function pickACard() {
           return h(
             "div",
-            { "data-record": "", class: "flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border p-6 text-center" },
+            {
+              "data-record": "",
+              class:
+                "flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border p-6 text-center",
+            },
             h("p", { class: "text-sm font-medium" }, "Pick a card"),
-            h("p", { class: "max-w-xs text-xs text-muted-foreground" }, "Its record opens here. Up and Down step through the cards; Escape closes it."),
+            h(
+              "p",
+              { class: "max-w-xs text-xs text-muted-foreground" },
+              "Its record opens here. Up and Down step through the cards; Escape closes it.",
+            ),
           );
         }
 
@@ -1022,7 +1307,11 @@
             "div",
             {
               "data-view": layout === "list" ? "list" : "split",
-              class: "grid gap-4 " + (layout === "list" ? "grid-cols-[18rem_1fr]" : "grid-cols-[14.5rem_1fr]"),
+              class:
+                "grid gap-4 " +
+                (layout === "list"
+                  ? "grid-cols-[18rem_1fr]"
+                  : "grid-cols-[14.5rem_1fr]"),
             },
             list(layout === "list"),
             c ? record(c) : pickACard(),
@@ -1036,8 +1325,11 @@
         function fitHeight() {
           const view = root.firstChild;
           if (!view || view.getAttribute("data-view") === "board") return;
-          const top = view.getBoundingClientRect().top + document.querySelector("main").scrollTop;
-          view.style.height = Math.max(320, Math.floor(window.innerHeight - top - 25)) + "px";
+          const top =
+            view.getBoundingClientRect().top +
+            document.querySelector("main").scrollTop;
+          view.style.height =
+            Math.max(320, Math.floor(window.innerHeight - top - 25)) + "px";
         }
 
         function render() {
@@ -1047,6 +1339,10 @@
           filter.classList.toggle("bg-primary", pressed);
           filter.classList.toggle("text-primary-foreground", pressed);
           filter.classList.toggle("border-transparent", pressed);
+          // Pressed, it hovers as the shell's default button does.
+          filter.classList.toggle("hover:bg-primary/90", pressed);
+          filter.classList.toggle("hover:bg-accent", !pressed);
+          filter.classList.toggle("hover:text-accent-foreground", !pressed);
           const badge = document.getElementById("needs-me-count");
           badge.className = pressed
             ? "rounded-full bg-primary-foreground/20 px-1.5 tabular-nums text-primary-foreground"
@@ -1057,7 +1353,8 @@
               ? "Every card by stage, against the line's limits, beside the one you pick. This view only reads."
               : "Every card where it stands, against the line's limits. Pick one to read it; Escape brings the board back. This view only reads.";
 
-          const view = layout === "board" && !state.selected ? board() : split();
+          const view =
+            layout === "board" && !state.selected ? board() : split();
           root.replaceChildren(view);
           fitHeight();
 
@@ -1074,7 +1371,11 @@
                 : root.querySelector('[data-card][data-key="' + k + '"]');
             if (el) {
               if (el.closest("[data-board]")) {
-                root.querySelectorAll("[data-board] [data-card]").forEach((b) => b.setAttribute("tabindex", b === el ? "0" : "-1"));
+                root
+                  .querySelectorAll("[data-board] [data-card]")
+                  .forEach((b) =>
+                    b.setAttribute("tabindex", b === el ? "0" : "-1"),
+                  );
               }
               el.focus();
             }
@@ -1095,12 +1396,19 @@
         const waiting = live.filter(needsMe).length;
         document.getElementById("needs-me-count").textContent = String(waiting);
         const repoBadge = document.getElementById("repo-badge");
-        repoBadge.append(String(waiting), h("span", { class: "sr-only" }, " waiting on you"));
+        repoBadge.append(
+          String(waiting),
+          h("span", { class: "sr-only" }, " waiting on you"),
+        );
         document.querySelectorAll("[data-icon]").forEach((slot) => {
           slot.replaceWith(icon(slot.getAttribute("data-icon")));
         });
 
-        if (!getComputedStyle(document.documentElement).getPropertyValue("--background").trim())
+        if (
+          !getComputedStyle(document.documentElement)
+            .getPropertyValue("--background")
+            .trim()
+        )
           document.getElementById("no-css").hidden = false;
 
         render();
