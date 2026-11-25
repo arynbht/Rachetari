@@ -1,7 +1,7 @@
 # T-0040 · test: set a coverage floor
 
-Status: done <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0040 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0040 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: BACKLOG.md Next up "Set a coverage floor once the review tests land" (from checklist `quality.coverage.floor`) · Gate: needs you
 
 ## Why
@@ -92,8 +92,8 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Foreman: wait for `ci` on the draft PR (A5), then review and merge. After merge, watch
-`build-test` on develop for the floor; the next `/setup` run ticks `quality.coverage.floor`.
+Set `coverage.thresholds` to 42/79/73/42 in `vitest.config.ts`, run `pnpm test`, update
+A1/A2 evidence, then `/done`.
 
 ## Decisions
 
@@ -119,6 +119,10 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Built on AB_Rouge after merging origin/develop: `pnpm test` measures
   48.5/81.72/75.76/48.5 (39 files, 209 tests), unchanged from drafting and within 6 points
   of the floor on every metric, so the owner's 45/78/72/45 went in as answered
+- 2026-11-25: HELD at inspection: 45/78/72/45 left under 1 point of room on today's
+  develop (build-test measured lines 45.93 %, branches 82.87 %, functions 76.86 %,
+  statements 45.93 %). Owner's standing pre-approval (2026-11-25) covers re-measures: floor
+  set to 42/79/73/42 from develop's build-test numbers; was 45/78/72/45
 
 ## Questions for me
 
