@@ -69,6 +69,8 @@ export function needsYouItems(snapshot: KitSnapshot): NeedsYouItem[] {
   for (const live of snapshot.cards) {
     const card = live.card;
     const at = live.lastCommitAt;
+    // A branch being drafted waits on nobody yet.
+    if (live.drafting) continue;
     if (!card) {
       items.push({
         kind: "unreadable",
@@ -172,13 +174,23 @@ export function nowState(
     ready,
     error,
     cardCount: snapshot.cards.length,
-    cards: snapshot.cards.map((c) => ({
-      id: c.card?.id ?? c.branch,
-      title: c.card?.title ?? "CARD.md can't be read",
-      status: c.card?.status ?? "unreadable",
-      heldBy: c.card?.heldBy ?? null,
-      branch: c.branch,
-    })),
+    cards: snapshot.cards.map((c) =>
+      c.drafting
+        ? {
+            id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
+            title: "No CARD.md yet",
+            status: "drafting",
+            heldBy: null,
+            branch: c.branch,
+          }
+        : {
+            id: c.card?.id ?? c.branch,
+            title: c.card?.title ?? "CARD.md can't be read",
+            status: c.card?.status ?? "unreadable",
+            heldBy: c.card?.heldBy ?? null,
+            branch: c.branch,
+          },
+    ),
     health: nowHealth(snapshot),
     needsYou: needsYouItems(snapshot),
     running: runningCards(snapshot),
@@ -197,7 +209,8 @@ export interface NowHubOptions {
   onBadges: (badges: NowBadges) => void;
   /**
    * Hears an item that entered Needs you while the app was running: never one
-   * that was already waiting when the repo was first read.
+   * that was already waiting when the repo was first read, and never a PR to
+   * merge (the line merges those; it stays listed in Needs you).
    */
   onNew: (repoPath: string, item: NeedsYouItem) => void;
   /**
@@ -407,7 +420,8 @@ export class NowHub {
       const key = itemKey(item);
       if (entry.known.has(key)) continue;
       entry.known.add(key);
-      if (tells) this.options.onNew(entry.repoPath, item);
+      if (tells && item.kind !== "merge")
+        this.options.onNew(entry.repoPath, item);
     }
     for (const key of entry.known)
       if (!keys.has(key)) {
