@@ -19,9 +19,18 @@ Ordered. The top line becomes the next `CARD.md`.
 11. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
 12. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
 13. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
-14. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
-15. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-16. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+14. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+15. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+16. Shrink Tasks.tsx under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+17. Shrink TaskRecord (Tasks.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+18. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+19. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+20. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+21. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+22. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+23. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+24. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+25. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
