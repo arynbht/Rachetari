@@ -34,7 +34,7 @@ Not kept: an AI "passed" that can be merged unread, and anything for teams or cl
 | --- | --- | --- |
 | Card | `CARD.md` on its own `card/<id>` branch | What one session does, how it's checked, what's out of scope |
 | Parking lot | `BACKLOG.md` | Where every off-card idea, bug and discovery goes |
-| Checklist and stage | `BACKLOG.md`, "Repo checklist" | What must stay true; which stage the repo is at |
+| Checklist and stage | `CHECKLIST.md` | What must stay true, in fifteen sections; which stage the repo is at |
 | Fit | `DESIGN.md`, `CONSTRAINTS.md` | The repo's own conventions, written down once |
 | Session rules | section in `CLAUDE.md` | Binds the session to the card |
 | Skills | `skills/`, `skills/INDEX.md` | Guidance per area |
@@ -54,8 +54,10 @@ Kept from Rivetari, used as-is: `review --pr` as advice, and each repo's own CI 
    beside it as `name.kit.md` for me to merge.
 3. Reads the repo and drafts `DESIGN.md` and `CONSTRAINTS.md` from what the code already
    does, marked as drafts.
-4. Drafts the repo checklist from a starter list for the stack. Every line has a check
-   that can be run, and setup runs each one and records pass, fail or not applicable.
+4. Drafts the repo checklist in `CHECKLIST.md`, in fifteen sections drawn from the old
+   catalog's titles plus a starter list for the stack. A section that doesn't apply is
+   kept, marked not applicable with the reason. Every line has a stage and a check that
+   can be run, and setup runs each one and records pass, fail or unchecked.
 5. States the stage, with the checklist lines that put it there.
 6. Seeds "Next up" from the failing lines and from any spec it finds, then stops for me.
 
@@ -182,7 +184,9 @@ Not built, not extended, not fixed:
   per card.
 - Trust ladder and autonomy levels. Night mode has one level: hold when unsure.
 - Team, roles, client repos, eject, GitHub App features, billing.
-- The 111-control posture catalog and the nine gates.
+- The 111-control posture catalog's engine (detectors, gates, waivers, evidence) and the
+  nine gates. Only its list of controls came over: their titles feed the checklist's
+  sections.
 - New shell views, or shell logic that doesn't read the files above.
 - Signed ledgers. Git history and the night report are the record.
 
