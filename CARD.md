@@ -1,7 +1,7 @@
 # T-0043 · build(lint): set complexity and file-length limits
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0043 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0043 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: BACKLOG.md Next up 11 ("Clean code: set `complexity` and `max-lines` at error in `eslint.config.js`"), from CHECKLIST.md "Complexity and file-length limits are set" (T-0039) · Gate: needs you (lint config)
 
 ## Why
