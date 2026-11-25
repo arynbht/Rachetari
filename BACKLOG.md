@@ -81,6 +81,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `- [ ] None.` (T-0017) is read as an open question; only `(none)` and `<…>` are skipped as placeholders · seen on T-0026 · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
 - 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
+- 2026-11-25 [tool] An installed personal `~/.claude/skills/setup` shadows a repo's own `.claude/skills/setup`, so headless `/setup` in the kit-trial scratch repo ran the old installed copy ($0.98 spent); the trial reran the new one renamed `setup-trial` · seen on T-0029 · `claude -p "/setup"`
+- 2026-11-25 [tool] `scripts/kit-trial.mjs` makes its first scratch commit with `--no-verify` (the scratch repo has no hooks, so it does nothing, but the line rules forbid the flag) · seen on T-0029 · `scripts/kit-trial.mjs:70`
 - 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- questions.e2e.ts` runs the whole e2e suite, not the one file: pnpm passes the `--` on to `playwright test` as an argument; `pnpm --filter … exec playwright test questions.e2e.ts` (after a build) runs one · seen on T-0026 · `apps/desktop/package.json`
 
 ## Repo checklist
