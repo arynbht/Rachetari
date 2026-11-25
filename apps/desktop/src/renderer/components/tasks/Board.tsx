@@ -2,6 +2,8 @@ import { ChevronRight, CircleAlert, GitPullRequest } from "lucide-react";
 import { type KeyboardEvent, useId, useRef } from "react";
 
 import type { TaskColumn, TaskItem } from "../../../shared/ipc";
+import { CiBadge } from "../CiBadge";
+import { useCiState } from "../CiLine";
 import {
   BOARD_COLUMNS,
   day,
@@ -232,6 +234,7 @@ export function Board({
   onOpenHistory?: (() => void) | undefined;
 }) {
   const ref = useRef<HTMLElement>(null);
+  const ci = useCiState();
   const columns = BOARD_COLUMNS.map((id) =>
     items.filter((t) => t.column === id),
   );
@@ -271,6 +274,12 @@ export function Board({
               onSelect={onSelect}
               onKeyDown={move(t.key)}
             />
+            {/* Beside the card's button, not in it: a link can't nest there. */}
+            {!t.unreadable && t.column !== "next" && t.column !== "done" && (
+              <div className="px-2 pt-1">
+                <CiBadge branch={t.branch} state={ci} />
+              </div>
+            )}
           </li>
         ))}
       </ul>
