@@ -6,7 +6,6 @@
 import { execFile } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { promisify } from "node:util";
 
 import {
   type Backlog,
@@ -19,18 +18,77 @@ import {
   type SkillRow,
 } from "./parse";
 
-const run = promisify(execFile);
+/**
+ * How long a git call may take before it's killed: the one place the limits
+ * are set. Each can be overridden through its env var, read at call time.
+ */
+const LIMITS = {
+  read: { env: "RIVETARI_GIT_READ_LIMIT_MS", ms: 10_000 },
+  fetch: { env: "RIVETARI_GIT_FETCH_LIMIT_MS", ms: 60_000 },
+} as const;
 
-/** Read-only git: no shell, no prompts, no pager. */
-async function git(repo: string, args: string[]): Promise<string> {
-  const { stdout } = await run("git", args, {
-    cwd: repo,
-    encoding: "utf8",
-    maxBuffer: 16 * 1024 * 1024,
-    windowsHide: true,
-    env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_OPTIONAL_LOCKS: "0" },
+function limitMs(kind: keyof typeof LIMITS): number {
+  const { env, ms } = LIMITS[kind];
+  const set = Number(process.env[env]);
+  return Number.isFinite(set) && set > 0 ? set : ms;
+}
+
+/** A git call that passed its limit: never read as "not there". */
+class GitTimeout extends Error {}
+
+/**
+ * A catch-all for a read whose failure means "not there": it gives `fallback`,
+ * but passes a timeout on.
+ */
+function orNone<T>(fallback: T): (err: unknown) => T {
+  return (err) => {
+    if (err instanceof GitTimeout) throw err;
+    return fallback;
+  };
+}
+
+/** Read-only git: no shell, no prompts, no pager, and a time limit. */
+function git(
+  repo: string,
+  args: string[],
+  kind: keyof typeof LIMITS = "read",
+): Promise<string> {
+  const ms = limitMs(kind);
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const child = execFile(
+      "git",
+      args,
+      {
+        cwd: repo,
+        encoding: "utf8",
+        maxBuffer: 16 * 1024 * 1024,
+        windowsHide: true,
+        env: {
+          ...process.env,
+          GIT_TERMINAL_PROMPT: "0",
+          GIT_OPTIONAL_LOCKS: "0",
+        },
+      },
+      (err, stdout) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (err) reject(err);
+        else resolve(stdout);
+      },
+    );
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill();
+      // Git's own children (a fetch's remote helper) can keep its pipes open
+      // after it's killed; let go of them rather than wait for them to close.
+      child.stdout?.destroy();
+      child.stderr?.destroy();
+      reject(new GitTimeout(`git ${args[0]} timed out after ${ms / 1000} s`));
+    }, ms);
   });
-  return stdout;
 }
 
 /** A file's text at a ref, or null when it isn't there. */
@@ -39,7 +97,7 @@ async function show(
   ref: string,
   path: string,
 ): Promise<string | null> {
-  return git(repo, ["show", `${ref}:${path}`]).catch(() => null);
+  return git(repo, ["show", `${ref}:${path}`]).catch(orNone(null));
 }
 
 /** The default branch: origin's HEAD, else main or master, else the current branch. */
@@ -51,7 +109,7 @@ export async function defaultBranch(repo: string): Promise<string> {
     "refs/remotes/origin/HEAD",
   ])
     .then((s) => s.trim())
-    .catch(() => "");
+    .catch(orNone(""));
   if (head) return head;
   for (const name of ["main", "master"]) {
     const ok = await git(repo, [
@@ -61,7 +119,7 @@ export async function defaultBranch(repo: string): Promise<string> {
       `refs/heads/${name}`,
     ])
       .then(() => true)
-      .catch(() => false);
+      .catch(orNone(false));
     if (ok) return name;
   }
   return (await git(repo, ["rev-parse", "--abbrev-ref", "HEAD"])).trim();
@@ -120,7 +178,7 @@ async function dayBranch(repo: string): Promise<string | null> {
     "--format=%(refname)",
     "refs/heads/day/",
     "refs/remotes/",
-  ]).catch(() => "");
+  ]).catch(orNone(""));
   return newestDay(out.split("\n"));
 }
 
@@ -128,7 +186,7 @@ async function dayBranch(repo: string): Promise<string | null> {
 async function doneNames(repo: string, ref: string): Promise<string[]> {
   return (
     await git(repo, ["ls-tree", "--name-only", `${ref}:cards/done`]).catch(
-      () => "",
+      orNone(""),
     )
   )
     .split("\n")
@@ -250,7 +308,7 @@ export async function readLiveCards(repo: string): Promise<LiveCard[]> {
     if (await isDone(branch)) continue;
     const committed = (
       await git(repo, ["log", "-1", "--format=%H", ref, "--", "CARD.md"]).catch(
-        () => "",
+        orNone(""),
       )
     ).trim();
     cards.push(
@@ -301,7 +359,7 @@ export async function readDoneCards(repo: string): Promise<DoneCard[]> {
       const closedAt =
         (
           await git(repo, ["log", "-1", "--format=%cI", ref, "--", path]).catch(
-            () => "",
+            orNone(""),
           )
         ).trim() || null;
       done.push({
@@ -325,7 +383,9 @@ export interface Night extends NightCounts {
 export async function readNights(repo: string): Promise<Night[]> {
   const ref = await defaultBranch(repo);
   const names = (
-    await git(repo, ["ls-tree", "--name-only", `${ref}:nights`]).catch(() => "")
+    await git(repo, ["ls-tree", "--name-only", `${ref}:nights`]).catch(
+      orNone(""),
+    )
   )
     .split("\n")
     .filter((n) => n.endsWith(".md"));
@@ -396,7 +456,7 @@ export async function readEvents(
     "--",
     "cards",
     "nights",
-  ]).catch(() => "");
+  ]).catch(orNone(""));
   for (const e of parse(onDefault, null)) events.set(e.sha, e);
 
   // Every card branch, done or not: a done branch's commits are still events.
@@ -411,7 +471,7 @@ export async function readEvents(
       format,
       branchRef,
       `^${ref}`,
-    ]).catch(() => "");
+    ]).catch(orNone(""));
     const id = c.card?.id ?? /T-\d{4,}/.exec(c.branch)?.[0] ?? null;
     for (const e of parse(out, id))
       if (!events.has(e.sha)) events.set(e.sha, e);
@@ -443,7 +503,7 @@ async function remoteRef(repo: string, branch: string): Promise<string | null> {
  * one git write: it only updates remote-tracking refs, never a branch or a file.
  */
 export async function fetchRepo(repo: string): Promise<void> {
-  await git(repo, ["fetch", "--all", "--prune", "--quiet"]);
+  await git(repo, ["fetch", "--all", "--prune", "--quiet"], "fetch");
 }
 
 /**
@@ -461,7 +521,7 @@ export async function readCardCommits(
   const touching = (ref: string) =>
     "path" in at
       ? git(repo, ["log", `-n${limit}`, format, ref, "--", at.path]).catch(
-          () => "",
+          orNone(""),
         )
       : "";
   let out =
@@ -472,7 +532,7 @@ export async function readCardCommits(
           format,
           at.ref,
           `^${base}`,
-        ]).catch(() => "")
+        ]).catch(orNone(""))
       : await touching(base);
   if ("path" in at && !out.trim()) {
     const day = await dayBranch(repo);
