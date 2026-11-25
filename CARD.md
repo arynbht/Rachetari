@@ -1,6 +1,6 @@
 # T-0045 · test(shell): make the real-git and child-process tests reliable on Windows
 
-Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0045 · Held by: nobody
 Created: 2026-11-25 · Gate: low · Source: `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
 
@@ -58,7 +58,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Answered: re-run A4's 20-run loop while this builder holds the foreman's test lock (no other builder runs tests), treat run 2 as void if the 20 pass, and add PR #66's Windows shards to A4's evidence. Then A5.
+Answered: tick A4 on the seven passed runs plus PR #66's Windows CI shards (paste them), with run 5 recorded as the cleanup EBUSY (its own card). Then A5 while holding the foreman's test lock, the done check, and PR #66's body.
 
 ## Decisions
 
@@ -72,13 +72,15 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The timing loop runs with `--coverage.enabled=false`, as CI's test shards do: decided for the owner (alternative: coverage on, which fails the global floor on any subset and slows every run). Per-file times come from the default reporter, because the JSON reporter leaves out `beforeAll` time (A1's first pass, kept in the scratchpad, gave `now.test.ts` 6 ms).
 - 2026-11-25: The new `apps/desktop/src/main/**` fork line also takes in the files develop added since drafting (`fetch-loop`, `live-status`, `now-sections` tests): decided for the owner, since it is the card's own glob (alternative: list the real-git files one by one).
 - 2026-11-25: Owner answered A4's question: re-run the 20 runs with nothing else running tests, run 2 void if they pass, PR #66's Windows shards as extra evidence.
+- 2026-11-25: Owner answered A4's second question: A4 is met by the seven passed runs plus PR #66's Windows CI shards; run 5 is the fixture cleanup's EBUSY, not a test failure, and goes to its own card.
 
 ## Questions for me
 
-- [ ] A4 re-run (free memory 12-14 GB, nothing else testing): runs 1-4 and 6-9 passed (59-74 s wall); run 5 failed `gh.test.ts > readGitHub > a hang is killed at the limit` with `EBUSY: resource busy or locked, rmdir ...\rachetari-kit-9bic7a\repo` in the fixture's `remove()` (`kit-fixture.ts:341`), after the test's 2491 ms. `gh.test.ts` is new on develop (not in A1's list); the failure is a Windows file lock on cleanup (a killed child or scanner still holding the dir), not a pipe wait. Loop stopped after run 9 (run 9 killed part-way). Per the card's stop rule, an affected test failed in A4's runs. What next? — Recommended: park the EBUSY as a separate card (`rmSync` needs `maxRetries`, a change to `kit-fixture.ts`, out of scope) and take A4 as 8 of 9 completed runs plus CI shards. Options: re-run the 20 runs and accept any pass count with this flake named; add `maxRetries` to the fixture's `rmSync` in this card (needs scope change).
+- [x] A4 re-run (free memory 12-14 GB, nothing else testing): runs 1-4 and 6-9 passed (59-74 s wall); run 5 failed `gh.test.ts > readGitHub > a hang is killed at the limit` with `EBUSY: resource busy or locked, rmdir ...\rachetari-kit-9bic7a\repo` in the fixture's `remove()` (`kit-fixture.ts:341`), after the test's 2491 ms. `gh.test.ts` is new on develop (not in A1's list); the failure is a Windows file lock on cleanup (a killed child or scanner still holding the dir), not a pipe wait. Loop stopped after run 9 (run 9 killed part-way). Per the card's stop rule, an affected test failed in A4's runs. What next? — Recommended: park the EBUSY as a separate card (`rmSync` needs `maxRetries`, a change to `kit-fixture.ts`, out of scope) and take A4 as 8 of 9 completed runs plus CI shards. Options: re-run the 20 runs and accept any pass count with this flake named; add `maxRetries` to the fixture's `rmSync` in this card (needs scope change).
 
 - [x] A4 stopped at run 2 of 20, and the card says an affected test failing in A4's runs is a stop. Run 1 passed (53 s wall, against a 22–31 s baseline, because the whole subset now runs one file at a time). In run 2, `tasks-needs.test.ts`'s `beforeAll` sat 859 s in the fixture's `git checkout -q main` and then failed, and `history.test.ts`'s fixture failed at `git init -q -b main`. At that moment the machine had 870–921 MB free of 32 GB, and Claude Code then killed the loop for low memory and asked that it not be restarted. Failing in `git init` inside the fixture looks like the machine, not the change, but I can't show that. What next? — Recommended: re-run A4's 20 runs when the machine has memory to spare (no other builders running tests), and treat run 2 as void if those 20 pass. Options: accept CI's Windows shards on the draft PR as A4's evidence instead of a local loop; re-run A4 with 10 runs; hold the card.
   - Answer (owner, 2026-11-25): re-run the 20 runs with nothing else running tests, as recommended, and treat run 2 as void if they pass. Also attach PR #66's Windows CI shards as extra evidence.
+  - Answer (owner, 2026-11-25): as recommended. A4 is met by the seven passed runs plus PR #66's Windows CI shards, with run 5 recorded as the cleanup EBUSY, not a test failure. Close the card. The EBUSY goes to its own card (owner-approved, ready).
 
 ## Parked
 
