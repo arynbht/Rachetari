@@ -1,15 +1,11 @@
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { expect, test } from "@playwright/test";
 
-import {
-  closeApp,
-  copyFixtureRepo,
-  launchApp,
-  type LaunchedApp,
-} from "./helpers";
+import { kitFixture, type KitFixture } from "../test/kit-fixture";
+import { closeApp, launchApp, type LaunchedApp } from "./helpers";
 
 // main decides which repo a request is about from its own registered list.
 // A renderer that sends another folder's path, as a compromised one could,
@@ -22,34 +18,36 @@ interface Bridge {
     list(repoPath: string): Promise<unknown[]>;
     read(repoPath: string, path: string): Promise<{ markdown: string }>;
   };
-  posture: {
+  checklist: {
     get(repoPath: string): Promise<{ repoPath: string }>;
   };
-  audit: {
-    run(repoPath: string): Promise<unknown>;
+  repos: {
+    fetch(repoPath: string): Promise<void>;
   };
 }
 
 test.describe("registered repos", () => {
   let launched: LaunchedApp | undefined;
+  let fx: KitFixture | undefined;
   const cleanup: string[] = [];
 
   test.afterEach(async () => {
     if (launched) await closeApp(launched);
     launched = undefined;
+    fx?.remove();
+    fx = undefined;
     for (const dir of cleanup.splice(0))
       rmSync(dir, { recursive: true, force: true });
   });
 
   test("main refuses a repo path that isn't registered", async () => {
-    const repo = copyFixtureRepo();
+    fx = kitFixture();
+    const repo = fx.repo;
     const other = mkdtempSync(join(tmpdir(), "rivetari-e2e-unregistered-"));
-    const config = mkdtempSync(join(tmpdir(), "rivetari-e2e-config-"));
-    cleanup.push(repo, other, config);
+    cleanup.push(other);
     writeFileSync(join(other, "secret.md"), "# not for the app\n");
     launched = await launchApp({
       repos: [{ path: repo, name: "sample-repo" }],
-      env: { RIVETARI_CONFIG_DIR: config },
     });
     const { page } = launched;
 
@@ -62,14 +60,14 @@ test.describe("registered repos", () => {
       repo,
     );
     expect(listed).toBeGreaterThanOrEqual(0);
-    const posture = await page.evaluate(
+    const checklist = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.posture.get(
+        (window as unknown as { rivetari: Bridge }).rivetari.checklist.get(
           repoPath,
         ),
       repo,
     );
-    expect(posture.repoPath).toBe(repo);
+    expect(checklist.repoPath).toBe(repo);
 
     // Another folder is refused, for a read and for a write.
     const read = await page.evaluate(
@@ -85,18 +83,18 @@ test.describe("registered repos", () => {
     expect(read).toContain("refused");
     expect(read).toContain("isn't one of the registered repos");
 
-    const audited = await page.evaluate(
+    const fetched = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.audit
-          .run(repoPath)
+        (window as unknown as { rivetari: Bridge }).rivetari.repos
+          .fetch(repoPath)
           .then(
-            () => "audited",
+            () => "fetched",
             (err: unknown) => `refused: ${String(err)}`,
           ),
       other,
     );
-    expect(audited).toContain("isn't one of the registered repos");
-    expect(existsSync(join(other, ".rivetari", "state.json"))).toBe(false);
+    expect(fetched).toContain("isn't one of the registered repos");
+    expect(readdirSync(other)).toEqual(["secret.md"]);
 
     // A path that climbs out of the registered repo isn't that repo either.
     const climbed = await page.evaluate(
