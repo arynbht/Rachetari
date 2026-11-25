@@ -138,4 +138,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] The Tasks record shows raw backticks in Files in scope and Skills (from the existing `List`), and pinned questions too; render inline code as on Now; the tasks.e2e.ts:303 comment still says "Evidence is collapsed" · seen on T-0035 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
 - 2026-11-25 [product] `SCOPE.md` still says small questions are "held rather than guessed" (line ~126) and "Night mode has one level: hold when unsure" (~206), which now contradicts the owner's decide-and-log rule at night; `docs/army-mode.md` (~91, ~98) still quotes the old two-session cap and rebase as current; and `SCOPE.md` is prettier-ignored, so its prettier check checks nothing · seen on T-0042 inspection · `SCOPE.md`
 
+- [tool] `desktop-e2e` is not in the `ci` job's needs, so a red desktop e2e still gives a green `ci` on PRs (PR #60, run 45709065400); the line treats desktop-e2e as gating inspection by hand · foreman, 2026-11-25
+
 The checklist is in [CHECKLIST.md](CHECKLIST.md).

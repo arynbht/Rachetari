@@ -7,3 +7,11 @@ A subagent's `tools` list can't allow only some Bash commands, so "no role gets 
 1. (answer individually) Add a project `.claude/settings.json` with `permissions.deny` for `gh pr merge *` and `gh pr ready *`, as part of T-0049? — Recommended: yes. Other options: leave merge rights to the written rules only; also deny `git push * main`.
 
 Answer:
+
+## Morning step 5 · install the skills library on this machine
+
+4a (T-0016) and 4e have merged, so this step can run.
+
+1. (answer individually) Copy `skills/` to `~/.claude/kit-skills/` and reinstall `kit/setup` to `~/.claude/skills/setup/`? — Recommended: yes. Other options: no; later, after T-0049 lands.
+
+Answer:
