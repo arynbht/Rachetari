@@ -8,23 +8,22 @@ Ordered. The top line becomes the next `CARD.md`.
 
 1. Copy all in the Questions panel cuts questions off: make it produce exactly the text `docs/open-questions.md` would contain (low; front of the shell chain; T-0048) · from `docs/queue-2026-11-25.md` §Copy all cuts questions off
 2. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-3. CI: Ubuntu required on PRs; Windows runs on every PR but isn't required; Windows stays required on develop (owner-approved CI change) · from `docs/queue-2026-11-25.md` §CI: Windows not required on PRs
-4. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
-5. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-6. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
-7. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-8. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-9. Fix card (end of the shell chain): T-0041's `docs/screenshots/T-0041/home-sections.png`, never made because builders don't run the desktop e2e locally (inspector, PR #60); see docs/open-questions.md
-10. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-11. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-12. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-15. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-16. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-17. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-18. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-19. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+3. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
+4. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
+5. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
+6. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+7. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+8. Fix card (end of the shell chain): T-0041's `docs/screenshots/T-0041/home-sections.png`, never made because builders don't run the desktop e2e locally (inspector, PR #60); see docs/open-questions.md
+9. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+10. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+11. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+15. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+16. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+17. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+18. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -151,3 +150,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] With local desktop e2e off, a card's screenshot can't be made: CI's desktop-e2e doesn't set `SCREENSHOT_DIR` or upload what it writes; an uploaded artifact would let a card link its shot · seen on T-0041 · `.github/workflows/ci.yml`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
+
+- 2026-11-25 [tool] `ci.yml`'s comment above `build-test` says "Main and nightly", but it also runs on every push to `develop` · seen on T-0047 · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] `docs/queue-2026-11-25.md` §Branches says "`ci` runs on every push to `develop`", but the `ci` job is PR-only; a push runs `build-test` · seen on T-0047 · `docs/queue-2026-11-25.md`
+- 2026-11-25 [tool] `desktop-e2e` isn't in the `ci` job's `needs`, so a red `desktop-e2e` doesn't turn `ci` red · seen on T-0047 · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] A Windows leg that ends `cancelled` rather than `failure` can still turn `ci` red on a PR · seen on T-0047 inspection · `.github/workflows/ci.yml`
