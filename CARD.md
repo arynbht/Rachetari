@@ -131,16 +131,14 @@ At most three, from `skills/INDEX.md`. Read these and no others.
 
 Besides the standing list in CLAUDE.md:
 
-- Depends on: T-0024 (source.ts, App.tsx). This card edits `source.ts` on top of its
-  `git()` with time limits; start once T-0024 has merged into `develop`
-- Depends on: T-0026 (now.ts, ipc.ts, Now.tsx)
 - If an existing test other than the two named under Constraints fails because of this
   change
 
 ## Next step
 
-Ready. Start once T-0024 and T-0026 have merged: A1's tests in `display-branch.test.ts`
-against a fixture with local `develop` ahead of `origin/develop`, then `displayBranch`.
+Ready (T-0024 and T-0026 are on `develop`). A1's tests in `display-branch.test.ts`
+against a fixture with local `develop` ahead of `origin/develop`, then `displayBranch`
+in `source.ts` on T-0024's `git()` and `orNone`; then replace `dayBranch`/`newestDay`.
 
 ## Decisions
 
@@ -155,6 +153,8 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The header line is "showing develop" in all three views per Next up item 2, though T-0030's split had put it in part 3; part 3 keeps the running commit, "fetched N s ago" and the behind warning. Decided for the owner; alternative: leave the whole header to part 3.
 - 2026-11-25: Tests go in a new `display-branch.test.ts`, decided for the owner, so `source.test.ts` stays unedited. Alternative: add the cases to `source.test.ts`.
 - 2026-11-25: Decided for the owner by the foreman: one card, not the drafter's proposed 2a/2b split (alternative: split into the source and its tests, then the IPC field, headers and e2e) — the owner wants develop on screen soonest, and a split adds an inspection cycle.
+- 2026-11-25: `display` goes on `NowState` beside T-0026's `questions`, as the last field, decided for the owner (alternative: inside `NowHealth`).
+- 2026-11-25: Pre-build re-check against develop at 71baa95: every reader A2 names, `readKit`/`KitSnapshot` in `watch.ts`, the two existing tests and their day-branch cases are still there under the same names; T-0024's `git()`, `orNone` and `GitTimeout` are in `source.ts` and the day-branch code (`dayBranch`, `newestDay`, `doneRefs`, `readCardBranches`' `day`) is internal to it; `NowState` now has `questions`. Removed the `Depends on` lines for T-0024 and T-0026 (merged). BACKLOG.md's Next up equals develop's. No criterion changed; Status stays `ready`.
 
 ## Questions for me
 
