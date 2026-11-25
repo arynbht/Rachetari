@@ -136,8 +136,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 
 - [tool] `desktop-e2e` is not in the `ci` job's needs, so a red desktop e2e still gives a green `ci` on PRs (PR #60, run 45709065400); the line treats desktop-e2e as gating inspection by hand · foreman, 2026-11-25
 
-- 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
-- 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
 - 2026-11-25 [product] Keep the live status cleared after the shell stops and reopens (`index.ts:371`) · inspector, T-0036
 
 - 2026-11-25 [product] `Part`'s unused `aside` prop in `tasks/RecordTabs.tsx` (already there before T-0046) · inspector, T-0046
@@ -162,3 +160,7 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [product] Acceptance criteria are read first-line-only, as questions were: a criterion wrapped over several lines loses its `· check:` and its UNTESTED mark when they sit on a later line · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] `questionsOf` folds any non-blank line after `- [ ] (none)` into it, so `(none)` followed by a comment line becomes a phantom open question · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] `questionsOf` folds a following code fence or `>` line into a question, and wrapped prose starting like `2026. ` ends one early · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [tool] The desktop typecheck doesn't cover `apps/desktop/e2e/` (`tsconfig.node.json` includes `src/` only), so an e2e type error shows only when Playwright runs it · seen on T-0044 · `apps/desktop/tsconfig.node.json`
+- 2026-11-25 [product] T-0044's three screenshots under `docs/screenshots/T-0044/` were never made (no local desktop e2e); same fix as T-0041's open question · seen on T-0044 inspection · `docs/screenshots/T-0044/`
+- 2026-11-25 [product] `gh.ts` caps `gh`'s stdout but not its stderr, and a `git config` timeout is reported as "gh timed out" · seen on T-0044 inspection · `apps/desktop/src/main/kit/gh.ts`
+- 2026-11-25 [product] A card's PR CI state comes from the repo's last 100 runs only, so a quiet card's PR can show no CI on a busy repo · seen on T-0044 inspection · `apps/desktop/src/main/engine/ci.ts`
