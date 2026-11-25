@@ -1,7 +1,7 @@
 # T-0042 · docs: SCOPE.md takes the owner's day cap, merges and night decisions
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0042 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0042 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: the owner's answers on T-0038 (BACKLOG.md Next up, "SCOPE.md: rule 3 becomes …"; questions removed from `docs/open-questions.md` in f166329) · Gate: low
 
 ## Why
