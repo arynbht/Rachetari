@@ -1,6 +1,6 @@
 # T-0055 · refactor(cli): shrink tier2.ts under the lint limits
 
-Status: draft
+Status: ready
 Branch: card/T-0055 · Held by: nobody
 Created: 2026-11-25 · Source: BACKLOG Next up 12 and 13 (from T-0043) · Gate: needs you (removes lint overrides in `eslint.config.js`, which is lint config)
 
@@ -54,10 +54,11 @@ Gate is `needs you`; the owner approves, then the card goes ready. A builder sta
 - 2026-11-25: One card covers Next up 12 and 13 — same file, both overrides must go for the file to lint clean, and shrinking only one leaves the file in the same state.
 - 2026-11-25: Gate is `needs you` — removing an override tightens lint config; the standing pre-approval covers only overrides that hold code at its current size.
 - 2026-11-25: Decided for the owner: up to three new files, keeping the card at five files (alternative: split into two cards, one per override).
+- 2026-11-25: Owner approved removing the two `tier2.ts` overrides, 2026-11-25; also a standing pre-approval from now on: removing or lowering a lint override is allowed when the code already fits the new value (raising one, or adding one above the defaults, still needs the owner).
 
 ## Questions for me
 
-- [ ] Approve removing the two `tier2.ts` overrides from `eslint.config.js`? — Recommended: yes. Options: no, keep the overrides; split into two cards.
+- [x] Approve removing the two `tier2.ts` overrides from `eslint.config.js`? — Recommended: yes. Options: no, keep the overrides; split into two cards.
 
 ## Parked
 
