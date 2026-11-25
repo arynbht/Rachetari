@@ -15,7 +15,7 @@ When a slot frees, the runner starts the first card in "Next up" order that pass
 rules:
 
 1. Its status is `ready` and it is held by nobody.
-2. None of its files in scope overlap a running card's. If unsure, they do.
+2. None of its files in scope overlap a running card's. If unsure, assume overlap.
 3. It doesn't depend on a card that hasn't merged into `night/<date>`.
 4. Width is never above 20, Claude Code's limit on concurrent subagents (noted by the
    foreman, 2026-11-25). Reviewers count toward that limit.
