@@ -114,7 +114,13 @@ export function tasksState(
   ready: boolean,
   error: string | null,
 ): TasksState {
-  return { repoPath, ready, error, items: taskItems(snapshot) };
+  return {
+    repoPath,
+    ready,
+    error,
+    items: taskItems(snapshot),
+    display: snapshot.display,
+  };
 }
 
 /** One card in full: the card, and the commits on its branch (or to its done file). */
@@ -136,12 +142,12 @@ export async function taskDetail(
 
   if (item.source === "done") {
     const path = key.slice("done:".length);
-    const card = await readDoneCard(repoPath, path);
+    const card = await readDoneCard(repoPath, path, snapshot.display);
     return {
       item,
       card,
       error: card ? null : `unreadable: ${path} isn't a card`,
-      commits: await readCardCommits(repoPath, { path }),
+      commits: await readCardCommits(repoPath, { path }, 50, snapshot.display),
     };
   }
 
@@ -152,6 +158,8 @@ export async function taskDetail(
     item,
     card: live.card,
     error: live.card || live.drafting ? null : (live.error ?? "unreadable"),
-    commits: ref ? await readCardCommits(repoPath, { ref }) : [],
+    commits: ref
+      ? await readCardCommits(repoPath, { ref }, 50, snapshot.display)
+      : [],
   };
 }
