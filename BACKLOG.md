@@ -14,10 +14,9 @@ Ordered. The top line becomes the next `CARD.md`.
 6. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
 7. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 8. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-9. Clean code 1b (T-0027): `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
-10. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
-11. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-12. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
+9. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
+10. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
+11. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
@@ -107,5 +106,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] The comment report (`diff.no-new-comments`) misses trailing comments after code, JSX `{/* */}` comments and Python docstrings, and skips `.vue` and `.css` files · seen on T-0025 · `kit/setup/templates/skills/done/comment-report.mjs`
 - 2026-11-25 [product] `comment-report.mjs` passes `${base}...HEAD` to git unguarded, so a base starting with `-` is read as an option (`--output=x` wrote a file); add `--end-of-options` or reject a leading `-` · seen on T-0025 inspection · `kit/setup/templates/skills/done/comment-report.mjs`
 - 2026-11-25 [product] `comment-report.mjs` skips files whose paths git quotes (spaces, non-ASCII) without saying so, and a repo's `diff.srcPrefix`/`mnemonicPrefix` breaks its `b/` strip; pass `-c core.quotePath=false` and `--src-prefix=a/ --dst-prefix=b/`; its temp-repo test should set `commit.gpgsign false` · seen on T-0025 inspection · `kit/setup/templates/skills/done/comment-report.mjs`
+- 2026-11-25 [product] `/done`'s deslop step: `git merge-base HEAD <target>` may use a stale local branch (use `origin/<target>`); the revert commit has no conventional message and isn't limited to the reverted files; a deslop commit a hook rejects isn't handled (restore the files, report it) · seen on T-0027 inspection · `kit/setup/templates/skills/done/SKILL.md`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
