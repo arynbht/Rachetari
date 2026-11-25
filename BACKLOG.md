@@ -7,20 +7,22 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Approve only `Gate: needs you` drafts: the `approve` notice fires for those and no other draft (needs you; T-0019) · from `docs/queue-2026-11-25.md` §Approve only needs-you drafts
-2. Salvage `registered-repos.e2e.ts` and `axe.e2e.ts` only, listing every edit (S-17, #22) · from `docs/queue-2026-11-25.md` §4c
-3. Take `constraint-driven-development` and `playwright-cli` at their pins (S-02 #6, S-03 #7) · from `docs/queue-2026-11-25.md` §4d
-4. Clean code 1: `code-simplification`, our `deslop` skill, a Slop section in CONSTRAINTS.md, `/done` deslops first, five starter checklist lines, `/setup` re-run · from `docs/queue-2026-11-25.md` §4e
-5. Clean code 2: the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
-6. Checklist by section, the kit: `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
-7. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
-8. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
-9. Questions panel on Now: one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
-10. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
+2. Take `constraint-driven-development` and `playwright-cli` at their pins (S-02 #6, S-03 #7) · from `docs/queue-2026-11-25.md` §4d
+3. Salvage `registered-repos.e2e.ts` and `axe.e2e.ts` only, listing every edit (S-17, #22) · from `docs/queue-2026-11-25.md` §4c
+4. Clean code 1a: take `code-simplification`, write the `deslop` skill and the Slop defaults `/setup` drafts, with a test that the twelve lines never differ (T-0023) · from `docs/queue-2026-11-25.md` §4e. Clean code, part 1: guidance
+5. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
+6. Clean code 2: the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
+7. Questions panel on Now: one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
+8. Clean code 1b: `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
+9. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
+10. Checklist by section, the kit: `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
 11. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-12. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
-13. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
+12. Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
+13. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
 14. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-15. Set a coverage floor once the review tests land · from checklist "coverage floor"
+15. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
+16. Set a coverage floor once the review tests land · from checklist "coverage floor"
+17. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
 
 ## Parked
 
