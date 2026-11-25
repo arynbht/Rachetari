@@ -3,14 +3,14 @@
 # Pull requests get a fast signal on Ubuntu and Windows: lint, typecheck and
 # sharded tests run as parallel jobs over the packages the change affects
 # (scripts/ci-scope.mjs), and only the jobs whose paths changed run at all. Main
-# gets the full pipeline on both OSes on every push and nightly.
+# and develop get the full pipeline on both OSes on every push; main also nightly.
 name: CI
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches: [main]
+    branches: [main, develop]
   schedule:
     - cron: "41 3 * * *" # nightly, 03:41 UTC
 

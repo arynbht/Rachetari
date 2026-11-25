@@ -58,7 +58,9 @@ Appended by the session, one line each, newest last.
 
 ## Questions for me
 
-- [ ] <question the session is blocked on>
+One question per line, in this shape; options are separated by `;`.
+
+- [ ] <question> — Recommended: <answer>. Options: <other>; <other>.
 
 ## Done
 
