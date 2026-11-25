@@ -419,4 +419,10 @@ describe("tail", () => {
     expect(tail("a\nb\nc\n\n", 2)).toBe("b\nc");
     expect(tail("a\r\nb", 5)).toBe("a\nb");
   });
+
+  it("drops terminal colour codes, so status.json reads as plain text", () => {
+    const esc = String.fromCharCode(27);
+    const colored = `${esc}[31mFAIL${esc}[39m x.test.ts ${esc}[2m>${esc}[22m one`;
+    expect(tail(colored, 1)).toBe("FAIL x.test.ts > one");
+  });
 });

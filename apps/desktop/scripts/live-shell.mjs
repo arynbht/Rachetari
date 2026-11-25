@@ -76,9 +76,17 @@ Options:
   --once         set up, run one check, write the status and exit; no shell
   --help         this text`;
 
-/** The last `n` lines of `output`, without trailing blank lines. */
+// Terminal colour and cursor codes (ESC [ ... letter); built from a char code
+// because ESLint forbids control characters in regex literals.
+const ANSI = new RegExp(`${String.fromCharCode(27)}\\[[0-9;?]*[A-Za-z]`, "g");
+
+/** The last `n` lines of `output` as plain text, without trailing blank lines. */
 export function tail(output, n) {
-  const all = output.replace(/\r\n/g, "\n").replace(/\n+$/, "").split("\n");
+  const all = output
+    .replace(ANSI, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n+$/, "")
+    .split("\n");
   return all.slice(-n).join("\n");
 }
 
