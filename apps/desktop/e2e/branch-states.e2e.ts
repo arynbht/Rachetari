@@ -67,13 +67,12 @@ test("Tasks greys a drafting branch and shows a done branch under Done", async (
   await page.getByRole("tab", { name: "Tasks" }).click();
   const board = page.getByRole("region", { name: "Board" });
   await expect(board.locator("h4")).toHaveText([
-    "Next up2",
-    "Draft2",
-    "Ready0",
-    "In progress1",
-    "Blocked2",
-    "PR open0",
-    "Done3",
+    /^Next up 2/,
+    "Draft + Ready 2/6",
+    "In progress 1/3",
+    "Blocked 2",
+    "PR open 0/3",
+    "Done 3",
   ]);
 
   const draft = board.getByRole("region", { name: /^Draft/ });
@@ -97,12 +96,6 @@ test("Tasks greys a drafting branch and shows a done branch under Done", async (
 
   const dir = process.env.SCREENSHOT_DIR;
   if (dir) {
-    // Wide enough for all seven columns, Done included: the board's scroller
-    // is let out for the picture only.
-    await page.setViewportSize({ width: 1600, height: 900 });
-    await board
-      .locator("div.overflow-x-auto")
-      .evaluate((el) => (el.style.overflow = "visible"));
     await page.screenshot({
       path: join(dir, "tasks-branch-states.png"),
       fullPage: true,
