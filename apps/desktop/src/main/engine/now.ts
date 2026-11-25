@@ -32,7 +32,7 @@ type Checklist = NonNullable<KitSnapshot["backlog"]>["checklist"];
  * unchecked lines); ties go to more fails, then A to Z, as the Checklist tab
  * orders them. Null for BACKLOG.md's checklist, which has no sections.
  */
-export function checklistSections(
+function checklistSections(
   checklist: Checklist | undefined,
 ): NonNullable<NowHealth["sections"]> | null {
   if (checklist?.source !== "CHECKLIST.md") return null;
