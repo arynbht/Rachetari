@@ -1,0 +1,42 @@
+{
+  "name": "@arynbht/rivetari-engine",
+  "version": "2.0.0",
+  "description": "Headless engine: resolves a profile, runs detectors, evaluates gates, and runs generators.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arynbht/Rivetari.git",
+    "directory": "packages/engine"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {},
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@arynbht/rivetari-catalog": "workspace:*",
+    "@octokit/rest": "^22.0.1",
+    "eta": "^4.6.0",
+    "jsonc-parser": "^3.3.1",
+    "picomatch": "^4.0.7",
+    "simple-git": "^4.0.2",
+    "tinyglobby": "^0.2.17",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^4.0.3"
+  }
+}
