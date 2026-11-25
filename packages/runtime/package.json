@@ -1,0 +1,31 @@
+{
+  "name": "@arynbht/rivetari-runtime",
+  "version": "1.0.0",
+  "description": "Task runtime: task cards and ledger, the router, and the judge (and, later, sector agents) for rivetari v2.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arynbht/Rivetari.git",
+    "directory": "packages/runtime"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {},
+  "dependencies": {
+    "@arynbht/rivetari-engine": "workspace:*"
+  }
+}

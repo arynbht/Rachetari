@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# electron-builder packaged installers (apps/desktop/release)
+release/
+
+# Test / coverage
+coverage/
+.vitest/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+id_rsa*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# The floorplan skill's map (it can only write to floorplan/ at the root).
+# Anchored: packages/engine/src/floorplan/ is source.
+/floorplan/
+
+# Desktop end-to-end (Playwright) artifacts
+apps/desktop/test-results/
+apps/desktop/playwright-report/
+
+# Local agent worktrees / Claude Code session state. Rivetari's hooks and
+# its /rivetari skill are the repo's contract, so they're committed.
+.claude/*
+!.claude/settings.json
+!.claude/skills/
+
+# Local reference documents (the audit, the shell description, design notes).
+# They stay on this machine and never reach GitHub.
+/files/

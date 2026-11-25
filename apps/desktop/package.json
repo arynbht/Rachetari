@@ -1,0 +1,10 @@
+{
+  "name": "@arynbht/rivetari-desktop",
+  "version": "0.1.0",
+  "description": "Electron desktop shell over Rivetari engine.",
+  "author": "Aryan Bhatia",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./out/main/index.js"
+}

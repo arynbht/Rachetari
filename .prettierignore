@@ -1,0 +1,17 @@
+**/dist/**
+**/out/**
+**/node_modules/**
+**/coverage/**
+*.tsbuildinfo
+pnpm-lock.yaml
+CHANGELOG.md
+
+# Test fixtures are data, sometimes intentionally malformed.
+**/test/fixtures/**
+
+# Desktop end-to-end (Playwright) artifacts.
+apps/desktop/test-results/**
+apps/desktop/playwright-report/**
+
+# Reports and documents kept as authored.
+inventory/**
