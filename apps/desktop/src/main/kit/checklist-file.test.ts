@@ -73,7 +73,7 @@ describe("parseChecklist", () => {
     expect(security.map((l) => l.isNew)).toEqual([false, false, true]);
     expect(security[2]).toMatchObject({
       text: "No secrets in the repo",
-      check: "gitleaks dir .",
+      check: "`gitleaks dir .`",
       stage: "foundation",
     });
   });
@@ -126,7 +126,7 @@ describe("parseChecklist", () => {
     expect(group(CHECKLIST, "cloud").lines[0]).toMatchObject({
       text: "Infrastructure is described as code",
       stage: "hardening",
-      check: "terraform validate",
+      check: "`terraform validate`",
     });
     const lines = group(
       oneSection(
@@ -137,9 +137,9 @@ describe("parseChecklist", () => {
       "testing",
     ).lines;
     expect(lines.map((l) => [l.text, l.stage, l.check, l.isNew])).toEqual([
-      ["Before", "building", "a", true],
-      ["After", "live", "b", true],
-      ["None", null, "c", false],
+      ["Before", "building", "`a`", true],
+      ["After", "live", "`b`", true],
+      ["None", null, "`c`", false],
     ]);
   });
 

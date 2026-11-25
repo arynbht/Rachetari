@@ -369,8 +369,8 @@ function checklistFileLine(line: string): FileLine | null {
       status,
       id,
       stage,
-      // One code span is shown bare; a check mixing prose and code stays as written.
-      check: check ? (/^`([^`]*)`$/.exec(check)?.[1] ?? check) : null,
+      // As written, code spans and all: the view shows them as code.
+      check,
       isNew,
     },
   };

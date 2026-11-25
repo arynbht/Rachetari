@@ -23,13 +23,15 @@ test.afterEach(async () => {
   fx.remove();
 });
 
+/** A screenshot tall enough to hold all fifteen rows (the view scrolls inside the window). */
 async function shot(name: string): Promise<void> {
   const dir = process.env.SCREENSHOT_DIR;
-  if (dir)
-    await launched.page.screenshot({
-      path: join(dir, `${name}.png`),
-      fullPage: true,
-    });
+  if (!dir) return;
+  const { page } = launched;
+  const size = page.viewportSize();
+  await page.setViewportSize({ width: size?.width ?? 1400, height: 1900 });
+  await page.screenshot({ path: join(dir, `${name}.png`), fullPage: true });
+  if (size) await page.setViewportSize(size);
 }
 
 const AZ = [
