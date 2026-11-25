@@ -19,6 +19,13 @@ export const IpcChannel = {
   NowSelect: "now:select",
   /** Push channel (main → renderer): one repo's Now state after a change. */
   NowUpdate: "now:update",
+  NowBadges: "now:badges",
+  /** Push channel (main → renderer): how many items wait on you, per repo. */
+  NowBadgesUpdate: "now:badgesUpdate",
+  /** Push channel (main → renderer): a notification was clicked; show its item. */
+  NowFocus: "now:focus",
+  /** Home: one line per registered repo, before a repo is picked. */
+  HomeGet: "home:get",
   TasksGet: "tasks:get",
   TasksDetail: "tasks:detail",
   /** Push channel (main → renderer): one repo's cards after a change. */
@@ -153,12 +160,23 @@ export const RecentEvent = z.object({
 });
 export type RecentEvent = z.infer<typeof RecentEvent>;
 
+export const NowCardLine = z.object({
+  id: z.string(),
+  title: z.string(),
+  /** The card's Status, or "unreadable". */
+  status: z.string(),
+  heldBy: z.string().nullable(),
+  branch: z.string(),
+});
+export type NowCardLine = z.infer<typeof NowCardLine>;
+
 export const NowState = z.object({
   repoPath: z.string(),
   ready: z.boolean(),
   error: z.string().nullable(),
   /** Live cards on card/* branches, readable or not. */
   cardCount: z.number(),
+  cards: z.array(NowCardLine),
   health: NowHealth,
   needsYou: z.array(NeedsYouItem),
   running: z.array(NowRunning),
@@ -170,6 +188,22 @@ export const NowBadges = z.array(
   z.object({ repoPath: z.string(), count: z.number().int() }),
 );
 export type NowBadges = z.infer<typeof NowBadges>;
+
+/** now:focus push payload — the item a clicked notification was about. */
+export const NowFocus = z.object({ repoPath: z.string(), id: z.string() });
+export type NowFocus = z.infer<typeof NowFocus>;
+
+// Home — one line per registered repo, from the Now watchers' last read:
+// its live cards, what needs the owner, its stage and its last night.
+export const HomeRepo = z.object({
+  repoPath: z.string(),
+  name: z.string(),
+  now: NowState,
+});
+export type HomeRepo = z.infer<typeof HomeRepo>;
+
+export const HomeView = z.object({ repos: z.array(HomeRepo) });
+export type HomeView = z.infer<typeof HomeView>;
 
 // Tasks — every card where it stands (a board by status, or a list), and one
 // card in full. Read from the same watcher as Now; nothing here writes.

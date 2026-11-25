@@ -2,8 +2,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron";
-
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Notification,
+  session,
+  shell,
+} from "electron";
 import type { ZodType } from "zod";
 
 import {
@@ -19,6 +26,10 @@ import {
   IpcChannel,
   MapGetRequest,
   MapView,
+  HomeView,
+  type NeedsYouItem,
+  NowBadges,
+  type NowFocus,
   NowRepoRequest,
   NowSelectRequest,
   NowState,
@@ -46,7 +57,8 @@ import {
   mapRequestAllowed,
 } from "./engine/map";
 import { readHistory, readNight } from "./engine/history";
-import { NowHub } from "./engine/now";
+import { readHome } from "./engine/home";
+import { itemKey, NowHub } from "./engine/now";
 import { taskDetail, tasksState } from "./engine/tasks";
 import { fetchRepo } from "./kit/source";
 import { registeredRepo } from "./store/registered";
@@ -95,6 +107,73 @@ let mainWindow: BrowserWindow | null = null;
 /** The map on show, whose floorplan/ is the only place its session may load from. */
 const mapFence = new MapFence();
 
+/** What each kind of item asks of the person, in the notification's title. */
+const NEEDS_YOU_ASK: Record<NeedsYouItem["kind"], string> = {
+  approve: "approve the card",
+  question: "answer a question",
+  held: "it was held overnight",
+  merge: "a PR to merge",
+  unreadable: "its card can't be read",
+};
+
+/** Bring the window up on a Needs-you item (a clicked notification). */
+function focusItem(focus: NowFocus): void {
+  const window = mainWindow;
+  if (!window) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+  window.webContents.send(IpcChannel.NowFocus, focus);
+}
+
+/**
+ * Notifications raised under E2E, which shows none on the desktop: the suite
+ * reads them, and clicks one, through `globalThis.rivetariE2E`.
+ */
+const e2eNotices: { repoPath: string; id: string; title: string }[] = [];
+if (isE2E)
+  (globalThis as unknown as { rivetariE2E: unknown }).rivetariE2E = {
+    notices: e2eNotices,
+    click: (i: number) => {
+      const notice = e2eNotices[i];
+      if (notice) focusItem({ repoPath: notice.repoPath, id: notice.id });
+    },
+  };
+
+/**
+ * Notifications shown, by repo and item. Each is held until it's clicked or
+ * its item leaves Needs you: on Windows a notice moved to the Action Center
+ * has fired 'close' but can still be clicked, and a collected one can't.
+ */
+const shownNotices = new Map<string, Notification>();
+const noticeKey = (repoPath: string, key: string) => `${repoPath}\0${key}`;
+
+/** Tell the person, through the OS, that something new waits on them. */
+function notifyNeedsYou(repoPath: string, item: NeedsYouItem): void {
+  const title = `${item.id} needs you: ${NEEDS_YOU_ASK[item.kind]}`;
+  if (isE2E) {
+    e2eNotices.push({ repoPath, id: item.id, title });
+    return;
+  }
+  if (!Notification.isSupported()) return;
+  const key = noticeKey(repoPath, itemKey(item));
+  const notice = new Notification({ title, body: item.title });
+  shownNotices.set(key, notice);
+  notice.on("click", () => {
+    if (shownNotices.get(key) === notice) shownNotices.delete(key);
+    focusItem({ repoPath, id: item.id });
+  });
+  notice.show();
+}
+
+/** An item left Needs you: its notice has nothing left to open, so it goes. */
+function withdrawNotice(repoPath: string, key: string): void {
+  const notice = shownNotices.get(noticeKey(repoPath, key));
+  if (!notice) return;
+  shownNotices.delete(noticeKey(repoPath, key));
+  notice.close();
+}
+
 /** A push that doesn't match the contract is said and dropped, never thrown into the watcher. */
 function push(channel: string, schema: ZodType, payload: unknown): void {
   const parsed = schema.safeParse(payload);
@@ -121,9 +200,9 @@ const nowHub = new NowHub({
       ),
     );
   },
-  // The sidebar's badges and the OS notifications arrive with T-0013.
-  onBadges: () => undefined,
-  onNew: () => undefined,
+  onBadges: (badges) => push(IpcChannel.NowBadgesUpdate, NowBadges, badges),
+  onNew: notifyNeedsYou,
+  onGone: withdrawNotice,
 });
 
 /** Watch exactly these repos (the sidebar's list); a failure is said, not thrown. */
@@ -338,6 +417,18 @@ function registerIpcHandlers(): void {
     const { repoPath: asked } = RepoFetchRequest.parse(raw);
     await fetchRepo(await registered(asked));
   });
+
+  ipcMain.handle(IpcChannel.HomeGet, async () =>
+    // The sidebar's own list, never a path the renderer sends.
+    HomeView.parse(
+      await readHome({
+        listRepos,
+        state: (repoPath) => nowHub.state(repoPath),
+      }),
+    ),
+  );
+
+  ipcMain.handle(IpcChannel.NowBadges, () => NowBadges.parse(nowHub.badges()));
 
   ipcMain.handle(IpcChannel.NowGet, async (_event, raw: unknown) => {
     const { repoPath: asked } = NowRepoRequest.parse(raw);
