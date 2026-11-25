@@ -10,7 +10,7 @@
    naming the file and why.
    Read the skills the card names under "Skills" from `skills/`, and no others.
 3. **Park everything else.** Anything you notice that isn't the card (a bug, a refactor, a
-   missing test, a tool problem) gets one line under "Parked" in `BACKLOG.md`, then you
+   missing test, a tool problem) gets one line under "Parked" in the card's `CARD.md` (never edit `BACKLOG.md`; the merger appends it there), then you
    carry on with the card. Do not fix it, even if it's small.
 4. **Stop and ask before:** adding a dependency; changing a schema, contract or public
    type; touching auth, billing or migrations; changing or deleting an existing test;
