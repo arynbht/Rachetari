@@ -9,3 +9,11 @@ The doc is on PR #51: `docs/army-mode.md` on `card/T-0038`. These three decision
 3. Small questions at night: `SCOPE.md` holds them; the line decides and logs them. — Recommended: keep holding them at night until the first width-2 nights are reviewed. Other options: decide and log at night too.
 
 Answer:
+
+## T-0040 · test: set a coverage floor
+
+Coverage today (`pnpm test` on Windows, 38 files, 207 tests): lines 48.50 %, branches 81.72 %, functions 75.76 %, statements 48.50 %. A PR's `ci` runs tests with coverage off, so the floor is first enforced by `build-test` on `develop`.
+
+1. What should the global floor be (lines/branches/functions/statements)? — Recommended: 45/78/72/45, today's numbers less about 3.5 points. Other options: 48/81/75/48 (today's, no slack); 40/75/70/40.
+
+Answer:
