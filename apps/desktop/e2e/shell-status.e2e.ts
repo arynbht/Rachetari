@@ -56,15 +56,19 @@ async function showTab(page: Page, tab: string): Promise<void> {
 
 const FETCHED = /^fetched \d+ (s|min) ago$/;
 
-/** Now's header, from the window's top down to the health strip. */
-async function headerShot(page: Page, name: string): Promise<void> {
+/** Now's header, from the window's top down to `height`. */
+async function headerShot(
+  page: Page,
+  name: string,
+  height = 280,
+): Promise<void> {
   const dir = process.env.SCREENSHOT_DIR;
   if (!dir) return;
   await showTab(page, "Now");
   const width = await page.evaluate(() => window.innerWidth);
   await page.screenshot({
     path: join(dir, name),
-    clip: { x: 0, y: 0, width, height: 280 },
+    clip: { x: 0, y: 0, width, height },
   });
 }
 
@@ -117,7 +121,8 @@ test("a failing fetch shows in the header", async () => {
   // The repo's own error box stays the only alert.
   await expect(page.getByRole("alert")).toHaveCount(1);
   await expect(page.getByRole("alert")).toContainText("Couldn't fetch");
-  await headerShot(page, "fetch-failed.png");
+  // Taller: the repo's error box sits above the tabs.
+  await headerShot(page, "fetch-failed.png", 430);
 });
 
 test("a card pushed to the origin shows after the next background fetch, without reopening the repo", async () => {
