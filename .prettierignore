@@ -19,3 +19,7 @@ inventory/**
 # The kit and the spec, kept exactly as the owner wrote them.
 SCOPE.md
 kit/**
+
+# Area skills, kept exactly as upstream wrote them.
+skills/**
+!skills/INDEX.md
