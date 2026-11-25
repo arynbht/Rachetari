@@ -37,13 +37,19 @@ export default defineConfig({
     hookTimeout: 30_000,
     coverage: {
       // On for every run, failing or not, so `pnpm test` always writes
-      // coverage-summary.json (the judge's coverage floor reads it after its run).
+      // coverage-summary.json and checks the floor in `thresholds` below.
       enabled: true,
       reportOnFailure: true,
       provider: "v8",
       reporter: ["json-summary", "text-summary"],
       include: ["packages/*/src/**/*.ts", "apps/desktop/src/**/*.{ts,tsx}"],
       exclude: ["**/*.{test,spec}.ts", "**/*.d.ts", "**/dist/**"],
+      thresholds: {
+        lines: 45,
+        branches: 78,
+        functions: 72,
+        statements: 45,
+      },
     },
   },
 });
