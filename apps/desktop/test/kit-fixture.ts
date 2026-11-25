@@ -28,6 +28,8 @@ export interface CardSpec {
   nextStep?: string;
   question?: string;
   pr?: number;
+  /** The Created line's `Gate:` value, e.g. "needs you"; none when unset. */
+  gate?: string;
   /** One criterion per entry: [text, state]. */
   criteria?: [string, "ticked" | "unticked" | "untested"][];
 }
@@ -46,7 +48,9 @@ export function cardText(spec: CardSpec): string {
     "",
     `Status: ${spec.status} <!-- draft | ready | in progress | blocked | done -->`,
     `Branch: card/${spec.id} · Held by: ${spec.heldBy ?? "nobody"}`,
-    `Created: 2026-11-20 · Source: prompt`,
+    `Created: 2026-11-20 · Source: prompt${
+      spec.gate === undefined ? "" : ` · Gate: ${spec.gate}`
+    }`,
     "",
     "## Why",
     "",
@@ -250,7 +254,12 @@ export function kitFixture(): KitFixture {
   write(
     repo,
     "CARD.md",
-    cardText({ id: "T-0004", title: "feat: dark mode", status: "draft" }),
+    cardText({
+      id: "T-0004",
+      title: "feat: dark mode",
+      status: "draft",
+      gate: "needs you",
+    }),
   );
   commitAll(repo, "chore(card): T-0004");
 
