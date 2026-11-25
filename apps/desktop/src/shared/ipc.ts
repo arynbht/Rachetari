@@ -140,6 +140,20 @@ export const NowHealth = z.object({
       blocked: z.number(),
     })
     .nullable(),
+  /**
+   * The checklist's sections, from CHECKLIST.md: the one with the most gaps
+   * (fail + unchecked lines; ties: more fails, then A to Z), or null when no
+   * section has a gap. Null when the checklist is BACKLOG.md's, or there is
+   * none. Optional in the type only: the engine always sets it.
+   */
+  sections: z
+    .object({
+      worst: z
+        .object({ name: z.string(), fail: z.number(), unchecked: z.number() })
+        .nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 export type NowHealth = z.infer<typeof NowHealth>;
 
