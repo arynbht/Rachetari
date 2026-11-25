@@ -1,9 +1,229 @@
 # T-0034 · feat(shell): the checklist by section
 
-Status: draft
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0034 · Held by: nobody
-Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4h
+Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4h. Checklist by section: the shell (part 1 of 2) · Gate: low
+
+## Why
+
+T-0029 moved the checklist out of `BACKLOG.md` into its own `CHECKLIST.md`, in fifteen
+sections, each line with a status, a stage tag and a check, and T-0033 moves this repo's
+checklist there. The shell still reads only "Repo checklist" in `BACKLOG.md`, so a moved
+repo's Checklist tab, Now's health and Home's stage go blank. This card makes the file
+source read `CHECKLIST.md` (falling back to the old section for repos not moved yet), and
+turns the Checklist tab into one row per section with its counts, gaps first, so the
+owner sees at a glance which areas are neglected. Home's "section with the most gaps" is
+part 2.
+
+## Acceptance criteria
+
+Each one is checked by something that can be run or looked at. No criterion without a check.
+
+- [ ] A1: `parseChecklist(text)` in `kit/parse.ts` reads a `CHECKLIST.md` in T-0029's
+      format: the `Stage:` line and what decides it, `Last /setup:`, and one group per
+      `## <section>` heading in file order, an empty section included. Each line gets its
+      status (`[x]` pass, `[ ]` fail, `[ ] unchecked:` unchecked, `- n/a:` n/a), its text,
+      its catalog `id` (null when it has none), its `stage` tag (read before or after
+      `· check:`), its check and its `new` mark. The id has one place: the first
+      backticked token of the claim, right after the marker, read the same whether it
+      sits before or after `unchecked:`, and after `n/a:`; it is taken out of the text.
+      A `- n/a:` line with no id is the section's own n/a: it sets the group's `na`
+      reason and is not a line; a `- n/a:` line with an id is a dropped control: an n/a
+      line, counted in the section's n/a count. The indented format block and `<…>`
+      placeholder lines are skipped. Old `BACKLOG.md` lines parse as today, with `id` and
+      `stage` null and `na` null
+      · check: `pnpm exec vitest run apps/desktop/src/main/kit/checklist-file.test.ts --coverage.enabled=false`,
+      tests "reads the stage, the last /setup and all fifteen sections in file order",
+      "reads each line's status, id, stage tag, check and new mark", "reads a catalog id
+      on any line: before or after unchecked:, and after n/a:", "reads a stage tag on
+      either side of the check", "tells a section's n/a from a dropped control's n/a",
+      "skips the format block and the template's placeholder lines" (all pass, names
+      listed under Evidence)
+- [ ] A2: `readBacklog` (on the display branch, as T-0031 leaves it) takes its checklist
+      from `CHECKLIST.md` when the branch has one, else from `BACKLOG.md`'s "Repo
+      checklist"; `checklist.source` says which (`"CHECKLIST.md"`, `"BACKLOG.md"`, or
+      null with neither). `ChecklistView` in `shared/ipc.ts` gains, additively, `source`,
+      a group's `na` (string or null) and a line's `id` and `stage` (string or null),
+      zod-parsed in main as today; nothing is removed or renamed. Now's stage and counts
+      and Home's stage follow from it with no change to `now.ts`, `watch.ts` or
+      `Home.tsx`. The parser reads this repo's real `CHECKLIST.md` whole
+      · check: same file, tests "takes the checklist from CHECKLIST.md when the repo has
+      one", "falls back to BACKLOG.md's Repo checklist without one", "Now's health takes
+      the stage and counts from CHECKLIST.md", "parses this repo's CHECKLIST.md: fifteen
+      sections in order, as many lines as the file has under them, every non-n/a line
+      with a stage"; `pnpm --filter @arynbht/rivetari-desktop typecheck`
+- [ ] A3: On a repo with `CHECKLIST.md`, the Checklist tab shows the Stage card, the
+      totals strip (`Totals`, reused) and one row per section (`GroupCard`, reused) with
+      its pass, fail, unchecked and n/a counts in aligned, labelled columns that read
+      without colour. Each section's name is an `h4`. A section with a fail or unchecked
+      line starts open, any other closed. A section with its own n/a is greyed, shows
+      "n/a: <reason>" and doesn't open; one with no lines and no n/a is greyed and says
+      "not assessed". Each open line shows its stage tag, its id, its check and `new`.
+      Sections are ordered by fail + unchecked, most first (ties: more fails, then A to Z);
+      an "Alphabetical" toggle (`aria-pressed`) orders them A to Z and back
+      · check: `pnpm --filter @arynbht/rivetari-desktop e2e e2e/checklist-sections.e2e.ts`
+      (runs in CI's desktop-e2e), tests "Checklist reads CHECKLIST.md: the totals and one
+      row per section, gaps first", "a neglected section starts open and a full one
+      closed, with each line's stage and check", "an n/a section is greyed with its
+      reason, and an empty one says not assessed", "Alphabetical orders the sections A to
+      Z and back", each axe clean; run locally with
+      `SCREENSHOT_DIR=$PWD/docs/screenshots/T-0034` it writes
+      `docs/screenshots/T-0034/checklist-sections.png`, committed and looked at
+- [ ] A4: A repo with no `CHECKLIST.md` shows today's view, rendered as today, and no
+      existing test is edited: `checklist.e2e.ts`, `home.e2e.ts`, `axe.e2e.ts`,
+      `checklist.test.ts`, `now.test.ts`, `home.test.ts` and `test/kit-fixture.ts` are
+      unchanged and pass
+      · check: `git diff --exit-code origin/develop...HEAD -- apps/desktop/e2e/checklist.e2e.ts apps/desktop/e2e/home.e2e.ts apps/desktop/e2e/axe.e2e.ts apps/desktop/src/main/engine/checklist.test.ts apps/desktop/src/main/engine/now.test.ts apps/desktop/src/main/engine/home.test.ts apps/desktop/test/kit-fixture.ts`
+      exits 0; those tests pass in `vitest run` and desktop-e2e on the PR
+- [ ] A5: Nothing outside "Files in scope" changes, and `ci` is green on the PR
+      · check: `git diff --stat origin/develop...HEAD`; `gh pr checks` (unit tests and
+      desktop-e2e). Local before pushing: `pnpm lint`,
+      `pnpm --filter @arynbht/rivetari-desktop typecheck`,
+      `pnpm exec vitest run apps/desktop --coverage.enabled=false`, `pnpm format`
+
+## Files in scope
+
+Only these may be edited. Anything else needs a stop-and-ask.
+
+- `apps/desktop/src/main/kit/parse.ts` (`parseChecklist`, and `checklistLine` gaining
+  `id` and `stage`)
+- `apps/desktop/src/main/kit/source.ts` (`readBacklog` only)
+- `apps/desktop/src/main/engine/checklist.ts`
+- `apps/desktop/src/shared/ipc.ts` (`ChecklistView` only: `source`, a group's `na`, a
+  line's `id` and `stage`, all additive)
+- `apps/desktop/src/renderer/components/Checklist.tsx`
+- `apps/desktop/test/checklist-fixture.ts` (new: the fixture `CHECKLIST.md`)
+- `apps/desktop/src/main/kit/checklist-file.test.ts` (new)
+- `apps/desktop/e2e/checklist-sections.e2e.ts` (new)
+- `docs/screenshots/T-0034/checklist-sections.png` (new)
+- `CARD.md`, `cards/done/T-0034.md`, `BACKLOG.md` (Parked lines only: on the line, cards
+  never edit Next up)
+
+## Out of scope
+
+Named on purpose, so the session doesn't drift into them.
+
+- Home's "section with the most gaps" (part 2: `now.ts`, `NowHealth`, `Home.tsx`)
+- Anything else from Rivetari's Posture tab: the phase lens, trend chart, waivers,
+  evidence, Run audit. Only `Totals` and `GroupCard` came over (`EXTRACTED.md` T-0010);
+  park any wish for more
+- The display-branch header (T-0031), and running or writing any check: the shell stays
+  read-only
+- Starter lines that duplicate a catalog control's check with a different stage: shown as
+  two lines here, not merged or flagged. Park it if the real file has one
+- `kit/**`: a fault in the template is parked as `[kit]`, not fixed
+
+## Constraints
+
+- No new dependencies. No change to `now.ts`, `watch.ts`, `Home.tsx`, `status.ts` or any
+  existing test.
+- The fallback view (no `CHECKLIST.md`) renders exactly as today: same headings, texts,
+  "Lines by stage", `GroupCard` header and `Totals`, so the existing tests pass unedited.
+- The fixture: `kitFixture()`, then `fx.commitOnOrigin("CHECKLIST.md", CHECKLIST)` and
+  `git fetch -q` in `fx.repo` before launch. `CHECKLIST` follows T-0029's template (Stage,
+  Last /setup, the intro and the indented format block) with all fifteen headings:
+  - security, full: three `[x]` lines with ids, stage tags and checks, one marked `new`
+  - testing, neglected: one `[x]`, two `[ ]` with what the check showed, one
+    ``- [ ] `test.coverage-threshold` unchecked: …`` (id before `unchecked:`)
+  - cicd: one ``- [ ] unchecked: `ci.branch-protection` …`` (id after `unchecked:`)
+  - data: one `[x]` and one dropped control, ``- n/a: `data.backups-tested` no database``
+  - legal, n/a: `- n/a: nothing is distributed and nobody's data is held`
+  - ux, empty: the heading only
+  - the other nine: one `[x]` line each
+  - Stage line `Stage: Foundation — …`, so the Stage card shows CHECKLIST.md's stage and
+    not the fixture BACKLOG.md's `Building`
+- Expected on that fixture: totals Pass 14, Fail 2, Unchecked 2, N/A 1, Total 19; default
+  order testing, cicd, then the other thirteen A to Z; testing and cicd open; legal greyed
+  with its reason; ux "not assessed"; data closed, showing 1 pass and 1 n/a.
+- Base `develop`: merge `origin/develop` in (no rebase) after each dependency merges.
+
+## Skills
+
+At most three, from `skills/INDEX.md`. Read these and no others.
+
+- `testing/test-driven-development`: A1 and A2 are written test first against the fixture
+  and this repo's real file
+- `ui/frontend-design`: A3's strip has to scan at a glance across fifteen rows
+
+## Stop and ask
+
+Besides the standing list in CLAUDE.md:
+
+- Depends on: T-0029 (the CHECKLIST.md format) — merged into `develop` 2026-11-25
+- Depends on: T-0033 (this repo's CHECKLIST.md): A2's real-file test needs it
+- Depends on: T-0031 (`source.ts`, `checklist.ts`, `ipc.ts`, `Checklist.tsx`): build on its
+  display branch and header
+- Depends on: T-0024 (`source.ts`)
+- Depends on: T-0032 (`ipc.ts`)
+- This repo's `CHECKLIST.md` has a line the parser can only read by loosening the format
+  beyond A1
+- An existing test fails and seems to need an edit
 
 ## Next step
 
-Being drafted.
+Ready. Once T-0033, T-0031, T-0024 and T-0032 have merged into `develop`, merge
+`origin/develop` in (no rebase), then write A1's tests first.
+
+## Decisions
+
+Appended by the session, one line each, newest last.
+
+- 2026-11-25: Gate `low`: the one stop-and-ask item is the `ChecklistView` change, which
+  §4h asks for (the source reads sections, statuses and stage tags), and it is additive.
+  No existing test is edited (A4). Set ready by the drafter.
+- 2026-11-25: The split, decided for the owner: part 1 (this card) is the reader and the
+  Checklist tab; part 2 is Home's section with the most gaps (`NowHealth` gains it in
+  `now.ts`, so it follows the watcher; `Home.tsx`; a new home e2e on the same fixture).
+  Proposed Next up line for the foreman: "Checklist by section, the shell, part 2: Home
+  shows each repo's section with the most gaps (after T-0034)". Alternative: one card,
+  about nine working files.
+- 2026-11-25: The old checklist, decided for the owner: yes, the shell still reads
+  `BACKLOG.md`'s "Repo checklist" when a repo has no `CHECKLIST.md`, shown as today;
+  `CHECKLIST.md` wins when both exist. Alternative: `CHECKLIST.md` only, and unmoved repos
+  say "run /setup".
+- 2026-11-25: Where it's read, decided for the owner: `readBacklog`'s checklist comes from
+  `CHECKLIST.md`, so Now's health and Home's stage pick it up with no change to `now.ts`,
+  `watch.ts` or `Home.tsx`. Alternative: a separate reader and snapshot field, which edits
+  `watch.ts` and `now.ts` (both T-0031's).
+- 2026-11-25: A repo with `CHECKLIST.md` but no `BACKLOG.md`, decided for the owner:
+  `readBacklog` stays null, as today (`/setup` writes both). Alternative: show the
+  checklist anyway, which changes what `hasBacklog` means.
+- 2026-11-25: The id's place (inspector's note on T-0029), decided for the owner: the
+  first backticked token of the claim, after the marker; on an `unchecked:` line read
+  either side of `unchecked:`, since the template doesn't fix it. The builder parks a
+  `[kit]` line asking the template to put it in one place. Alternative: one position
+  only, and lines written the other way lose their id.
+- 2026-11-25: The two kinds of `- n/a:` (inspector's note on T-0029), decided for the
+  owner: no id is the section's own n/a (greys the section with its reason, not counted as
+  a line); an id is a dropped control (an n/a line, counted). Only for `CHECKLIST.md`: an
+  old `BACKLOG.md` n/a line stays a line. Alternative: count the section's n/a as one n/a
+  line too.
+- 2026-11-25: Ordering ties, decided for the owner: more fails first, then A to Z; n/a and
+  not-assessed sections sort as zero gaps. The Alphabetical toggle isn't remembered.
+  Alternative: sink n/a sections to the bottom; remember the toggle per repo.
+- 2026-11-25: Section names are shown as written (lowercase, as the template has them).
+  Alternative: capitalise them.
+- 2026-11-25: The fixture goes in a new `test/checklist-fixture.ts`, committed on the
+  kit fixture's origin, rather than editing `test/kit-fixture.ts`, which T-0031 edits and
+  every view's tests share. Alternative: a `CHECKLIST.md` in the kit fixture, which
+  changes the existing views' tests.
+- 2026-11-25: Base: T-0029 merged into `develop`; merged in here at `2dac48d`, no rebase.
+
+## Questions for me
+
+- [ ] (none)
+
+## Done
+
+- [ ] Every criterion ticked, with the command run and its result pasted below
+- [ ] Tests, lint and typecheck run; output below
+- [ ] No edits outside "Files in scope" (`git diff --stat` below)
+- [ ] Anything not run is marked UNTESTED, never "verified"
+- [ ] Draft PR opened: #
+
+### Evidence
+
+```
+Waiting on the owner (wall clock, UTC):
+  none (low card)
+```
