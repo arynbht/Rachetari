@@ -73,6 +73,9 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `playwright-cli` suggests an unpinned global install, `npm install -g @playwright/cli@latest`, when the CLI is missing; a pinned version installed ahead of time would keep runs reproducible · seen on T-0022 · `skills/testing/playwright-cli/SKILL.md:415`
 - 2026-11-25 [product] `playwright-cli` bootstraps a missing Playwright install with the unpinned scaffolder `npm init playwright@latest` · seen on T-0022 · `skills/testing/playwright-cli/references/test-generation.md:159`
 - 2026-11-25 [tool] GitHub ignores `BACKLOG.md merge=union`, so a card PR whose Parked lines meet the day branch's shows CONFLICTING though `git merge-tree` and the foreman's local merge are clean (PR #37) · seen on the line · `.gitattributes`
+- 2026-11-25 [product] A timed-out git call kills only git: its children (a fetch's sub-fetch, `git-remote-http`) keep running in the repo until the remote closes the connection, so a hung remote can pile up processes over repeated fetches · seen on T-0024 · `apps/desktop/src/main/kit/source.ts`
+- 2026-11-25 [tool] `rmSync`'s `maxRetries` didn't retry EBUSY on Node 22.23 / Windows, and `kitFixture().remove()` has no wait, so a fixture that a cut-off git process still runs in can't be removed right away · seen on T-0024 · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- <file>` passes `--` on to playwright, which then runs the whole e2e suite, not just `<file>` · seen on T-0024 · `apps/desktop/package.json`
 
 ## Repo checklist
 

@@ -88,7 +88,12 @@ test("a fetch that hangs shows its message in that repo's error box, and opening
   git(fx.repo, "remote", "set-url", "hang", fx.origin);
   fx.pushToOrigin(
     "T-0012",
-    cardText({ id: "T-0012", title: "feat: from the laptop", status: "draft" }),
+    cardText({
+      id: "T-0012",
+      title: "feat: from the laptop",
+      status: "draft",
+      gate: "needs you",
+    }),
   );
   await page.getByRole("button", { name: /^hang-repo/ }).click();
   await expect(page.getByText("5 waiting", { exact: true })).toBeVisible({
