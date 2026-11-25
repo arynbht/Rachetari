@@ -17,9 +17,9 @@ Ordered. The top line becomes the next `CARD.md`.
 9. Checklist by section, the kit: `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
 10. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
 11. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
-12. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
-13. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-14. Shell action: "answer a question" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: answer a question
+12. Questions panel on Now: one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
+13. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
+14. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 15. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
 16. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
 17. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
@@ -65,6 +65,9 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] A test that drives real git hung once on Windows CI: `source.test.ts › only sees a card pushed from another machine after a fetch` hit 30 s on PR #30 (run 45663184235, attempt 1) but takes 515–656 ms locally (20 runs) and 961 ms on the CI re-run; vitest reported the timeout, so the wait was in an async git call (`readLiveCards` or `fetchRepo`, which runs `git fetch --all --prune` with no timeout of its own) · seen on T-0016 · `apps/desktop/src/main/kit/source.ts`
 - 2026-11-25 [product] `fetchRepo` has no timeout, so a hung `git fetch` would leave the shell's Fetch waiting forever · seen on T-0016 · `apps/desktop/src/main/kit/source.ts:322`
 - 2026-11-25 [checklist] The checklist's "`ci` is required before a merge to main" line still reads failing (404), but `ci` has been required since today; `/setup` hasn't been re-run · seen on T-0016 · `gh api repos/arynbht/Rachetari/branches/main/protection`
+- 2026-11-25 [product] A draft with no `Gate:` line raises nothing in Needs you; the kit's `/card` and `cards/TEMPLATE.md` don't write a gate yet · seen on T-0019 · `kit/setup/templates/CARD.md`
+- 2026-11-25 [tool] `BACKLOG.md merge=union` suits the append-only Parked list but stacks an ordered, renumbered list like Next up; Next up may need its own file · seen on T-0017 · `.gitattributes`
+- 2026-11-25 [product] Needs you runs several questions for one card together on one line; each question should be its own row · seen on the line · `apps/desktop/src/main/engine/now.ts`
 
 ## Repo checklist
 
