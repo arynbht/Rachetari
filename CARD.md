@@ -1,7 +1,7 @@
 # T-0058 · fix(kit): the rest of the kit says parked lines live in the card
 
-Status: ready
-Branch: card/T-0058 · Held by: nobody
+Status: in progress
+Branch: card/T-0058 · Held by: builder session
 Created: 2026-11-25 · Source: BACKLOG Next up (follow-up to T-0052) · Gate: low
 
 ## Why
