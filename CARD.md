@@ -1,9 +1,212 @@
 # T-0035 · feat(shell): the Tasks record header and its tabs
 
-Status: draft
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0035 · Held by: nobody
-Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 3: record header and tabs
+Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 3: record header and tabs, §Tasks overhaul: the owner's pick (2026-11-25), §Tasks overhaul 1: design only · Gate: needs you
+
+## Why
+
+A card's record in Tasks is one long page: the next step, the open questions, the
+evidence and the commits are all somewhere down the scroll, so what the owner needs to
+see first isn't first. The owner picked T-0028's record
+(`origin/card/T-0028:docs/screenshots/T-0028/2-selected.png`, `3-blocked-question.png`):
+a fixed header (id, title, status, held by, next step, PR), the open questions pinned
+under it, then tabs for Card, Evidence and Commits. T-0032 puts today's record in the
+right-hand pane; this card replaces that record.
+
+## Acceptance criteria
+
+Each one is checked by something that can be run or looked at. No criterion without a check.
+
+The e2e checks run in CI's `desktop-e2e` job on the PR, and locally with
+`pnpm --filter @arynbht/rivetari-desktop e2e e2e/tasks.e2e.ts e2e/branch-states.e2e.ts`.
+Screenshots come from the same run with `SCREENSHOT_DIR=$PWD/docs/screenshots/T-0035`,
+are committed, and are 1140×780 PNGs (read from the PNG header). Cards the tests add are
+pushed to the fixture's origin by the test itself, as `questions.e2e.ts` does.
+
+- [ ] A1: The record opens with a fixed header: the id and the full title, then Status,
+      Held by, PR ("#7, draft", "#7, waiting to merge", "#7, merged" or "none"), Branch
+      and Next step (at most two lines; the full text is in the Card tab). The header
+      stays where it is while the record's body scrolls under it. At 1140×780, for a
+      card with a 120-character title, a 500-character next step and a PR, the header is
+      wholly inside the window, at most 220 px tall, doesn't scroll inside itself
+      (`scrollHeight` ≤ `clientHeight`), the title isn't truncated, the page doesn't
+      scroll (`document.documentElement.scrollHeight` ≤ 780), and the tab list is
+      visible too · check: e2e test "the record header fits at 1140×780 and stays put
+      while the record scrolls" (axe clean)
+- [ ] A2: Open questions are pinned first: under the header and above the tabs, a box
+      headed "1 open question" or "N open questions" with one row per open question, in
+      Now's Questions panel shape (the ask; "Recommended: …" or "No recommendation
+      written"; "Other options: …"), from a new `openQuestions` on `TaskDetail` split by
+      `questionParts`. Answered questions aren't in the box. Anything else the card waits
+      on the owner for (T-0032's `needs`: approve, can't be read, merge, held) is pinned
+      as one line above it, with what to do. The box grows with its rows and never clips
+      them: at 1140×780, with two open questions, the box doesn't scroll inside itself
+      and the tab list ends at least 64 px above the record pane's visible bottom, room
+      for one 32 px row of answer buttons per question · check: unit
+      `pnpm exec vitest run apps/desktop/src/main/engine/tasks-questions.test.ts --coverage.enabled=false`,
+      test "a record carries its open questions in parts, numbered from 1, without the
+      answered ones"; e2e test "open questions are pinned above the tabs, each with its
+      recommendation, leaving room for answer buttons" (axe clean), writing
+      `3-blocked-question.png`
+- [ ] A3: Below them, tabs Card, Evidence and Commits (a `tablist` named
+      "<id> record tabs", each a `tab` with `aria-selected`, one `tabpanel`). Click
+      selects; Left, Right, Home and End move between tabs. A card opens on Card, which
+      shows Why, Source, the full Next step, the criteria, Files in scope, Out of scope,
+      Constraints, Skills, Decisions and the answered questions. Evidence shows the
+      evidence, or "No evidence written yet."; Commits shows the commits with today's
+      note (on its branch, or that touched its file). A drafting or unreadable card keeps
+      its note in Card; a Next up line shows its header and note and no tabs · check: e2e
+      test "the record's Card, Evidence and Commits tabs, by click and by arrow keys" (axe
+      clean), writing `2-selected.png` (T-0003, Card tab); the existing tests edited only
+      as listed under Constraints pass
+- [ ] A4: Only the files in scope change; the existing-test edits are only those listed
+      under Constraints; every other test passes unchanged; `ci` is green on the PR ·
+      check: `git diff --stat origin/develop...HEAD`; `gh pr checks` (unit tests and
+      desktop-e2e). Local before pushing: `pnpm lint`,
+      `pnpm --filter @arynbht/rivetari-desktop typecheck`,
+      `pnpm exec vitest run apps/desktop --coverage.enabled=false`,
+      `pnpm exec prettier --check apps/desktop CARD.md`
+
+## Files in scope
+
+Only these may be edited. Anything else needs a stop-and-ask.
+
+- `apps/desktop/src/renderer/components/Tasks.tsx` (the record: `TaskRecord`, `Field`,
+  `Part`)
+- `apps/desktop/src/main/engine/tasks.ts` (`taskDetail`: `openQuestions`)
+- `apps/desktop/src/shared/ipc.ts` (only `TaskDetail`: the new `openQuestions` field)
+- `apps/desktop/src/main/engine/tasks-questions.test.ts` (new)
+- `apps/desktop/e2e/tasks.e2e.ts` (the new tests above, and the edits under Constraints)
+- `apps/desktop/e2e/branch-states.e2e.ts` (only the edit under Constraints)
+- `docs/screenshots/T-0035/2-selected.png`, `3-blocked-question.png` (new)
+- `CARD.md`, `cards/done/T-0035.md`, `BACKLOG.md` (Parked lines only: on the line, cards
+  never edit Next up)
+
+## Out of scope
+
+Named on purpose, so the session doesn't drift into them.
+
+- Answer buttons ("Accept recommended", a free-text answer) and any write to a card: the
+  Questions answers card that follows T-0026
+- The board, its columns, the selected-card list and Needs me (T-0032); Now's Questions
+  panel and `Now.tsx`, including pulling its question row out into a shared component
+- `kit/parse.ts` (questions over several lines are parked already), a link from the PR
+  to GitHub, a "mark ready" button
+
+## Constraints
+
+- No new dependencies.
+- The IPC change is additive and only on `TaskDetail`: `openQuestions`, a list of
+  `NowQuestion` (`n`, `ask`, `recommended`, `options`), split in `taskDetail` with
+  `questionParts` imported from `kit/parse.ts` (not edited); empty for a Next up line, a
+  drafting branch and an unreadable card.
+- Names other tests rely on stay: the record region "<id> record", the heading "Tasks",
+  the region "Board". The record's tabs must not take a name the app's own tabs use
+  (Now, Tasks, Checklist, History, Map).
+- The existing-test edits, each only a change of where the same fact is read, listed in
+  the PR:
+  - `tasks.e2e.ts` "a card opens in full: criteria, scope, skills, questions, evidence and
+    commits": "Show the evidence" becomes the Evidence tab (the evidence is still hidden
+    until asked for), and the commit is read after selecting the Commits tab
+  - `tasks.e2e.ts` "Open in Tasks from Now opens that card's record": "Open: Round half
+    up or half even?" becomes "Round half up or half even?" inside the open-questions
+    box, and "chore(card): T-0005" is read after selecting the Commits tab
+  - `branch-states.e2e.ts` "Tasks greys a drafting branch and shows a done branch under
+    Done": "add cards/done/T-0007.md" is read after selecting T-0007's Commits tab
+- Screenshots: dark theme, the shell's default 1140×780 window, CSS pixels, matching
+  T-0028's `2-selected.png` and `3-blocked-question.png`.
+
+## Skills
+
+At most three, from `skills/INDEX.md`. Read these and no others.
+
+- `ui/frontend-design` — a header that must fit a fixed window, a pinned box and tabs:
+  hierarchy and density, then a critique against T-0028's two screenshots
+- `workflow/incremental-implementation` — three slices, each tested: `openQuestions`,
+  the header and pinned box, the tabs
+- `testing/test-driven-development` — A2's unit test and each e2e test written before
+  the change it checks
+
+## Stop and ask
+
+Besides the standing list in CLAUDE.md:
+
+- Depends on: T-0032 (`Tasks.tsx`, `tasks.e2e.ts`; also `tasks.ts`, `ipc.ts`,
+  `branch-states.e2e.ts`, and its `needs` field and record pane this card builds on):
+  start once it has merged into `develop`
+- Depends on: T-0031 (`tasks.ts`, `ipc.ts`, `Tasks.tsx`, `branch-states.e2e.ts`): start
+  once it has merged into `develop`
+- Depends on: T-0034 (`ipc.ts`, `ChecklistView`): start once it has merged into
+  `develop`
+- If the header can't meet A1 at 1140×780 without truncating the title, or T-0032's
+  record pane is narrower than 480 px
+- If an existing test other than those listed under Constraints fails because of this
+  change
 
 ## Next step
 
-Being drafted.
+Start once T-0032, T-0031 and T-0034 have merged into `develop`: write A2's unit test,
+then `openQuestions` in `taskDetail`.
+
+## Decisions
+
+Appended by the session, one line each, newest last.
+
+- 2026-11-25: Gate `needs you`, as the queue says; owner's pick on 2026-11-25 approves
+  the build ("Build cards may start"). It covers the header, the pinned questions, the
+  tabs, the additive `openQuestions` field they need, and the existing-test edits that
+  only move where a fact is read (a tab click, the question without its "Open: " prefix).
+  So `ready`, with no question. At six code and test files and four criteria, one over
+  the size line: the drafter proposes no split, since `branch-states.e2e.ts` gets one
+  tab click.
+- 2026-11-25: T-0024 (`source.ts`, `App.tsx`) shares no file with this card, so no
+  Depends on for it.
+- 2026-11-25: Question parts: decided for the owner: split in main with `questionParts`
+  and sent as `openQuestions` on `TaskDetail` (alternative: the renderer splits
+  `card.questions` text itself, a second copy of the parser).
+- 2026-11-25: The pinned rows: decided for the owner: Now's row shape drawn again in
+  `Tasks.tsx` (alternative: pull a shared question row out of `Now.tsx`, which widens
+  this card into Now's files).
+- 2026-11-25: Room for the answer buttons: decided for the owner: the box grows with its
+  rows, never clips, and A2 measures 64 px to spare with two questions (alternative: an
+  empty button row reserved under each question now).
+- 2026-11-25: Next step: decided for the owner: two lines in the header, the full text
+  first in the Card tab (alternative: the header grows to any length, which can break
+  the 780 px fit).
+- 2026-11-25: Header fields: decided for the owner: the six named plus Branch, as today
+  and in T-0028 (alternative: only the six).
+- 2026-11-25: PR: decided for the owner: plain text, "#N" with draft, waiting to merge or
+  merged from its column, as T-0028 (alternative: a link to GitHub, which needs the
+  remote's URL and is out of scope).
+- 2026-11-25: Other waits: decided for the owner: T-0032's `needs` items other than
+  questions are pinned as one line each above the questions, as T-0028 pinned approval
+  and can't-be-read (alternative: pin questions only).
+- 2026-11-25: Answered questions: decided for the owner: listed in the Card tab
+  (alternative: dropped from the record).
+- 2026-11-25: Tabs: decided for the owner: each card opens on Card, as T-0028
+  (alternative: keep the last tab across cards). A Next up line has no tabs.
+- 2026-11-25: Test cards: decided for the owner: A2's screenshot is a blocked card with
+  two shaped open questions the test pushes, to match T-0028's two-question picture
+  (alternative: the fixture's T-0005, one question with no recommendation).
+
+## Questions for me
+
+One question per line, in this shape; options are separated by `;`.
+
+- [ ] (none)
+
+## Done
+
+- [ ] Every criterion ticked, with the command run and its result pasted below
+- [ ] Tests, lint and typecheck run; output below
+- [ ] No edits outside "Files in scope" (`git diff --stat` below)
+- [ ] Anything not run is marked UNTESTED, never "verified"
+- [ ] Draft PR opened: #
+
+### Evidence
+
+```
+Waiting on the owner (wall clock, UTC):
+  none: set ready on the owner's pick (2026-11-25); drafted 20:16:43 → 20:24
+```
