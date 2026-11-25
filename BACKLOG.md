@@ -1,0 +1,82 @@
+# Backlog
+
+Three lists. I order "Next up". Sessions only ever append to "Parked".
+
+## Next up
+
+Ordered. The top line becomes the next `CARD.md`.
+
+1. PR review transplanted: `review --pr` posts COMMENT or REQUEST_CHANGES, never APPROVE, with its tests (T-0004) · from build prompt phase 2
+2. Area skills: the clean, permissively licensed ones into `skills/` with `skills/INDEX.md` · from build prompt phase 3
+3. Shell frame: window, sidebar, fence, tab bar, theme · from build prompt phase 4.1
+4. Shell file source with unit tests on a fixture repo · from build prompt phase 4.2
+5. Shell Now view · from build prompt phase 4.3
+6. Shell Tasks view · from build prompt phase 4.4
+7. Shell Checklist view · from build prompt phase 4.5
+8. Shell History and Docs · from build prompt phase 4.6
+9. Shell Map · from build prompt phase 4.7
+10. Shell Home, badges and notifications · from build prompt phase 4.8
+11. Hand-over: run `/setup`, `/card`, `/park`, `/done`, `/handoff` once on a scratch repo · from build prompt phase 5
+12. Set a coverage floor once the review tests land · from checklist "coverage floor"
+13. Require `ci` on main (repo setting, owner only) · from checklist "ci required on main"
+
+## Parked
+
+Anything noticed while working on something else. One line, no fixing.
+Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file or command>`
+
+- 2026-11-25 [tool] `ci-scope.mjs` has no test: its only test checked it against tier 1's `workspace.ts`, which stayed behind · seen on T-0001 · `scripts/ci-scope.mjs`
+- 2026-11-25 [checklist] Set a coverage floor after T-0004; Rivetari's was 52/77/75/52 on a different codebase · seen on T-0001 · `vitest.config.ts`
+- 2026-11-25 [tool] `build-test` (main and nightly, both OSes) has never run here; it first runs when something merges · seen on T-0001 · `.github/workflows/ci.yml`
+- 2026-11-25 [product] Package descriptions and repository URLs still describe Rivetari ("auditor and scaffolder", `arynbht/Rivetari.git`) · seen on T-0001 · `package.json`, `packages/*/package.json`
+- 2026-11-25 [tool] A PR runs 10 jobs, 6 of them on Windows, which a private repo bills at 2x minutes · seen on T-0001 · `.github/workflows/ci.yml`
+- 2026-11-25 [checklist] Nothing requires `ci` before a merge to main (no branch protection or ruleset) · seen on T-0001 · `gh api repos/arynbht/Rachetari/branches/main/protection`
+- 2026-11-25 [tool] `/setup` says to read "this skill's own `templates/` folder" without `${CLAUDE_SKILL_DIR}`; it worked here because the session is told the skill's base directory · seen on T-0003 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] The kit's skills lack `disable-model-invocation: true`, so Claude may start `/setup`, `/done` or `/handoff` on its own · seen on T-0002 · `kit/setup/**/SKILL.md`
+- 2026-11-25 [tool] The `/setup` template's example lines (Next up placeholder, two example Parked lines, two repo-specific checklist placeholders) have no rule for what happens to them in a real backlog · seen on T-0003 · `kit/setup/templates/BACKLOG.md`
+- 2026-11-25 [tool] `desktop-shell.md` is wrong in places: `electron-builder.yml` is in `apps/desktop/`, `docs:read` and two pushes aren't zod-checked, `docs:read` reads any file · seen on phase 0 · `files/desktop-shell.md`
+- 2026-11-25 [product] The hallmark skill ships `scripts/install-hook.mjs` (a PostToolUse hook installer) and still scanned clean; the old scan only matched hook declarations · seen on phase 0 · `inventory/skills.md`
+- 2026-11-25 [product] The trimmed impeccable fork's pin `9563f828` is reachable only from branch `rivetari` of `arynbht/impeccable`; deleting that branch orphans it · seen on phase 0 · `inventory/skills.md`
+- 2026-11-25 [product] Shell gaps carried over, not fixed in the transplant: no single-instance lock, silent Add errors on Home, the Docs loading text, in-page anchor links · seen on phase 0 · `files/desktop-shell.md`
+
+## Repo checklist
+
+What must stay true for this repo. It grows as the repo grows; a `[checklist]` line in
+Parked is a proposal to add one. Each line names how to check it.
+
+Stage: Foundation — decided by "tests exist and pass" (no test files yet) and "`ci` is required on main" (no protection). Every other Foundation line passes.
+Last `/setup`: 2026-11-25, on card/T-0003.
+
+### Foundation
+
+- [x] It builds · check: `pnpm build`
+- [x] Typecheck is clean · check: `pnpm typecheck`
+- [x] Lint is clean · check: `pnpm lint`
+- [x] Format is clean · check: `pnpm format`
+- [x] Module boundaries hold · check: `pnpm boundaries`
+- [ ] Tests exist and pass · check: `pnpm exec vitest run --coverage.enabled=false` (today: "No test files found", exit 1)
+- [x] CI runs lint, typecheck and tests on every PR, on Ubuntu and Windows · check: `gh pr checks 1`
+- [ ] `ci` is required before a merge to main · check: `gh api repos/arynbht/Rachetari/branches/main/protection` (today: 404, not protected)
+- [x] No secrets in the repo · check: `gitleaks git --redact .` and `gitleaks dir --redact .`
+- [x] Dependencies are locked · check: `pnpm install --frozen-lockfile`
+- [x] LF line endings in every tracked text file · check: `git ls-files --eol | grep -v "i/lf" | grep -v "i/-text"` prints nothing
+- [x] README says how to install it · check: read `README.md`, "Install on a machine"
+- [ ] unchecked: main's full CI (`build-test`) is green on both OSes · check: `gh run list --branch main --workflow CI` (no run yet)
+
+### Building
+
+- [ ] `review --pr` posts COMMENT or REQUEST_CHANGES and never APPROVE · check: the never-APPROVE test, and one real review on a PR here
+- [x] Every file copied from Rivetari is in `EXTRACTED.md` with its cut · check: compare each verbatim commit's file list with `EXTRACTED.md` (6c4d067: 27 of 27)
+- [ ] Area skills are plain folders with `skills/INDEX.md` · check: `test -f skills/INDEX.md`
+- [ ] The shell's views read only the kit files, through one module · check: the shell's unit tests on a fixture repo
+- [ ] The kit is installed on each machine · check: `diff -r kit/setup ~/.claude/skills/setup` (this machine: pass; the second machine: unchecked)
+
+### Hardening
+
+- [ ] A coverage floor is set and met · check: `pnpm test` with thresholds in `vitest.config.ts`
+- [ ] Every shell view passes axe · check: the shell's axe e2e test
+- [ ] The shell keeps context isolation, sandbox, the CSP and zod on every IPC request and reply · check: the shell's tests
+
+### Live
+
+- n/a: nothing is deployed; the kit and the shell run locally on two machines

@@ -14,3 +14,6 @@
 # Generated files: collapse diffs and exclude from language stats.
 pnpm-lock.yaml linguist-generated=true -diff
 CHANGELOG.md linguist-generated=true
+
+# Lines parked on two machines both survive a merge.
+BACKLOG.md merge=union
