@@ -1,0 +1,1 @@
+{ "permissions": { "deny": ["Bash(gh pr merge *)", "Bash(gh pr ready *)"] } }

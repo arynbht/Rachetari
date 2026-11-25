@@ -1,7 +1,7 @@
 # T-0049 · chore(agents): drafter, builder and inspector subagent definitions
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0049 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0049 · Held by: builder (this session)
 Created: 2026-11-25 · Source: owner, 2026-11-25 (models per role) · Gate: needs you (agent config)
 
 ## Why
@@ -28,6 +28,7 @@ Each one is checked by something that can be run or looked at. No criterion with
   - inspector: `VERDICT`, `BLOCKING`, `ADVICE`, `REVIEW`, `SCOPE`, `review --pr`, `not seen the build`, `never edit`, `red Windows run`, `no local desktop e2e`, `fix card`
 - [ ] A5: the files are committed and formatted, and `.gitignore` gains one line · check: `git ls-files .claude/agents` lists the three files; `git diff origin/develop -- .gitignore` shows only `+!.claude/agents/`; `pnpm exec prettier --check .claude/agents CARD.md` passes; `gh pr checks <PR>` shows `ci` passing
 - [ ] A6: the files load (the foreman's post-merge check; UNTESTED on the PR) · check: after the merge into `develop` is pulled into the main checkout, `/agents` lists `drafter`, `builder` and `inspector` as project agents; a test spawn with `subagent_type: drafter` and no `model` parameter shows Sonnet in `/tasks` (and `inspector` shows Opus); after the next line run, the owner's usage view shows Sonnet usage
+- [ ] A7: `.claude/settings.json` parses as JSON and denies exactly `Bash(gh pr merge *)` and `Bash(gh pr ready *)` (owner, 22:08 UTC); each role file says the deny list is a backstop and main's ruleset is the real guard · check: `node -e "const s=JSON.parse(require('fs').readFileSync('.claude/settings.json','utf8')); console.log(JSON.stringify(s))"` prints `{"permissions":{"deny":["Bash(gh pr merge *)","Bash(gh pr ready *)"]}}`, and `grep -ciF "the deny list is a backstop" .claude/agents/*.md` prints 1 per file; that the deny actually blocks the commands is the foreman's post-merge check (UNTESTED on the PR)
 
 ## Files in scope
 
@@ -37,13 +38,14 @@ Only these may be edited. Anything else needs a stop-and-ask.
 - `.claude/agents/builder.md` (new)
 - `.claude/agents/inspector.md` (new)
 - `.gitignore` (one added line, `!.claude/agents/`, after `!.claude/skills/`)
+- `.claude/settings.json` (new; added by the owner's answer, 22:08 UTC)
 - `CARD.md`, moved to `cards/done/T-0049.md` when done
 
 ## Out of scope
 
 Named on purpose, so the session doesn't drift into them.
 
-- `permissions.deny` in `.claude/settings.json` to block `gh pr merge`, pushes to `main` or `develop`, `--no-verify` or force-push: it applies to every session including the foreman, so it is a separate owner decision (parked below).
+- Any `permissions.deny` pattern beyond the owner's two (`gh pr merge *`, `gh pr ready *`): no pattern for pushes to `main` or `develop`, `--no-verify` or force-push (owner, 22:08 UTC: main's ruleset is the real guard).
 - A foreman role file, `CLAUDE.md`, the kit's skills (`/card`, `/done`, `/handoff`) or anything under `~/.claude`.
 - Per-card specifics in the bodies: card ids, chain order, branch names, worktree paths, word limits for one card.
 
