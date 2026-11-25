@@ -184,6 +184,7 @@ Appended by the session, one line each, newest last.
   POSIX only, and existing e2e would run whatever `gh` the machine has).
 - 2026-11-25: The data for part 2 (`prs`) ships in this card's `CiState`, so part 2
   touches only view files (§The line, shared first).
+- 2026-11-25: Decided for the owner by the foreman: split in two as proposed (alternative: one card); part 2, a CI badge per card in Tasks and Now, is queued in Next up.
 
 ## Questions for me
 
@@ -194,7 +195,7 @@ One question per line, in this shape; options are separated by `;`.
       read or stored by the shell)? — Recommended: yes, as drafted (S-16 option (b)).
       Options: no, build S-16's device flow (option (a)) instead; no, leave CI out of the
       shell (option (c)).
-- [ ] Split CI state in two: this card (the `gh` reader, IPC and the header line), then
+- [x] Split CI state in two: this card (the `gh` reader, IPC and the header line), then — Foreman: decided for the owner, yes (see Decisions).
       part 2 (the badges in Tasks and Now)? — Recommended: yes, two cards. Options: one
       card with the badges too (about 15 files, and `Tasks.tsx` is held at its lint
       cap); three cards (reader and IPC, header, badges).
