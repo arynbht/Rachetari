@@ -62,6 +62,13 @@ One question per line, in this shape; options are separated by `;`.
 
 - [ ] <question> — Recommended: <answer>. Options: <other>; <other>.
 
+## Parked
+
+Anything noticed that isn't this card. One line each, no fixing. The merger appends these to `BACKLOG.md` on the integration branch.
+Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file or command>`
+
+- <line>
+
 ## Done
 
 - [ ] Every criterion ticked, with the command run and its result pasted below

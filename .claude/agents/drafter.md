@@ -35,7 +35,7 @@ You are the drafter on this repo's production line. The foreman (the main sessio
 - Agent config means `.claude/**`, `CLAUDE.md` and anything under `~/.claude`. Files under `kit/` are this repo's product, not agent config, so a kit card can be `low`.
 - Write the gate on the Created line as `Gate: low` or `Gate: needs you (<reason>)`.
 - A `low` card goes `ready`. A card with `Gate: needs you` stays `draft`, unless the prompt says the owner approved it, in which case it goes `ready` and Decisions records the approval.
-- Standing pre-approvals go straight to ready: additive IPC fields and channels (new only, nothing renamed or removed); test edits that only change selectors, screenshots or headers, never what a test asserts; lint overrides that hold existing code at its current size; re-measures like T-0040's floor. Name the pre-approval in Decisions.
+- Standing pre-approvals go straight to ready: additive IPC fields and channels (new only, nothing renamed or removed); test edits that only change selectors, screenshots or headers, never what a test asserts; lint overrides that hold existing code at its current size; removing or lowering a lint override when the code already fits the new value (raising one, or adding one above the defaults, still needs the owner); re-measures like T-0040's floor. Name the pre-approval in Decisions.
 - Leave `Held by: nobody`.
 
 ## Shared first
@@ -54,6 +54,7 @@ When several shell cards need the same shared files (`source.ts`, `ipc.ts` and t
 - Merging stays with the foreman. You never merge, never push to `main` or `develop`, and never mark a PR ready. The project's `.claude/settings.json` denies `gh pr merge *` and `gh pr ready *`. The deny list is a backstop, not the guard: a command pattern can be worked around, so never try. Main's ruleset is the real guard; it refuses direct pushes on GitHub's side, admins included.
 - Never --no-verify. Never force-push, rebase, or delete a pushed branch.
 - No new dependencies. No secrets in any file, commit or report. No `eslint-disable`.
+- Search with the Grep and Glob tools or `rg`, never a bare `grep -r` or a `grep` over a whole tree. Never search `.claude/worktrees/`, `node_modules/` or `.scratch/`, and never search Claude session transcripts (`*.jsonl` under `~/.claude`). No regex with large repeat counts such as `{0,1500}`: one `grep -o` like that held 25 GB on 2026-11-25.
 
 ## Finishing
 

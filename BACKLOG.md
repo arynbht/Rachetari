@@ -6,25 +6,20 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. Copy all in the Questions panel cuts questions off: make it produce exactly the text `docs/open-questions.md` would contain (low; front of the shell chain; T-0048) · from `docs/queue-2026-11-25.md` §Copy all cuts questions off
-2. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-3. CI: Ubuntu required on PRs; Windows runs on every PR but isn't required; Windows stays required on develop (owner-approved CI change) · from `docs/queue-2026-11-25.md` §CI: Windows not required on PRs
-4. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
-5. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-6. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
-7. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-8. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-9. Fix card (end of the shell chain): T-0041's `docs/screenshots/T-0041/home-sections.png`, never made because builders don't run the desktop e2e locally (inspector, PR #60); see docs/open-questions.md
-10. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-11. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-12. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-15. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-16. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-17. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-18. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-19. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+1. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
+2. The fixture cleanup's EBUSY on Windows (T-0059): `kit-fixture.ts` waits for every child process a test started before `remove()`, and `remove()` retries EBUSY and EPERM with a short backoff for up to about 5 s, then reports the path; 20 Windows runs of `gh.test.ts` and the real-git tests (owner-approved test-helper change, ready) · from T-0045's answer in docs/open-questions.md
+3. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+7. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -131,13 +126,13 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [kit] CONSTRAINTS.md Style section lists the ESLint rule sets but not the size limits T-0043 set (`complexity` 20, `max-lines` 500, tests 800 and no complexity limit, named exceptions) · seen on T-0043 · `CONSTRAINTS.md`
 - 2026-11-25 [kit] CHECKLIST.md Stage line (line 3) still names "Complexity and file-length limits are set" among the failing foundation lines; T-0043 ticks it · seen on T-0043 · `CHECKLIST.md`
 - 2026-11-25 [tool] A temporary `.ts` file under `packages/*/src` (T-0043's A3 check) is compiled into `dist/` by any `tsc --build` running meanwhile and stays there after the file is deleted; such checks should sit outside a tsconfig include, or clean `dist/` after · seen on T-0043 · `tsconfig.json`
+- 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
+- 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
 - 2026-11-25 [product] The Tasks record shows raw backticks in Files in scope and Skills (from the existing `List`), and pinned questions too; render inline code as on Now; the tasks.e2e.ts:303 comment still says "Evidence is collapsed" · seen on T-0035 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
 - 2026-11-25 [product] `SCOPE.md` still says small questions are "held rather than guessed" (line ~126) and "Night mode has one level: hold when unsure" (~206), which now contradicts the owner's decide-and-log rule at night; `docs/army-mode.md` (~91, ~98) still quotes the old two-session cap and rebase as current; and `SCOPE.md` is prettier-ignored, so its prettier check checks nothing · seen on T-0042 inspection · `SCOPE.md`
 
 - [tool] `desktop-e2e` is not in the `ci` job's needs, so a red desktop e2e still gives a green `ci` on PRs (PR #60, run 45709065400); the line treats desktop-e2e as gating inspection by hand · foreman, 2026-11-25
 
-- 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
-- 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
 - 2026-11-25 [product] Keep the live status cleared after the shell stops and reopens (`index.ts:371`) · inspector, T-0036
 
 - 2026-11-25 [product] `Part`'s unused `aside` prop in `tasks/RecordTabs.tsx` (already there before T-0046) · inspector, T-0046
@@ -151,3 +146,31 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] With local desktop e2e off, a card's screenshot can't be made: CI's desktop-e2e doesn't set `SCREENSHOT_DIR` or upload what it writes; an uploaded artifact would let a card link its shot · seen on T-0041 · `.github/workflows/ci.yml`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
+
+- 2026-11-25 [tool] `ci.yml`'s comment above `build-test` says "Main and nightly", but it also runs on every push to `develop` · seen on T-0047 · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] `docs/queue-2026-11-25.md` §Branches says "`ci` runs on every push to `develop`", but the `ci` job is PR-only; a push runs `build-test` · seen on T-0047 · `docs/queue-2026-11-25.md`
+- 2026-11-25 [tool] `desktop-e2e` isn't in the `ci` job's `needs`, so a red `desktop-e2e` doesn't turn `ci` red · seen on T-0047 · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] A Windows leg that ends `cancelled` rather than `failure` can still turn `ci` red on a PR · seen on T-0047 inspection · `.github/workflows/ci.yml`
+- 2026-11-25 [product] A question whose options are a nested list under it (T-0020's shape) still shows without them; folding nested lists edits `questions.test.ts`'s T-0020 case, so it needs the owner · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [tool] `docs/open-questions.md` paraphrases a card's question (T-0044's section at `16384b3` differs from the card), so the file and Copy all disagree; the foreman could paste Copy all's text instead · seen on T-0048 · `docs/open-questions.md`
+- 2026-11-25 [tool] A focused run (`pnpm exec vitest run <file> -t "<name>"`) exits 1 even when its test passes: coverage is on by default and the global thresholds apply to the one file; criteria that name such a command need `--coverage.enabled=false` · seen on T-0048 · `vitest.config.ts`
+- 2026-11-25 [product] Acceptance criteria are read first-line-only, as questions were: a criterion wrapped over several lines loses its `· check:` and its UNTESTED mark when they sit on a later line · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `questionsOf` folds any non-blank line after `- [ ] (none)` into it, so `(none)` followed by a comment line becomes a phantom open question · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `questionsOf` folds a following code fence or `>` line into a question, and wrapped prose starting like `2026. ` ends one early · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [tool] The desktop typecheck doesn't cover `apps/desktop/e2e/` (`tsconfig.node.json` includes `src/` only), so an e2e type error shows only when Playwright runs it · seen on T-0044 · `apps/desktop/tsconfig.node.json`
+- 2026-11-25 [product] T-0044's three screenshots under `docs/screenshots/T-0044/` were never made (no local desktop e2e); same fix as T-0041's open question · seen on T-0044 inspection · `docs/screenshots/T-0044/`
+- 2026-11-25 [product] `gh.ts` caps `gh`'s stdout but not its stderr, and a `git config` timeout is reported as "gh timed out" · seen on T-0044 inspection · `apps/desktop/src/main/kit/gh.ts`
+- 2026-11-25 [product] A card's PR CI state comes from the repo's last 100 runs only, so a quiet card's PR can show no CI on a busy repo · seen on T-0044 inspection · `apps/desktop/src/main/engine/ci.ts`
+- 2026-11-25 [product] The Tasks board renders the CI badge's padded wrapper even when the card has no PR, leaving a small gap · seen on T-0051 inspection · `apps/desktop/src/renderer/components/tasks/Board.tsx:278`
+- 2026-11-25 [product] Each RunningRow in Now calls `useCiState`, so every row adds its own listener and IPC read; one shared prop would do · seen on T-0051 inspection · `apps/desktop/src/renderer/components/Now.tsx:228`
+- 2026-11-25 [tool] T-0051's card record was filed unfinished: empty Evidence, "Draft PR opened: #" with no number, A1–A4 unticked though CI's desktop-e2e passed · seen on T-0051 inspection · `cards/done/T-0051.md`
+- 2026-11-25 [tool] An orphaned `grep -o` with `{0,1500}` repeats on both sides of `63`, run over the earlier foreman session's transcript (`~/.claude/projects/…/90384377-….jsonl`, started 17:14 local, parent gone), held 25.8 GB private and starved the machine; T-0045's run 2 stalled under it. Killed at the owner's word; the role files now forbid bare recursive grep, large repeat counts, and searching worktrees, node_modules, .scratch or transcripts · seen on the line · `.claude/agents/*.md`
+- 2026-11-25 [tool] `kit/**` is in `.prettierignore`, so a card's `prettier --check` on kit files passes whatever they hold; checks need `--ignore-path=` · seen on T-0052 inspection · `.prettierignore`
+- 2026-11-25 [product] Rule 3 in `CLAUDE-section.md` (line 13) and step 5 in `handoff/SKILL.md` (line 21) run past the wrap width the rest of each file keeps · seen on T-0052 inspection · `kit/setup/templates/`
+- 2026-11-25 [tool] Builders keep filing cards with the Done box "Draft PR opened: #" unticked and no number (T-0051, T-0052) · seen on T-0052 inspection · `cards/done/`
+- 2026-11-25 [tool] `SCREENSHOT_DIR` is set twice in the `desktop-e2e` job (ci.yml:256 and the e2e step); a job-level `env` would be tidier · seen on T-0056 inspection · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] T-0056's evidence says the artifact held 23 PNGs; the inspector's download of the same run held 22 · seen on T-0056 inspection · `cards/done/T-0056.md`
+- 2026-11-25 [tool] `cards/done/T-0041.md` still says its screenshot "needs one local run" (Next step) and lists A3 as UNTESTED (Done line), though T-0057 made the shot and ticked A3 · seen on T-0057 inspection · `cards/done/T-0041.md`
+- 2026-11-25 [tool] The review can't view PNGs, so a screenshot-only card gets "needs-human" from it; the inspector's hash and look are the check · seen on T-0057 inspection · `review --pr 71`
+- 2026-11-25 [product] `kit/setup/SKILL.md` lines 100–103 run past 90 columns (line 103 is 108 after T-0058); rewrap them · seen on T-0058 inspection · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] T-0058's Done box for tests, lint and typecheck is ticked though they were UNTESTED locally (CI ran them) · seen on T-0058 inspection · `cards/done/T-0058.md`

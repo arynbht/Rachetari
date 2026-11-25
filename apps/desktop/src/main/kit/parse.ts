@@ -121,6 +121,38 @@ function field(text: string, name: string): string | null {
   return m?.[1]?.trim() || null;
 }
 
+const QUESTION = /^- \[( |x|X)\] (.+)$/;
+/** A line that ends a question: blank, a list item (`-`, `*`, `+`, `1.`, `1)`) or a heading. */
+const QUESTION_END = /^\s*(?:$|[-*+](?:\s|$)|\d+[.)](?:\s|$)|#{1,6}(?:\s|$))/;
+
+/**
+ * The questions of "Questions for me". A question is its `- [ ]`/`- [x]` line
+ * and the lines that continue its paragraph (a wrapped question, as Prettier
+ * keeps it, indented under the box), each trimmed and joined with one space.
+ * A blank line, a list item or a heading ends it, and nothing after that folds
+ * in until the next box. The template's placeholders are dropped.
+ */
+function questionsOf(lines: string[]): Question[] {
+  const found: Question[] = [];
+  let current: Question | null = null;
+  for (const line of lines) {
+    const m = QUESTION.exec(line);
+    if (m?.[2]) {
+      current = { text: m[2].trim(), open: m[1] === " " };
+      found.push(current);
+    } else if (current && !QUESTION_END.test(line)) {
+      current.text = `${current.text} ${line.trim()}`;
+    } else current = null;
+  }
+  // The template's placeholders: `<…>` alone, or its shape with `<question>`.
+  return found.filter(
+    (q) =>
+      q.text !== "(none)" &&
+      !/^<.*>$/.test(q.text) &&
+      !/^<[^>]*>$/.test(questionParts(q.text).ask),
+  );
+}
+
 /** Parse a CARD.md; null when it isn't one (no `# T-NNNN · title` and `Status:`). */
 export function parseCard(text: string): Card | null {
   const first = text.split(/\r?\n/, 1)[0] ?? "";
@@ -153,16 +185,7 @@ export function parseCard(text: string): Card | null {
     });
   }
 
-  const questions: Question[] = [];
-  for (const line of s.get("Questions for me") ?? []) {
-    const m = /^- \[( |x|X)\] (.+)$/.exec(line);
-    if (!m?.[2]) continue;
-    const q = m[2].trim();
-    // The template's placeholders: `<…>` alone, or its shape with `<question>`.
-    if (q === "(none)" || /^<.*>$/.test(q)) continue;
-    if (/^<[^>]*>$/.test(questionParts(q).ask)) continue;
-    questions.push({ text: q, open: m[1] === " " });
-  }
+  const questions = questionsOf(s.get("Questions for me") ?? []);
 
   const pr = /Draft PR opened: #(\d+)/.exec(s.get("Done")?.join("\n") ?? "");
   const evidence = /```[^\n]*\n([\s\S]*?)\n```/.exec(
