@@ -1,6 +1,6 @@
 # T-0016 · test: measure the Windows fetch test and park its hang
 
-Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Status: blocked <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0016 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: owner, after PR #30's Windows test timeout
 
@@ -57,7 +57,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Read the PR's Windows shard 3/3 for the fetch test's time (A1) and its `ci` (A4), then close the card.
+Blocked on the owner: A1's CI half (see Questions). Everything else has passed; on an answer, close the card.
 
 ## Decisions
 
@@ -73,6 +73,7 @@ Appended by the session, one line each, newest last.
 
 ## Questions for me
 
+- [ ] A1's CI half can't run here: this PR changes only Markdown, so CI skips the tests. Accept PR #30's re-run (961 ms, same test, Windows shard 3/3) as the CI number and close the card, or leave A1's CI half UNTESTED and close, or something else?
 - [x] The timeout stays at 30 s and the hang is parked. Shall I go on with A3 and open the PR? — Owner, 17:48: yes, finish it as a records-and-cleanup card, and add three lines to Next up.
 
 ## Done
@@ -102,14 +103,19 @@ for i in 1..20: pnpm exec vitest run apps/desktop/src/main/kit/source.test.ts --
 # A1 — the same test in CI, Windows shard 3/3, commit 7eefc8d (PR #30)
   run 45663184235 attempt 1: timed out at 30 000 ms (Test timed out in 30000ms; 39 other tests passed)
   run 45663184235 attempt 2: 961 ms
-  this PR's Windows shard: UNTESTED (no PR yet)
+  this PR (#33), run 45669023662: UNTESTED — the PR changes only Markdown, so CI's path filter skipped every test job (ci: success, test: skipped)
 # A2 — decision
   normal time ≤ 656 ms locally, 961 ms in CI; 30 s is ~30–45x that → a hang, not slowness
   vitest.config.ts unchanged (git diff main -- vitest.config.ts: empty)
 # A3 — Next up (BACKLOG.md, c78e667)
-  removed 3–13 (the build prompt's phases 2–5, all merged as #4 … #32) and 15 (ci has been required on main since step 3 today)
+  removed, numbered as on main: 1–11 (the build prompt's phases 2–5, merged as #4 … #32) and 13 (ci has been required on main since step 3 today)
   kept: done-branches fix, coverage floor; added: git-call timeouts, Tasks record placement, army mode design
   T-0016's own line comes out when this card closes
+# Review — node packages/cli/dist/bin.js review --pr 33
+  2 call(s) · 33640 tokens · $0.33 · posted COMMENT (pullrequestreview-6062392773)
+  blocking: A1's CI half not recorded (expected: CI hadn't run)
+  suggestions: removed-line numbers didn't match main (fixed); T-0016's own Next up line (out at close); checklist's ci line is stale (parked)
+# A4 — PR #33, run 45669023662: changes, secret-scan, ci success; lint/typecheck/test skipped (Markdown only)
 # A4 — local, on card/T-0016 at c78e667
   pnpm lint                     exit 0
   pnpm typecheck                exit 0 (tsc --build)

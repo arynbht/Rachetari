@@ -52,6 +52,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] `/park` doesn't say whether to commit the line; it stays uncommitted until something else commits it · seen on T-0015 · `kit/setup/templates/skills/park/SKILL.md`
 - 2026-11-25 [tool] A test that drives real git hung once on Windows CI: `source.test.ts › only sees a card pushed from another machine after a fetch` hit 30 s on PR #30 (run 45663184235, attempt 1) but takes 515–656 ms locally (20 runs) and 961 ms on the CI re-run; vitest reported the timeout, so the wait was in an async git call (`readLiveCards` or `fetchRepo`, which runs `git fetch --all --prune` with no timeout of its own) · seen on T-0016 · `apps/desktop/src/main/kit/source.ts`
 - 2026-11-25 [product] `fetchRepo` has no timeout, so a hung `git fetch` would leave the shell's Fetch waiting forever · seen on T-0016 · `apps/desktop/src/main/kit/source.ts:322`
+- 2026-11-25 [checklist] The checklist's "`ci` is required before a merge to main" line still reads failing (404), but `ci` has been required since today; `/setup` hasn't been re-run · seen on T-0016 · `gh api repos/arynbht/Rachetari/branches/main/protection`
 
 ## Repo checklist
 
