@@ -1,7 +1,7 @@
 # T-0049 · chore(agents): drafter, builder and inspector subagent definitions
 
-Status: in progress <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0049 · Held by: builder (this session)
+Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0049 · Held by: nobody
 Created: 2026-11-25 · Source: owner, 2026-11-25 (models per role) · Gate: needs you (agent config)
 
 ## Why
@@ -18,10 +18,10 @@ foreman's prompt.
 
 Each one is checked by something that can be run or looked at. No criterion without a check.
 
-- [ ] A1: `.claude/agents/drafter.md`, `builder.md` and `inspector.md` exist; each opens with YAML frontmatter holding exactly the keys `name`, `description`, `tools`, `model` (camelCase, one line each), with `name` equal to the file's base name · check: `node -e "for (const r of ['drafter','builder','inspector']) { const t=require('fs').readFileSync('.claude/agents/'+r+'.md','utf8'); const m=t.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/); const kv=Object.fromEntries(m[1].split(/\r?\n/).map(l=>[l.slice(0,l.indexOf(':')),l.slice(l.indexOf(':')+1).trim()])); console.log(r, JSON.stringify(kv)) }"` prints, per file, those four keys and no others, and `name` matches
-- [ ] A2: models as asked: drafter `sonnet`, builder `sonnet`, inspector `opus` · check: A1's output, and `grep -n "^model:" .claude/agents/*.md`
-- [ ] A3: tools as decided, none with `Agent`: drafter `Read, Grep, Glob, Bash, Edit, Write`; builder `Read, Grep, Glob, Bash, Edit, Write`; inspector `Read, Grep, Glob, Bash` · check: `grep -n "^tools:" .claude/agents/*.md` shows exactly those lists, and `grep -nE "^(tools|disallowedTools|permissionMode):.*" .claude/agents/*.md | grep -c Agent` prints 0
-- [ ] A4: each body restates its role's rules and report shape; every phrase below appears (case-insensitive) · check, per file: `for p in <phrases>; do grep -qiF -- "$p" .claude/agents/<role>.md || echo "MISSING $p"; done` prints nothing, with output under Evidence
+- [x] A1: `.claude/agents/drafter.md`, `builder.md` and `inspector.md` exist; each opens with YAML frontmatter holding exactly the keys `name`, `description`, `tools`, `model` (camelCase, one line each), with `name` equal to the file's base name · check: `node -e "for (const r of ['drafter','builder','inspector']) { const t=require('fs').readFileSync('.claude/agents/'+r+'.md','utf8'); const m=t.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/); const kv=Object.fromEntries(m[1].split(/\r?\n/).map(l=>[l.slice(0,l.indexOf(':')),l.slice(l.indexOf(':')+1).trim()])); console.log(r, JSON.stringify(kv)) }"` prints, per file, those four keys and no others, and `name` matches
+- [x] A2: models as asked: drafter `sonnet`, builder `sonnet`, inspector `opus` · check: A1's output, and `grep -n "^model:" .claude/agents/*.md`
+- [x] A3: tools as decided, none with `Agent`: drafter `Read, Grep, Glob, Bash, Edit, Write`; builder `Read, Grep, Glob, Bash, Edit, Write`; inspector `Read, Grep, Glob, Bash` · check: `grep -n "^tools:" .claude/agents/*.md` shows exactly those lists, and `grep -nE "^(tools|disallowedTools|permissionMode):.*" .claude/agents/*.md | grep -c Agent` prints 0
+- [x] A4: each body restates its role's rules and report shape; every phrase below appears (case-insensitive) · check, per file: `for p in <phrases>; do grep -qiF -- "$p" .claude/agents/<role>.md || echo "MISSING $p"; done` prints nothing, with output under Evidence
   - all three: `merging stays with the foreman`, `never --no-verify`, `never force-push`, `rebase`, `no new dependencies`, `no secrets`, `eslint-disable`, `BACKLOG.md`, `decided for the owner`, `absolute paths`, `~/.claude`
   - drafter: `Gate: needs you`, `five files and five criteria`, `runnable`, `docs-only`, `shared first`, `Questions for me`, `Recommended:`, `Waiting on the owner`, `prettier`, `chore(card): draft`, `Files in scope`
   - builder: `Held by: nobody`, `UNTESTED`, `## Parked`, `shell chain`, `previous card branch`, `draft PR`, `push after every meaningful step`, `no local desktop e2e`, `git status`, `departures`, `Evidence`
@@ -69,7 +69,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Ready for a builder: write the three role files and the `.gitignore` line, run A1–A5's checks, open a draft PR against `develop`; A6 is the foreman's after the merge.
+Blocked on one question below (the `.claude/settings.json` deny list). The three role files and the `.gitignore` line are written, committed and pushed, and A1–A4 pass. Once the owner answers: if yes, add `.claude/settings.json` to Files in scope with its criterion, write it, add the backstop note to each role file, rerun the checks; either way, then run the done check and open the draft PR against `develop`. A6 is the foreman's after the merge.
 
 ## Decisions
 
@@ -89,12 +89,13 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The drafter's file adds: the gate (`low` = nothing on the stop-and-ask list, agent config is `.claude/**`, `CLAUDE.md` and `~/.claude` while `kit/` isn't, at most five files and five criteria; `low` goes `ready`, otherwise `draft` unless the prompt says the owner approved it); runnable checks (every check runs on the card's PR; a docs-only PR runs no lint, typecheck or test); standing pre-approvals go straight to ready; shared first; the id and branch exist with a stub `CARD.md` to replace from `cards/TEMPLATE.md`, keeping the title's id; following `.claude/skills/card/SKILL.md`; the Evidence line "Waiting on the owner (wall clock, UTC):"; `pnpm exec prettier --write CARD.md`; commit `chore(card): draft <id>`; report: title, gate, criteria with checks, Files in scope, decisions, questions.
 - 2026-11-25: The builder's file adds: set `Held by:` on start and `Held by: nobody` on leaving a blocked card; edit only Files in scope; push after every meaningful step; Evidence with commands and output, anything not run marked UNTESTED; tests, lint and typecheck; no local desktop e2e (CI's headless `desktop-e2e` gates); stop-and-ask writes the question, commits, pushes and leaves; shell chain mode (branch from the previous card branch by merge, PR targets the previous card branch until it merges, then `develop`; a held card is skipped for the next one that doesn't depend on it); draft PR against `develop`; the done check moves `CARD.md` to `cards/done/`; report: PR, criteria, files, `git status`, parked, decisions, departures from the card.
 - 2026-11-25: The inspector's file adds: it has not seen the build and judges only from the card, the diff and CI; it starts only on a green `ci`; never edit, commit or push; run the card's checks and `review --pr` (via `node packages/cli/dist/bin.js` after install and build; retry once if it times out and posts nothing); out-of-scope edits are blocking; a red Windows run is reported in its notes, not blocking on a PR; no local desktop e2e; in chain mode a blocking finding goes to a fix card at the chain's end unless it breaks the build or security; report: VERDICT, BLOCKING, ADVICE, REVIEW, SCOPE.
+- 2026-11-25: Builder, 22:10 UTC: held the card on the relayed settings.json request rather than writing a permissions file on an agent's message; the role files don't mention a deny list until it exists.
 
 ## Questions for me
 
 One question per line, in this shape; options are separated by `;`.
 
-- None.
+- [ ] The foreman relayed (22:08 UTC) that the owner said yes to adding `.claude/settings.json` with `{ "permissions": { "deny": ["Bash(gh pr merge *)", "Bash(gh pr ready *)"] } }` to this card, plus a backstop note in each role file. The builder can't take a change to permission settings on a relayed message, so it needs the owner's own confirmation, in this session's card or a prompt from the owner — Recommended: the owner confirms directly, and the builder adds the file, its criterion (parses as JSON, denies exactly those two patterns; the block itself UNTESTED, the foreman's post-merge check) and the notes. Options: ship the role files alone and give the deny list its own card; drop the deny list.
 
 ## Parked
 
@@ -115,4 +116,51 @@ none (owner approved it in chat)
 
 ```
 Drafted 2026-11-25. A1–A6: UNTESTED (nothing built yet).
+```
+
+Built 2026-11-25 (commit 0a96cab). Checks run in the worktree:
+
+```
+$ A1: node -e "for (const r of ['drafter','builder','inspector']) { ... console.log(r, JSON.stringify(kv)) }"
+drafter {"name":"drafter","description":"The line's drafter. Turns one request from the foreman into a complete CARD.md on a card branch the foreman has already opened, sets its gate, and reports. Writes only CARD.md.","tools":"Read, Grep, Glob, Bash, Edit, Write","model":"sonnet"}
+builder {"name":"builder","description":"The line's builder. Builds exactly one ready card in the worktree the foreman names, shows each criterion with evidence, and opens a draft PR. Never merges.","tools":"Read, Grep, Glob, Bash, Edit, Write","model":"sonnet"}
+inspector {"name":"inspector","description":"The line's inspector. Judges one built card's PR from the card, the diff and CI alone, runs the card's checks and review --pr, and reports a verdict. Never edits.","tools":"Read, Grep, Glob, Bash","model":"opus"}
+
+$ A2: grep -n "^model:" .claude/agents/*.md
+.claude/agents/builder.md:5:model: sonnet
+.claude/agents/drafter.md:5:model: sonnet
+.claude/agents/inspector.md:5:model: opus
+
+$ A3: grep -n "^tools:" .claude/agents/*.md
+.claude/agents/builder.md:4:tools: Read, Grep, Glob, Bash, Edit, Write
+.claude/agents/drafter.md:4:tools: Read, Grep, Glob, Bash, Edit, Write
+.claude/agents/inspector.md:4:tools: Read, Grep, Glob, Bash
+$ grep -nE "^(tools|disallowedTools|permissionMode):.*" .claude/agents/*.md | grep -c Agent
+0
+
+$ A4: for p in <11 shared + 11 role phrases>; do grep -qiF -- "$p" .claude/agents/<role>.md || echo "MISSING $p"; done
+-- drafter: 22 phrases
+-- builder: 22 phrases
+-- inspector: 22 phrases
+(no MISSING lines)
+
+$ A5: git ls-files .claude/agents
+.claude/agents/builder.md
+.claude/agents/drafter.md
+.claude/agents/inspector.md
+$ git diff origin/develop -- .gitignore
+@@ -47,6 +47,7 @@ apps/desktop/playwright-report/
+ .claude/*
+ !.claude/settings.json
+ !.claude/skills/
++!.claude/agents/
+$ pnpm exec prettier --check .claude/agents CARD.md
+All matched files use Prettier code style!
+gh pr checks: UNTESTED (no PR yet; the card is blocked on the question above)
+
+$ pnpm lint        -> eslint . (exit 0)
+$ pnpm typecheck   -> tsc --build (exit 0)
+$ pnpm test        -> exit 0 (coverage summary printed; lines 44.99%)
+
+A6: UNTESTED (the foreman's post-merge check).
 ```
