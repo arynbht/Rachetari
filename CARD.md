@@ -1,7 +1,7 @@
 # T-0022 · feat(skills): take constraint-driven-development and playwright-cli
 
-Status: in progress <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0022 · Held by: AB_Rouge
+Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0022 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4d, `SHELVED.md` S-02 and S-03, issues #6 and #7 · Gate: low
 
 ## Why
@@ -67,7 +67,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Fetch both pins with `gh api …/tarball/<pin>` into separate scratchpad folders, hash each skill folder with `hashSkillDir`, read every file, then copy them into `skills/workflow/constraint-driven-development/` and `skills/testing/playwright-cli/`.
+Blocked on the new question under "Questions for me" (lines beyond A2's three). Done so far (AB_Rouge, 2026-11-25): both pins fetched by tarball, both upstream folders hash to the manifest values, no CRLF, no binaries, all 14 files read; nothing copied into the repo yet. Once the owner answers (and amends A2/A5 if (a)), re-fetch with `gh api repos/microsoft/playwright-cli/tarball/ce9b41b619c588c7dc0e89217d3469a70374acdd` and `gh api repos/addyosmani/agent-skills/tarball/301b02b12bff98e4688e6984af6556802322bbde`, copy the two skill folders in, and carry on with A1.
 
 ## Decisions
 
@@ -77,10 +77,13 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: A skill folder counts as one file for the five-file limit, since it is copied whole and checked by one hash
 - 2026-11-25: `SHELVED.md` is kept (A4 marks S-02 and S-03 taken there) with `Depends on: T-0021`; `EXTRACTED.md` is avoided, since `skills/INDEX.md` already carries the provenance
 - 2026-11-25: Drafter's feasibility check: both pins fetched by tarball hash to the manifest values (2/2), no CRLF; `quality-gate.mjs` at the pin passes `eslint --stdin` under this repo's config
+- 2026-11-25: Foreman ruling: "Depends on: T-0021 (`SHELVED.md`)" is a shared file, not a dependency; T-0021 isn't in progress, so build now and edit only the S-02 and S-03 entries in `SHELVED.md`. If the merge later conflicts, the later card goes back to ready
+- 2026-11-25: Stopped before copying (card's stop-and-ask: a line beyond A2's three fetches remote code); see "Questions for me"
 
 ## Questions for me
 
 - [ ] The PR targets `day/2026-11-25`, and GitHub only acts on `Closes #6`/`Closes #7` in a PR merged into the default branch, so these won't close the issues on their own. Recommended: the foreman's day-branch PR into `main` repeats `Closes #6` and `Closes #7` (otherwise close both by hand after that merge).
+- [ ] Reading turned up lines beyond the three A2 names, which this card says is a stop. (1) `playwright-cli/references/test-generation.md:159`: "If there is no Playwright install, bootstrap one and let the user pick the defaults:" then `npm init playwright@latest`, an unpinned scaffolder the agent runs, the same kind as `SKILL.md:415`. (2) `constraint-driven-development/SKILL.md:149-160`: Step 4's table gives an install per dimension (`pip install mypy`, `pip install pytest-cov`, `pipx install semgrep`, `brew install gitleaks`, `brew install osv-scanner`, seven `npm i -D …`), run after the user picks that dimension in the interview. (3) `constraint-driven-development/SKILL.md:264`: escalation level 2 wires `npm run check` "into your agent's post-edit hook and your CI" and says most projects should stop there. (4) Minor: `playwright-cli/SKILL.md:4` pre-allows `Bash(npx playwright:*)`, and `npx` without `--no-install` downloads the package when it's missing. Recommended: (a) take both unchanged anyway; amend A2 to name (1) as a fourth allowed line and explain (2) to (4) in Evidence as user-chosen or descriptive (here any install, hook or agent-config change is already a stop-and-ask under CLAUDE.md); amend A5 to two Parked lines (add `npm init playwright@latest` at `test-generation.md:159`); add (2) and (3) to the INDEX reading note for `constraint-driven-development`. Or (b) take `constraint-driven-development` only and leave S-03 shelved with (1) added to its entry
 
 ## Done
 
@@ -95,4 +98,16 @@ Appended by the session, one line each, newest last.
 ```
 Waiting on the owner (wall clock, UTC):
   none (low card)
+```
+
+Half-done, AB_Rouge, 2026-11-25 (nothing copied into the repo yet; no criterion ticked):
+
+```
+$ node hash.mjs <scratch>/…/skills/constraint-driven-development <scratch>/…/skills/playwright-cli   # hashSkillDir from Rivetari 32f4b88:packages/registry/src/hash.ts
+sha256:5c2dcebe5a2359afc54d3efbdb481c7afd7521c6cb20e4af596cbd6da5d94227  constraint-driven-development   (manifest: equal)
+sha256:f4be5508fdcec8f3a4cf6698c861088e2bb2af57a8c8a6d3ee0f2604e9105110  playwright-cli                  (manifest: equal)
+$ grep -rlI (a carriage return) <both upstream folders>   → no output (exit 1)
+$ file <every file>   → all text (UTF-8 or ASCII); no binaries
+Files read: constraint-driven-development 3 (SKILL.md 319 lines, references/floor-guard.md 182, scripts/quality-gate.mjs 45); playwright-cli 11 (SKILL.md 493, ten references/*.md)
+A2 grep over the upstream folders: 10 hits in constraint-driven-development, 19 in playwright-cli; the ones beyond A2's three are in "Questions for me"
 ```
