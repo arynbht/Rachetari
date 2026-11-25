@@ -46,6 +46,11 @@ export const IpcChannel = {
   CardMarkReadyPreview: "card:markReadyPreview",
   /** Mark ready, step two: commit and push that diff, or refuse and say why. */
   CardMarkReadyApply: "card:markReadyApply",
+
+  /** CI for the repo on show, read through the gh CLI (read-only). */
+  CiState: "ci:state",
+  /** Push channel (main → renderer): the repo on show's CI after a read. */
+  CiStateUpdate: "ci:stateUpdate",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -551,3 +556,42 @@ export const MarkReadyResult = z.discriminatedUnion("ok", [
   z.object({ ok: z.literal(false), reason: z.string() }),
 ]);
 export type MarkReadyResult = z.infer<typeof MarkReadyResult>;
+
+// CI state — the repo on show's CI, read through the gh CLI on the person's own
+// sign-in (no token ever crosses here): its display branch's last run, and the
+// state of each open card/* PR's checks. Null with no repo on show or before
+// its first read.
+export const CiState = z
+  .object({
+    repoPath: z.string(),
+    /** How the read ended: missing / signed-out mean gh can't be used. */
+    gh: z.enum(["ok", "missing", "signed-out", "no-github", "error"]),
+    /** gh's first line, on `error`; else null. */
+    message: z.string().nullable(),
+    /** When the read settled (ISO). */
+    readAt: z.string(),
+    /** The display branch and its last run (null: no runs yet); null unless ok. */
+    branch: z
+      .object({
+        name: z.string(),
+        run: z
+          .object({
+            state: z.enum(["passed", "failed", "running", "cancelled"]),
+            sha7: z.string(),
+            url: z.string(),
+          })
+          .nullable(),
+      })
+      .nullable(),
+    /** Each open PR from a card/* branch; empty unless ok. */
+    prs: z.array(
+      z.object({
+        branch: z.string(),
+        number: z.number().int().positive(),
+        state: z.enum(["passed", "failed", "running", "none"]),
+        url: z.string(),
+      }),
+    ),
+  })
+  .nullable();
+export type CiState = z.infer<typeof CiState>;

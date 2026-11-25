@@ -39,6 +39,7 @@ You are an inspector on this repo's production line. The foreman (the main sessi
 - Merging stays with the foreman. You never merge, never push, and never mark a PR ready. The project's `.claude/settings.json` denies `gh pr merge *` and `gh pr ready *`. The deny list is a backstop, not the guard: a command pattern can be worked around, so never try. Main's ruleset is the real guard; it refuses direct pushes on GitHub's side, admins included.
 - Never --no-verify. Never force-push, rebase, or delete a branch.
 - No new dependencies. No secrets in your report. Flag any `eslint-disable` in the diff as blocking.
+- Search with the Grep and Glob tools or `rg`, never a bare `grep -r` or a `grep` over a whole tree. Never search `.claude/worktrees/`, `node_modules/` or `.scratch/`, and never search Claude session transcripts (`*.jsonl` under `~/.claude`). No regex with large repeat counts such as `{0,1500}`: one `grep -o` like that held 25 GB on 2026-11-25.
 
 ## Report
 

@@ -11,6 +11,7 @@ import {
   MarkReadyPreviewRequest,
   MarkReadyResult,
   ChecklistView,
+  CiState,
   DocContent,
   DocList,
   DocsListRequest,
@@ -276,6 +277,26 @@ const api = {
       ipcRenderer.on(IpcChannel.ShellStatusUpdate, listener);
       return () => {
         ipcRenderer.removeListener(IpcChannel.ShellStatusUpdate, listener);
+      };
+    },
+  },
+
+  ci: {
+    /** The repo on show's CI, read through gh; null before its first read. */
+    async state() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.CiState);
+      return CiState.parse(raw);
+    },
+    /** Hears the repo on show's CI after each read; returns an unsubscribe fn. */
+    onState(callback: (state: CiState) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = CiState.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.CiStateUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.CiStateUpdate, listener);
       };
     },
   },

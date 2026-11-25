@@ -21,6 +21,7 @@ import {
   MarkReadyPreview,
   MarkReadyPreviewRequest,
   MarkReadyResult,
+  IpcChannel,
 } from "../../shared/ipc";
 import { parseCard } from "../kit/parse";
 
@@ -333,4 +334,16 @@ export function markReadyHandlers(
       );
     },
   };
+}
+
+/** Register the two mark-ready channels on electron's `ipcMain` (or any `handle`). */
+export function registerMarkReady(
+  ipc: {
+    handle(channel: string, fn: (e: unknown, raw: unknown) => unknown): void;
+  },
+  registered: (asked: string) => Promise<string>,
+): void {
+  const h = markReadyHandlers(registered);
+  ipc.handle(IpcChannel.CardMarkReadyPreview, (_e, raw) => h.preview(raw));
+  ipc.handle(IpcChannel.CardMarkReadyApply, (_e, raw) => h.apply(raw));
 }

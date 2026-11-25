@@ -16,9 +16,10 @@ Note from me: $ARGUMENTS
 4. Commit everything on the card's branch, including unfinished work, with a message
    starting `wip(handoff):`. Push the branch. If the push fails, say so and stop; the
    handoff has not happened.
-5. Parked lines stay in `BACKLOG.md` on this branch; they reach the integration branch
-   (`develop` or its like; the default branch when there is none) when the card's PR
-   merges. Do not push to the integration branch or the default branch.
+5. Parked lines travel in this card's `CARD.md` under "Parked". Whoever merges the PR
+   appends them to `BACKLOG.md` on the integration branch (`develop` or its like; the
+   default branch when there is none). Do not push to the integration branch or the
+   default branch.
 6. Tell me the branch name and the "Next step" line. On the other machine:
    `git fetch`, check out the branch, start a session.
 

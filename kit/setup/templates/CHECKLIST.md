@@ -7,7 +7,7 @@ What must stay true for this repo, in fifteen sections. Every section stays, eve
 that doesn't apply: it says `n/a` and why, so leaving it out is a recorded choice.
 `/setup` writes the lines, runs each check and records the result. Edit, add or retag
 lines as you like, and a re-run keeps your changes. A `[checklist]` line parked in
-`BACKLOG.md` proposes a new line here.
+a card proposes a new line here.
 
 Each line has a status, a stage and the check that was run. A line from the old catalog
 leads with its id, so a re-run finds it instead of adding it again:

@@ -1,6 +1,6 @@
 # Backlog
 
-Two lists. I order "Next up". Sessions only ever append to "Parked".
+Two lists. I order "Next up". Sessions park into their card's "Parked" and never edit this file; the merger appends those lines to "Parked" here on the integration branch.
 
 ## Next up
 

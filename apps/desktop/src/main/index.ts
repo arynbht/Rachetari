@@ -16,6 +16,7 @@ import type { ZodType } from "zod";
 import {
   ChecklistRequest,
   ChecklistView,
+  CiState,
   DocList,
   DocsListRequest,
   DocsReadRequest,
@@ -47,8 +48,9 @@ import {
   TasksState,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
-import { markReadyHandlers } from "./engine/card-commit";
+import { registerMarkReady } from "./engine/card-commit";
 import { readChecklist } from "./engine/checklist";
+import { ciWatchFor } from "./engine/ci";
 import { listDocs, readDoc } from "./engine/docs";
 import { FETCH_INTERVAL_MS, FetchLoop } from "./engine/fetch-loop";
 import {
@@ -218,11 +220,19 @@ function fetchIntervalMs(): number {
   return Number.isFinite(set) && set > 0 ? set : FETCH_INTERVAL_MS;
 }
 
+/** The repo on show's CI, through gh, on show and after each of its fetches (engine/ci). */
+const ciWatch = ciWatchFor(isE2E, (state) =>
+  push(IpcChannel.CiStateUpdate, CiState, state),
+);
+
 /** Every sidebar repo fetched in the background, beside the NowHub (see engine/fetch-loop). */
 const fetchLoop = new FetchLoop({
   fetch: fetchRepo,
   intervalMs: fetchIntervalMs(),
-  onChange: () => pushShellStatus(),
+  onChange: ({ repoPath }) => {
+    pushShellStatus();
+    ciWatch.fetched(repoPath);
+  },
 });
 
 /** The repo on show, as `now:select` last named it. */
@@ -511,12 +521,15 @@ function registerIpcHandlers(): void {
     const repoPath = asked === null ? null : await registered(asked);
     shownRepo = repoPath;
     pushShellStatus();
+    ciWatch.show(repoPath);
     await nowHub.select(repoPath);
   });
 
   ipcMain.handle(IpcChannel.ShellStatus, () =>
     ShellStatus.parse(shellStatus()),
   );
+
+  ipcMain.handle(IpcChannel.CiState, () => CiState.parse(ciWatch.state()));
 
   ipcMain.handle(IpcChannel.TasksGet, async (_event, raw: unknown) => {
     const { repoPath: asked } = TasksRequest.parse(raw);
@@ -537,13 +550,7 @@ function registerIpcHandlers(): void {
     );
   });
 
-  const markReadyIpc = markReadyHandlers(registered);
-  ipcMain.handle(IpcChannel.CardMarkReadyPreview, (_e, raw: unknown) =>
-    markReadyIpc.preview(raw),
-  );
-  ipcMain.handle(IpcChannel.CardMarkReadyApply, (_e, raw: unknown) =>
-    markReadyIpc.apply(raw),
-  );
+  registerMarkReady(ipcMain, registered);
 
   ipcMain.handle(IpcChannel.ChecklistGet, async (_event, raw: unknown) => {
     const { repoPath: asked } = ChecklistRequest.parse(raw);
