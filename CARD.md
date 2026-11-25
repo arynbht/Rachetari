@@ -1,7 +1,7 @@
 # T-0028 · docs(shell): a static prototype of the Tasks overhaul
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0028 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0028 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 1: design only · Gate: needs you
 
 ## Why
