@@ -24,6 +24,11 @@ export interface Card {
   heldBy: string | null;
   created: string | null;
   source: string | null;
+  /**
+   * Who approves the draft, as the `Created:` line's `Gate:` says (e.g.
+   * "needs you" or "low"), or null when that line has none.
+   */
+  gate: string | null;
   why: string;
   criteria: Criterion[];
   filesInScope: string[];
@@ -85,6 +90,7 @@ export function parseCard(text: string): Card | null {
   if (!header?.[1] || !header[2] || !status) return null;
   const s = sections(text);
   const held = field(text, "Held by");
+  const createdLine = /^Created:.*$/m.exec(text)?.[0] ?? "";
 
   const criteria: Criterion[] = [];
   for (const line of s.get("Acceptance criteria") ?? []) {
@@ -129,6 +135,7 @@ export function parseCard(text: string): Card | null {
     heldBy: !held || held === "nobody" || /^<.*>$/.test(held) ? null : held,
     created: field(text, "Created"),
     source: field(text, "Source"),
+    gate: field(createdLine, "Gate"),
     why: prose(s.get("Why")),
     criteria,
     filesInScope: bullets(s.get("Files in scope")),
