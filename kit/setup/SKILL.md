@@ -17,13 +17,17 @@ Notes from me: $ARGUMENTS
 
 ## 2. Write the kit, overwriting nothing
 
+- Branch first. Work on the current branch, unless it's the default branch: then create
+  `chore/kit-setup` from it and work there. Everything this skill writes goes on that
+  branch, and step 7 commits it.
 - Missing file: write it. Identical file: leave it.
 - Different file: keep theirs and write the kit's version beside it as `name.kit.md`.
   For `CLAUDE.md`, propose the section as a diff and wait for my yes.
 - Add the line `BACKLOG.md merge=union` to `.gitattributes`, so lines parked on two
   machines merge without conflict.
-- Sources: everything comes from this skill's own `templates/` folder. Do not write the
-  kit files from memory.
+- Sources: everything comes from this skill's own templates folder,
+  `${CLAUDE_SKILL_DIR}/templates/`. The `templates/...` paths below are inside it. Do not
+  write the kit files from memory.
 - Files: `BACKLOG.md`, `cards/TEMPLATE.md` (from `templates/CARD.md`), `cards/done/`,
   `nights/`, the "How work is done here" section for `CLAUDE.md` (from
   `templates/CLAUDE-section.md`), and the commands `card`, `park`, `done` and `handoff`
@@ -35,9 +39,12 @@ Notes from me: $ARGUMENTS
 ## 3. Draft the fit files
 
 Only if they're missing. Read the code and write down what it already does, not what it
-should do: `DESIGN.md` (tokens, components, layout and naming patterns, if there is UI)
-and `CONSTRAINTS.md` (dependencies policy, error handling, test style, what must not
-change). Mark both `Status: draft, written by /setup` at the top.
+should do: `DESIGN.md` (tokens, components, layout and naming patterns) and
+`CONSTRAINTS.md` (dependencies policy, error handling, test style, what must not
+change). Mark each one you write `Status: draft, written by /setup` at the top.
+
+Write `DESIGN.md` only when the repo has UI. Without UI, skip it: don't write a
+placeholder or a "no UI" version, and say in your report that you skipped it and why.
 
 ## 4. Build the checklist
 
@@ -62,8 +69,12 @@ as `Stage: <name>` with the lines that decide it.
 Add failing checklist lines and any unbuilt items from a spec you found to "Next up", in
 the order you'd do them, each one line. Do not draft cards.
 
-## 7. Report and stop
+## 7. Commit, report and stop
 
-Tell me: the stack and commands found, files written and files placed beside existing
-ones, the stage and why, the count of passing, failing and unchecked lines, and the first
-three items in "Next up". Then stop. I decide what becomes a card.
+Commit everything this run wrote as one commit on the branch from step 2, with the
+message `chore(kit): set up the direction kit`. Never push.
+
+Tell me: the branch and the commit, the stack and commands found, files written and files
+placed beside existing ones, whether `DESIGN.md` was written or skipped, the stage and
+why, the count of passing, failing and unchecked lines, and the first three items in
+"Next up". Then stop. I decide what becomes a card.
