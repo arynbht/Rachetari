@@ -47,6 +47,7 @@ apps/desktop/playwright-report/
 .claude/*
 !.claude/settings.json
 !.claude/skills/
+!.claude/agents/
 
 # Local reference documents (the audit, the shell description, design notes).
 # They stay on this machine and never reach GitHub.
