@@ -67,7 +67,18 @@ which also shows the line format. Then fill it:
   Add the starter lines under their sections, without an id: it builds (development);
   tests exist and pass (testing); lint and typecheck are clean (quality); CI runs them on
   PRs (cicd); no secrets in the repo (security); dependencies are locked (hygiene); the
-  README says how to run it (documentation).
+  README says how to run it (documentation). Five more starter lines keep slop out, each
+  with the check it names:
+  - lint fails on unused code (quality): the linter's resolved config, such as
+    `eslint --print-config` on a source file, has its unused-vars rule at `error`.
+  - complexity and file-length limits are set (quality): the resolved config has
+    `complexity` and `max-lines` at `error`, or the stack's equivalent.
+  - typecheck is strict (development): for TypeScript this is the catalog's
+    `dev.typecheck.strict` line, so keep that one and don't write a second.
+  - a dead-code check runs (quality): for JS and TS, knip is in a `package.json` script
+    and in CI, and you run it.
+  - `/done` runs the comment report (quality): `.claude/skills/done/SKILL.md` calls
+    `comment-report.mjs`, and the script is beside it.
 - **Stages.** Tag each catalog line `· stage:` from the phase-to-stage table at the top of
   `sections.md`, and each starter line `foundation`. The tag is mine to change after that.
 - **Checks.** Every line names its check after `· check:`. Run it, and mark the line pass
