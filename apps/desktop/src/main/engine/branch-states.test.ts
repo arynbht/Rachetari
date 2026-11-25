@@ -63,9 +63,9 @@ beforeAll(async () => {
   const repo = fx.repo;
   const origin = fx.origin;
 
-  // The newest day branch, on the origin only: T-0007 closed there today, and
-  // a second copy of T-0001 that the default branch's copy wins over.
-  git(origin, "checkout", "-q", "-b", "day/2026-11-25", "main");
+  // develop, on the origin only: T-0007 closed there today, and a second copy
+  // of T-0001 that wins over the default branch's.
+  git(origin, "checkout", "-q", "-b", "develop", "main");
   commitFile(
     origin,
     "cards/done/T-0007.md",
@@ -92,7 +92,7 @@ beforeAll(async () => {
   // Done on the default branch, with a CARD.md that doesn't parse: still done.
   git(repo, "checkout", "-q", "-b", "card/T-0002", "main");
   commitFile(repo, "CARD.md", "not a card\n");
-  // Done on the newest day branch only.
+  // Done on develop only.
   removedCard(repo, "T-0007");
   // Done only on an older day branch: broken.
   removedCard(repo, "T-0010");
@@ -160,13 +160,13 @@ describe("done, drafting and broken branches", { timeout: 30_000 }, () => {
     expect(byBranch.get("card/T-0003")?.error).toBeUndefined();
   });
 
-  it("reads done cards from the newest day branch too", async () => {
+  it("reads done cards from develop too", async () => {
     const done = await readDoneCards(fx.repo);
     expect(done.map((d) => [d.id, d.title])).toEqual([
       ["T-0007", "feat: closed today"],
       ["T-0002", "feat: add the report page"],
-      // The default branch's copy wins over the day branch's.
-      ["T-0001", "chore: set up the workspace"],
+      // develop's copy wins over the default branch's.
+      ["T-0001", "the day branch's copy"],
     ]);
     expect(done[0]?.closedAt).toMatch(/^\d{4}-/);
 

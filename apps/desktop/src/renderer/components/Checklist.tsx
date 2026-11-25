@@ -7,8 +7,9 @@ import { errorMessage } from "@/lib/errors";
 import { STATUS_META } from "@/lib/status";
 
 import type { ChecklistView } from "../../shared/ipc";
+import { DisplayBranchLine } from "./DisplayBranch";
 
-// Checklist: the repo checklist in BACKLOG.md on the default branch — the
+// Checklist: the repo checklist in BACKLOG.md on the display branch — the
 // stage and what decides it, and each line with its status and the check
 // that decides it, as /setup last recorded them. It changes nothing and runs
 // no check; Reload reads the file again.
@@ -155,6 +156,7 @@ export function Checklist({ repoPath }: { repoPath: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold">Checklist</h2>
+          <DisplayBranchLine display={view?.display} />
           <p className="text-xs text-muted-foreground">
             {hasChecklist
               ? `What must stay true for this repo, from "Repo checklist" in BACKLOG.md · last /setup ${view?.lastSetup ?? "not recorded"}`
@@ -182,7 +184,8 @@ export function Checklist({ repoPath }: { repoPath: string }) {
         )
       ) : !view.hasBacklog ? (
         <p className="text-sm text-muted-foreground">
-          There&apos;s no BACKLOG.md on the default branch yet. Run{" "}
+          There&apos;s no BACKLOG.md on{" "}
+          {view.display?.name ?? "the default branch"} yet. Run{" "}
           <code>/setup</code> in Claude Code to write the checklist and state
           the stage.
         </p>
