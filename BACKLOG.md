@@ -81,6 +81,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] §The line gives two inspection caps: "Waiting for inspection at most 2" under Limits and "the inspection cap is 3" under Inspection · seen on T-0028 · `docs/queue-2026-11-25.md`
 - 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
 - 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
+- 2026-11-25 [tool] `ci-scope.mjs`'s `isDocs` (and `ci.yml`'s `code` filter) count only root `*.md` as docs, so a docs-only card PR that `/done` moves to `cards/done/<id>.md` is scoped to every package · seen on T-0028 · `scripts/ci-scope.mjs:16`
 
 ## Repo checklist
 

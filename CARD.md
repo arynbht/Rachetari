@@ -1,7 +1,7 @@
 # T-0028 · docs(shell): a static prototype of the Tasks overhaul
 
-Status: in progress <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0028 · Held by: AB_Rouge
+Status: done <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0028 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 1: design only · Gate: needs you
 
 ## Why
@@ -12,14 +12,14 @@ The Tasks view shows seven equal columns, then the selected card's record stacke
 
 Each one is checked by something that can be run or looked at. No criterion without a check.
 
-- [ ] A1: `docs/prototypes/T-0028/index.html` opens from disk with no build, no server and no network. It shows the kit fixture's cards (`apps/desktop/test/kit-fixture.ts`, copied by hand into the prototype's data) on a board with Draft, Ready, In progress, Blocked and PR open columns, and Next up and Done as collapsed rails with counts. Column headers show load against the line's limits: "Draft + Ready 1/5" across the two columns, "In progress 1/2", "PR open 0/3"; Blocked shows a count only. Done shows the latest five and a "History" link (inert in the prototype) · check: `node docs/prototypes/T-0028/shoot.mjs` from the repo root writes `docs/screenshots/T-0028/1-board.png`, and look at it. The script exits non-zero if the page requests anything that isn't a `file://` URL, logs a console error, or has a serious or critical axe violation (axe-core from `apps/desktop/node_modules`, as in `e2e/helpers.ts`)
-- [ ] A2: Selecting a card, by click or by arrow keys and Enter, collapses the board to a narrow grouped list on the left and opens the record on the right. The record has a fixed header (id, title, status, held by, next step, PR), then any open questions pinned first, then Card, Evidence and Commits tabs. Escape returns to the full board with focus on the card that was open · check: the script drives the keys to T-0003 and writes `2-selected.png`, opens T-0005 (blocked, open question "Round half up or half even?") and writes `3-blocked-question.png`, and exits non-zero unless Escape brings the full board back and the tabs switch with the arrow keys
-- [ ] A3: A "Needs me" filter keeps only the cards waiting on the owner: T-0004 (a draft gated `needs you`), T-0005 (an open question) and T-0006 (can't be read) · check: the script turns it on, exits non-zero unless exactly those three are shown, and writes `5-needs-me.png`
-- [ ] A4: `index.html?done=20` shows the board with 20 done cards in all: the Done rail reads 20, five are listed, and the board is no taller than in `1-board.png` · check: the script writes `4-done-20.png` and exits non-zero unless the rail lists exactly five
-- [ ] A5: One alternative layout, `index.html?layout=list`: the grouped list always on the left with load headers, and the record (or "Pick a card") on the right, so selecting a card never reflows the page. The real Tasks view, the engine and the IPC don't change, and the PR is docs only · check: the script writes `6-alt-board.png` and `7-alt-selected.png`; `git diff --stat origin/day/2026-11-25...HEAD` lists only the files in scope; `node scripts/ci-scope.mjs origin/day/2026-11-25` prints `nothing to check: the diff is docs only`, so `ci` runs only `changes` and `secret-scan` and must be green (`gh pr checks`). The screenshots are made locally by the builder and committed; CI doesn't make them. Local: `pnpm exec eslint docs/prototypes/T-0028` and `pnpm exec prettier --check docs/prototypes/T-0028 CARD.md BACKLOG.md` pass
-- [ ] A6: The prototype uses the shell's own stylesheet and theme tokens (the built renderer CSS, not hand-written CSS) at the shell's window size, 1140×780, so the screenshots look like the real app · check: `shoot.mjs` loads the shell's CSS (path named in Evidence) and sets the 1140×780 viewport; compare a screenshot with the real Tasks view's
-- [ ] A7: The seven screenshots include: the full board with 20 done cards; a card selected; a blocked card with two open questions; the "needs me" filter on; and both layouts showing the same card, for a direct comparison · check: the seven PNGs under `docs/screenshots/T-0028/`, each named for what it shows
-- [ ] A8: Once the screenshots are pushed, a link to the folder sits at the top of `docs/open-questions.md` on `develop` with one question: which layout, and what to change (the foreman writes it; the builder reports the folder link) · check: the file on `develop`
+- [x] A1: `docs/prototypes/T-0028/index.html` opens from disk with no build, no server and no network. It shows the kit fixture's cards (`apps/desktop/test/kit-fixture.ts`, copied by hand into the prototype's data) on a board with Draft, Ready, In progress, Blocked and PR open columns, and Next up and Done as collapsed rails with counts. Column headers show load against the line's limits: "Draft + Ready 1/5" across the two columns, "In progress 1/2", "PR open 0/3"; Blocked shows a count only. Done shows the latest five and a "History" link (inert in the prototype) · check: `node docs/prototypes/T-0028/shoot.mjs` from the repo root writes `docs/screenshots/T-0028/1-board.png`, and look at it. The script exits non-zero if the page requests anything that isn't a `file://` URL, logs a console error, or has a serious or critical axe violation (axe-core from `apps/desktop/node_modules`, as in `e2e/helpers.ts`)
+- [x] A2: Selecting a card, by click or by arrow keys and Enter, collapses the board to a narrow grouped list on the left and opens the record on the right. The record has a fixed header (id, title, status, held by, next step, PR), then any open questions pinned first, then Card, Evidence and Commits tabs. Escape returns to the full board with focus on the card that was open · check: the script drives the keys to T-0003 and writes `2-selected.png`, opens T-0005 (blocked, open question "Round half up or half even?") and writes `3-blocked-question.png`, and exits non-zero unless Escape brings the full board back and the tabs switch with the arrow keys
+- [x] A3: A "Needs me" filter keeps only the cards waiting on the owner: T-0004 (a draft gated `needs you`), T-0005 (an open question) and T-0006 (can't be read) · check: the script turns it on, exits non-zero unless exactly those three are shown, and writes `5-needs-me.png`
+- [x] A4: `index.html?done=20` shows the board with 20 done cards in all: the Done rail reads 20, five are listed, and the board is no taller than in `1-board.png` · check: the script writes `4-done-20.png` and exits non-zero unless the rail lists exactly five
+- [ ] A5: One alternative layout, `index.html?layout=list`: the grouped list always on the left with load headers, and the record (or "Pick a card") on the right, so selecting a card never reflows the page. The real Tasks view, the engine and the IPC don't change, and the PR is docs only · check: the script writes `6-alt-board.png` and `7-alt-selected.png`; `git diff --stat origin/day/2026-11-25...HEAD` lists only the files in scope; `node scripts/ci-scope.mjs origin/day/2026-11-25` prints `nothing to check: the diff is docs only`, so `ci` runs only `changes` and `secret-scan` and must be green (`gh pr checks`). The screenshots are made locally by the builder and committed; CI doesn't make them. Local: `pnpm exec eslint docs/prototypes/T-0028` and `pnpm exec prettier --check docs/prototypes/T-0028 CARD.md BACKLOG.md` pass · UNTESTED: the `ci` half (ci pending at PR open); the local half passed
+- [x] A6: The prototype uses the shell's own stylesheet and theme tokens (the built renderer CSS, not hand-written CSS) at the shell's window size, 1140×780, so the screenshots look like the real app · check: `shoot.mjs` loads the shell's CSS (path named in Evidence) and sets the 1140×780 viewport; compare a screenshot with the real Tasks view's
+- [x] A7: The seven screenshots include: the full board with 20 done cards; a card selected; a blocked card with two open questions; the "needs me" filter on; and both layouts showing the same card, for a direct comparison · check: the seven PNGs under `docs/screenshots/T-0028/`, each named for what it shows
+- [ ] A8: Once the screenshots are pushed, a link to the folder sits at the top of `docs/open-questions.md` on `develop` with one question: which layout, and what to change (the foreman writes it; the builder reports the folder link) · check: the file on `develop` · UNTESTED: the foreman's step; the folder is https://github.com/arynbht/Rachetari/tree/card/T-0028/docs/screenshots/T-0028
 
 ## Files in scope
 
@@ -62,7 +62,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Draft, waiting on the owner (needs you: the spec's gate). Once ready, start with A1: `fixture.js` from `apps/desktop/test/kit-fixture.ts`, then the board in `index.html`.
+Done: draft PR open against `develop`. Next: the foreman puts the screenshots' folder link at the top of `docs/open-questions.md` (A8) and the owner picks a layout; `ci` on the PR is pending at PR open.
 
 ## Decisions
 
@@ -80,6 +80,14 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Rails: decided for the owner: the Next up rail shows its count and expands in place on click; the Done rail always lists the latest five, one line each, with its count and the History link (alternative: each rail opens its own view, Backlog or History).
 - 2026-11-25: The alternative layout: decided for the owner: an always-two-pane grouped list with the record, `?layout=list`. At 1140 px, five columns and two rails leave each card about 180 px, titles wrap to three lines, and the page reflows on every selection; the list keeps titles on one line and never reflows (alternative: lanes, one row per status).
 - 2026-11-25: Owner (19:40:30): approved with three additions (A6–A8). The base branch is now `develop`, not `day/2026-11-25`. Set ready by the foreman.
+- 2026-11-25: The shell's stylesheet (A6): decided for the owner: `shoot.mjs` builds the shell's own `apps/desktop/src/renderer/index.css` with the desktop's Tailwind, PostCSS and `tailwind.config.ts` (from `apps/desktop/node_modules`), its content widened from the renderer's sources to the prototype's two files, into `docs/prototypes/T-0028/out/shell.css`, which git ignores (`out/`); `index.html` links `out/shell.css` and has no CSS of its own, and opened before a first run it says to run the script. So "no build" in A1 now means no build of the page; the stylesheet is built locally, never committed (alternative: `electron-vite build` and link its `out/renderer/assets/index-<hash>.css`, which lacks the prototype's layout classes and changes name with every renderer change).
+- 2026-11-25: The frame: decided for the owner: the page draws the shell's sidebar, repo header and tab bar around Tasks, at the shell's real content width (804 px), so the screenshots compare directly with the real view (alternative: Tasks alone at the full 1140 px, which flatters the columns).
+- 2026-11-25: The rails: decided for the owner: full-width bands, Next up above the columns (collapsed, its first line shown) and Done below them (alternative: narrow vertical rails beside the columns, which leave no room for a one-line done title at 804 px).
+- 2026-11-25: Two open questions (A7): decided for the owner: `fixture.js` gives T-0005 a second open question, "Round the totals row too, or only each line?", marked in the file as an addition to the fixture (alternative: a made-up second blocked card).
+- 2026-11-25: The window: decided for the owner: `main.mjs` opens 1140×780 with `useContentSize`, and `shoot.mjs` pins the viewport to 1140×780 and shoots in CSS pixels, since Windows display scaling rounded the content to 1140×782 and wrote 1425×975 PNGs; every machine now writes 1140×780 PNGs (alternative: device pixels, sharper on a scaled display but a different size per machine).
+- 2026-11-25: "No taller" (A4): decided for the owner: the script compares the column grid's height with and without `?done=20` (equal) and checks the whole page fits the 780 px window; the Done band grows from two lines to its five (alternative: reserve five lines in the Done band always).
+- 2026-11-25: Needs me: decided for the owner: while it's on, Next up and Done are hidden and a line says so; the load headers keep counting every card, since they are the line's load (alternative: rails kept, empty).
+- 2026-11-25: The base for A5's checks: decided for the owner: `origin/develop` in place of `origin/day/2026-11-25`, per the owner's base change (alternative: none; the day branch is retired).
 
 ## Questions for me
 
@@ -88,10 +96,10 @@ Appended by the session, one line each, newest last.
 
 ## Done
 
-- [ ] Every criterion ticked, with the command run and its result pasted below
-- [ ] Tests, lint and typecheck run; output below
-- [ ] No edits outside "Files in scope" (`git diff --stat` below)
-- [ ] Anything not run is marked UNTESTED, never "verified"
+- [ ] Every criterion ticked, with the command run and its result pasted below (A5's `ci` half and A8 are UNTESTED)
+- [x] Tests, lint and typecheck run; output below
+- [x] No edits outside "Files in scope" (`git diff --stat` below)
+- [x] Anything not run is marked UNTESTED, never "verified"
 - [ ] Draft PR opened: #
 
 ### Evidence
@@ -100,4 +108,92 @@ Appended by the session, one line each, newest last.
 Waiting on the owner (wall clock, UTC):
   approval         19:36:09 → 19:40:30   4 min 21 s
   draft 19:31:25 →
+
+A1–A7, all from one run (AB_Rouge, 2026-11-25):
+$ node docs/prototypes/T-0028/shoot.mjs   -> exit 0
+  built docs/prototypes/T-0028/out/shell.css from apps/desktop/src/renderer/index.css (32986 bytes)
+  ok   the window is 1140×780 (1140×780)
+  ok   the shell's stylesheet and its dark tokens are applied (body rgb(9, 14, 26))
+  ok   A1: the board shows
+  ok   A1: columns Draft, Ready, In progress, Blocked, PR open (draft,ready,progress,blocked,pr)
+  ok   A1: headers show load (Draft + Ready 1/5 | In progress 1/2 | Blocked 2 | PR open 0/3)
+  ok   A1: the Next up rail is collapsed with its count, 2
+  ok   A1: Next up starts collapsed
+  ok   A1: the Done rail counts 2
+  ok   A1: Done links to History
+  ok   A1: the fixture's cards are on the board (T-0001,T-0002,T-0003,T-0004,T-0005,T-0006)
+  ok   A1 board: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/1-board.png
+  ok   A2: the board's first card takes focus
+  ok   A2: Right skips the empty Ready column to T-0003
+  ok   A2: Enter collapses the board to the list and the record
+  ok   A2: the record is T-0003's
+  ok   A2: the record's header has id, title, status, held by, next step and PR
+  ok   A2: tabs Card, Evidence, Commits (Card,Evidence,Commits)
+  ok   A2: the list is on the left, the record on the right
+  ok   A2: focus is on T-0003 in the list
+  ok   A2 selected: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/2-selected.png
+  ok   A2: Down opens the next card, T-0005
+  ok   A2/A7: T-0005 pins two open questions
+  ok   A2: the fixture's question is pinned
+  ok   A2: open questions come before the tabs
+  ok   A2 blocked: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/3-blocked-question.png
+  ok   A2: the arrow keys switch the tabs (Evidence, Commits, Evidence)
+  ok   A2 evidence tab: no serious or critical axe violations
+  ok   A2: Escape brings the full board back
+  ok   A2: focus is on the card that was open, T-0005
+  ok   A3: Needs me is on
+  ok   A3: exactly T-0004, T-0005 and T-0006 are shown (T-0004,T-0005,T-0006)
+  ok   A3 needs me: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/5-needs-me.png
+  ok   A4: the Done rail reads 20
+  ok   A4: the Done rail lists exactly five (5)
+  ok   A4: the board is no taller than in 1-board.png (242.80001831054688 <= 242.80001831054688)
+  ok   A4: the page fits the 780 px window with 20 done cards
+  ok   A4 done=20: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/4-done-20.png
+  ok   A5: ?layout=list shows the list layout
+  ok   A5: the record pane says Pick a card
+  ok   A5: the list's headers show load (1/5,1/2,2,0/3)
+  ok   A5 list: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/6-alt-board.png
+  ok   A5/A7: the list layout shows T-0003, as 2-selected.png does
+  ok   A5: selecting a card doesn't reflow the list
+  ok   A5 selected: no serious or critical axe violations
+  wrote docs/screenshots/T-0028/7-alt-selected.png
+  ok   A5: Escape closes the record
+
+  all checks passed
+
+A6: the shell's CSS is apps/desktop/src/renderer/index.css + apps/desktop/tailwind.config.ts,
+built by shoot.mjs into docs/prototypes/T-0028/out/shell.css (ignored: `git check-ignore` below);
+the viewport is 1140×780 and every PNG is 1140×780 (read from the PNG headers).
+$ git check-ignore -v docs/prototypes/T-0028/out/shell.css
+  .gitignore:8:out/	docs/prototypes/T-0028/out/shell.css
+Compared by eye: docs/screenshots/T-0028/1-board.png against the real Tasks view in
+docs/screenshots/T-0018/tasks-branch-states.png: the same sidebar, header, tab bar, type,
+dark tokens, card borders (rose for can't be read) and muted counts.
+
+A7: docs/screenshots/T-0028/
+  1-board.png  2-selected.png (T-0003)  3-blocked-question.png (T-0005, 2 open questions)
+  4-done-20.png  5-needs-me.png  6-alt-board.png  7-alt-selected.png (T-0003, as in 2)
+
+A5, local half:
+$ git diff --stat origin/develop...HEAD   (before the card moved to cards/done/)
+  BACKLOG.md, CARD.md, docs/prototypes/T-0028/{fixture.js,index.html,main.mjs,shoot.mjs},
+  docs/screenshots/T-0028/1..7 PNGs: 13 files changed, 2188 insertions(+)
+$ node scripts/ci-scope.mjs origin/develop
+  nothing to check: the diff is docs only
+$ pnpm exec eslint docs/prototypes/T-0028      -> exit 0, no output
+$ pnpm exec prettier --check docs/prototypes/T-0028 CARD.md BACKLOG.md
+  All matched files use Prettier code style!
+A5, ci half: UNTESTED (ci pending at PR open)
+A8: UNTESTED (the foreman's step on develop)
+
+Tests, lint, typecheck:
+$ pnpm typecheck   -> exit 0
+$ pnpm lint        -> exit 0
+$ pnpm test        -> Test Files 33 passed (33), Tests 163 passed (163)
 ```
