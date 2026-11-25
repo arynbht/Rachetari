@@ -1,5 +1,5 @@
-// Parsers for the kit's files: CARD.md, BACKLOG.md, a night report and
-// skills/INDEX.md. Pure functions over text; the file source (source.ts) reads
+// Parsers for the kit's files: CARD.md, BACKLOG.md, CHECKLIST.md, a night
+// report and skills/INDEX.md. Pure functions over text; the file source (source.ts) reads
 // the text from the repo.
 
 export type CriterionState = "ticked" | "unticked" | "untested";
@@ -207,17 +207,30 @@ export type CheckStatus = "pass" | "fail" | "unchecked" | "n/a";
 export interface ChecklistLine {
   text: string;
   status: CheckStatus;
+  /** The catalog id (CHECKLIST.md only), e.g. `ci.workflow.present`, or null. */
+  id: string | null;
+  /** The `stage:` tag (CHECKLIST.md only), e.g. "building", or null. */
+  stage: string | null;
   check: string | null;
   /** Marked `new` by a /setup re-run. */
   isNew: boolean;
 }
 
+export interface ChecklistGroup {
+  name: string;
+  /** Why the whole section doesn't apply (CHECKLIST.md's `- n/a:` with no id). */
+  na: string | null;
+  lines: ChecklistLine[];
+}
+
 export interface Checklist {
+  /** The file it was read from; null when the repo has neither. */
+  source: "CHECKLIST.md" | "BACKLOG.md" | null;
   stage: string | null;
   /** What decides the stage, as written after the stage's name. */
   stageWhy: string | null;
   lastSetup: string | null;
-  groups: { name: string; lines: ChecklistLine[] }[];
+  groups: ChecklistGroup[];
 }
 
 export interface Backlog {
@@ -240,10 +253,18 @@ function parkedLine(line: string): ParkedLine {
   };
 }
 
+/** A line of BACKLOG.md's "Repo checklist": no ids, no stage tags. */
 function checklistLine(line: string): ChecklistLine | null {
   const na = /^- n\/a:?\s*(.+)$/.exec(line);
   if (na?.[1])
-    return { text: na[1].trim(), status: "n/a", check: null, isNew: false };
+    return {
+      text: na[1].trim(),
+      status: "n/a",
+      id: null,
+      stage: null,
+      check: null,
+      isNew: false,
+    };
   const m = /^- \[( |x|X)\] (.+)$/.exec(line);
   if (!m?.[2]) return null;
   let rest = m[2];
@@ -260,9 +281,141 @@ function checklistLine(line: string): ChecklistLine | null {
   return {
     text: clean(text ?? ""),
     status,
+    id: null,
+    stage: null,
     check: check ? clean(check).replace(/^`|`$/g, "") : null,
     isNew,
   };
+}
+
+/** A catalog id: lowercase and dotted, no spaces (`ci.workflow.present`). */
+const CATALOG_ID = /^`([a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+)+)`\s*/;
+const STAGE_TAG = /\s*·\s*stage:\s*([^·\s]+)\s*$/;
+/** A template placeholder: `<…>`, after a `` `<id>` `` if it has one. */
+const placeholder = (s: string) =>
+  /^<.*>$/.test(s.trim().replace(/^`<[^`]*>`\s*/, ""));
+
+/** Take a leading catalog id off a claim: [id, the rest]. */
+function leadingId(rest: string): [string | null, string] {
+  const m = CATALOG_ID.exec(rest);
+  return m?.[1] ? [m[1], rest.slice(m[0].length)] : [null, rest];
+}
+
+/** Take a trailing `· stage: <tag>` off a part of a line: [tag, the rest]. */
+function trailingStage(part: string): [string | null, string] {
+  const m = STAGE_TAG.exec(part);
+  return m?.[1] && !placeholder(m[1])
+    ? [m[1], part.slice(0, m.index)]
+    : [null, part];
+}
+
+type FileLine =
+  | { kind: "line"; line: ChecklistLine }
+  | { kind: "section-na"; reason: string };
+
+const CHECK_SEP = " · check: ";
+
+/**
+ * A line of CHECKLIST.md (T-0029's format). The catalog id is the first
+ * backticked token of the claim, right after the marker, on either side of
+ * `unchecked:` and after `n/a:`; the stage tag sits on either side of
+ * `· check:`; `new` ends the line. A `- n/a:` with no id is the section's own.
+ */
+function checklistFileLine(line: string): FileLine | null {
+  const na = /^- n\/a:\s*(.+)$/.exec(line);
+  if (na?.[1]) {
+    const [id, reason] = leadingId(na[1].trim());
+    if (placeholder(reason)) return null;
+    if (!id) return { kind: "section-na", reason: reason.trim() };
+    const [stage, text] = trailingStage(reason);
+    return {
+      kind: "line",
+      line: {
+        text: text.trim(),
+        status: "n/a",
+        id,
+        stage,
+        check: null,
+        isNew: false,
+      },
+    };
+  }
+  const m = /^- \[( |x|X)\] (.+)$/.exec(line);
+  if (!m?.[2]) return null;
+  let status: CheckStatus = m[1] === " " ? "fail" : "pass";
+  let rest = m[2].trim();
+  const isNew = /\snew$/.test(rest);
+  if (isNew) rest = rest.replace(/\s+new$/, "");
+  let [id, after] = leadingId(rest);
+  const unchecked = /^unchecked:\s*/.exec(after);
+  if (unchecked) {
+    status = "unchecked";
+    after = after.slice(unchecked[0].length);
+    if (!id) [id, after] = leadingId(after);
+  }
+  const at = after.indexOf(CHECK_SEP);
+  let claim = at < 0 ? after : after.slice(0, at);
+  let check: string | null = at < 0 ? null : after.slice(at + CHECK_SEP.length);
+  let stage: string | null;
+  [stage, claim] = trailingStage(claim);
+  if (!stage && check !== null) [stage, check] = trailingStage(check);
+  claim = claim.trim();
+  if (!claim || placeholder(claim)) return null;
+  check = check?.trim() || null;
+  return {
+    kind: "line",
+    line: {
+      text: claim,
+      status,
+      id,
+      stage,
+      // As written, code spans and all: the view shows them as code.
+      check,
+      isNew,
+    },
+  };
+}
+
+const STAGE_LINE = /^Stage:\s*([^—–-]+?)\s*(?:[—–-]\s*(.+))?$/;
+const SETUP_LINE = /^Last `?\/setup`?:\s*(.+)$/;
+
+/**
+ * Parse a CHECKLIST.md (T-0029's format): the stage and what decides it, the
+ * last /setup, and one group per `## <section>` in file order, an empty one
+ * included. The indented format block and `<…>` placeholders are skipped.
+ */
+export function parseChecklist(text: string): Checklist {
+  const checklist: Checklist = {
+    source: "CHECKLIST.md",
+    stage: null,
+    stageWhy: null,
+    lastSetup: null,
+    groups: [],
+  };
+  let group: ChecklistGroup | null = null;
+  for (const line of text.split(/\r?\n/)) {
+    const heading = /^## (.+)$/.exec(line);
+    if (heading?.[1]) {
+      group = { name: heading[1].trim(), na: null, lines: [] };
+      checklist.groups.push(group);
+      continue;
+    }
+    if (!group) {
+      const stage = STAGE_LINE.exec(line);
+      if (stage?.[1] && !placeholder(stage[1])) {
+        checklist.stage = stage[1].trim();
+        checklist.stageWhy = stage[2]?.trim() ?? null;
+      }
+      const setup = SETUP_LINE.exec(line);
+      if (setup?.[1] && !setup[1].startsWith("<"))
+        checklist.lastSetup = setup[1].trim();
+      continue;
+    }
+    const item = checklistFileLine(line);
+    if (item?.kind === "line") group.lines.push(item.line);
+    else if (item?.kind === "section-na") group.na = item.reason;
+  }
+  return checklist;
 }
 
 /** Parse a BACKLOG.md: "Next up", "Parked" and "Repo checklist". */
@@ -275,35 +428,37 @@ export function parseBacklog(text: string): Backlog {
     .filter((l) => !/^\d{4}-\d\d-\d\d \[[a-z]+\] Example:/.test(l))
     .map(parkedLine);
 
+  const repoChecklist = s.get("Repo checklist");
   const checklist: Checklist = {
+    source: repoChecklist ? "BACKLOG.md" : null,
     stage: null,
     stageWhy: null,
     lastSetup: null,
     groups: [],
   };
-  let group: { name: string; lines: ChecklistLine[] } | null = null;
-  for (const line of s.get("Repo checklist") ?? []) {
-    const stage = /^Stage:\s*([^—–-]+?)\s*(?:[—–-]\s*(.+))?$/.exec(line);
+  let group: ChecklistGroup | null = null;
+  for (const line of repoChecklist ?? []) {
+    const stage = STAGE_LINE.exec(line);
     if (stage?.[1]) {
       checklist.stage = stage[1].trim();
       checklist.stageWhy = stage[2]?.trim() ?? null;
       continue;
     }
-    const setup = /^Last `?\/setup`?:\s*(.+)$/.exec(line);
+    const setup = SETUP_LINE.exec(line);
     if (setup?.[1]) {
       checklist.lastSetup = setup[1].trim();
       continue;
     }
     const heading = /^### (.+)$/.exec(line);
     if (heading?.[1]) {
-      group = { name: heading[1].trim(), lines: [] };
+      group = { name: heading[1].trim(), na: null, lines: [] };
       checklist.groups.push(group);
       continue;
     }
     const item = checklistLine(line);
     if (!item) continue;
     if (!group) {
-      group = { name: "Checklist", lines: [] };
+      group = { name: "Checklist", na: null, lines: [] };
       checklist.groups.push(group);
     }
     group.lines.push(item);
