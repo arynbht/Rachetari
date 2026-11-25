@@ -167,3 +167,4 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a): a few lines in the existing afterSanitizeAttributes hook, no visual change.
 - **Placeholder:** `apps/desktop/e2e/history.e2e.ts` has a `test.fixme` "History passes axe with the Docs viewer showing a backlog" naming this item; the other History tests run without axe on that page.
 - **Issue:** [#28](https://github.com/arynbht/Rachetari/issues/28)
+- **Settled:** 2026-11-25 by T-0020 (PR #36, merged into `day/2026-11-25`), with the owner's variant of (b): task-list items render as ☑/☐ text with screen-reader "done"/"not done", no inputs (the inputs were never checkboxes: the sanitizer stripped `type`). The fixme test runs again. #28 closes when the day branch reaches `main`.
