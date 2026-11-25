@@ -60,19 +60,33 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
           unreadable: false,
           source: "card",
         }
-      : {
-          key: `branch:${c.branch}`,
-          id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
-          title: "CARD.md can't be read",
-          column: "blocked",
-          status: "unreadable",
-          heldBy: null,
-          branch: c.branch,
-          updated: c.lastCommitAt,
-          pr: null,
-          unreadable: true,
-          source: "card",
-        },
+      : c.drafting
+        ? {
+            key: `branch:${c.branch}`,
+            id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
+            title: "No CARD.md yet",
+            column: "draft",
+            status: "drafting",
+            heldBy: null,
+            branch: c.branch,
+            updated: c.lastCommitAt,
+            pr: null,
+            unreadable: false,
+            source: "card",
+          }
+        : {
+            key: `branch:${c.branch}`,
+            id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
+            title: "CARD.md can't be read",
+            column: "blocked",
+            status: "unreadable",
+            heldBy: null,
+            branch: c.branch,
+            updated: c.lastCommitAt,
+            pr: null,
+            unreadable: true,
+            source: "card",
+          },
   );
   // A card whose branch is still live is shown from its branch, not twice.
   const liveIds = new Set(live.map((i) => i.id));
@@ -137,7 +151,7 @@ export async function taskDetail(
   return {
     item,
     card: live.card,
-    error: live.card ? null : (live.error ?? "unreadable"),
+    error: live.card || live.drafting ? null : (live.error ?? "unreadable"),
     commits: ref ? await readCardCommits(repoPath, { ref }) : [],
   };
 }
