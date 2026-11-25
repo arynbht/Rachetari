@@ -82,6 +82,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
 - 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
 - 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- questions.e2e.ts` runs the whole e2e suite, not the one file: pnpm passes the `--` on to `playwright test` as an argument; `pnpm --filter … exec playwright test questions.e2e.ts` (after a build) runs one · seen on T-0026 · `apps/desktop/package.json`
+- 2026-11-25 [product] `live-shell.mjs`'s Linux stop path (each child in its own process group, SIGTERM then SIGKILL after 2 s) was only tried on Windows; try Ctrl+C and the window close on Ubuntu · seen on T-0030 · `apps/desktop/scripts/live-shell.mjs`
 
 ## Repo checklist
 
