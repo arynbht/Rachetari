@@ -170,6 +170,26 @@ export const NowCardLine = z.object({
 });
 export type NowCardLine = z.infer<typeof NowCardLine>;
 
+/** One open question on a card, split into the template's parts. */
+export const NowQuestion = z.object({
+  /** Its place among the card's open questions, from 1. */
+  n: z.number().int().positive(),
+  ask: z.string(),
+  /** What the card recommends, or null when it doesn't say. */
+  recommended: z.string().nullable(),
+  options: z.array(z.string()),
+});
+export type NowQuestion = z.infer<typeof NowQuestion>;
+
+/** A live card with at least one open question, and those questions. */
+export const NowQuestionGroup = z.object({
+  id: z.string(),
+  title: z.string(),
+  branch: z.string(),
+  questions: z.array(NowQuestion),
+});
+export type NowQuestionGroup = z.infer<typeof NowQuestionGroup>;
+
 export const NowState = z.object({
   repoPath: z.string(),
   ready: z.boolean(),
@@ -179,6 +199,8 @@ export const NowState = z.object({
   cards: z.array(NowCardLine),
   health: NowHealth,
   needsYou: z.array(NeedsYouItem),
+  /** Each live card's open questions, in card-id order. */
+  questions: z.array(NowQuestionGroup),
   running: z.array(NowRunning),
   recent: z.array(RecentEvent),
 });

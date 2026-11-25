@@ -24,6 +24,11 @@ export interface Card {
   heldBy: string | null;
   created: string | null;
   source: string | null;
+  /**
+   * Who approves the draft, as the `Created:` line's `Gate:` says (e.g.
+   * "needs you" or "low"), or null when that line has none.
+   */
+  gate: string | null;
   why: string;
   criteria: Criterion[];
   filesInScope: string[];
@@ -36,6 +41,45 @@ export interface Card {
   evidence: string;
   /** The draft PR's number, once "Draft PR opened: #N" is filled in. */
   pr: number | null;
+}
+
+/** A question line's parts, in the template's shape. */
+export interface QuestionParts {
+  ask: string;
+  /** What the card recommends, or null when it doesn't say. */
+  recommended: string | null;
+  /** The other options, as the line separates them with `;`. */
+  options: string[];
+}
+
+const RECOMMENDED = /^(.*?)\s+(?:[—–]\s+)?Recommended:\s*(.*)$/;
+const OPTIONS = /\.?\s+(?:Other options|Options):\s*/;
+const noStop = (s: string) => s.trim().replace(/\.$/, "").trim();
+
+/**
+ * Split a question line written in the template's shape,
+ * `<question> — Recommended: <answer>. Options: <other>; <other>.`, into its
+ * parts. `Other options:` reads like `Options:`, and a `Recommended:` without
+ * the `—` still splits. A line with no `Recommended:` is all question.
+ */
+export function questionParts(text: string): QuestionParts {
+  const m = RECOMMENDED.exec(text.trim());
+  if (!m?.[1] || m[2] === undefined)
+    return { ask: text.trim(), recommended: null, options: [] };
+  const at = OPTIONS.exec(m[2]);
+  const recommended = at ? m[2].slice(0, at.index) : m[2];
+  const options = at ? m[2].slice(at.index + at[0].length) : undefined;
+  return {
+    ask: m[1].trim(),
+    recommended: noStop(recommended) || null,
+    options:
+      options === undefined
+        ? []
+        : noStop(options)
+            .split(";")
+            .map((o) => o.trim())
+            .filter(Boolean),
+  };
 }
 
 const HEADER = /^# (T-\d{4,}) · (.+)$/;
@@ -85,6 +129,7 @@ export function parseCard(text: string): Card | null {
   if (!header?.[1] || !header[2] || !status) return null;
   const s = sections(text);
   const held = field(text, "Held by");
+  const createdLine = /^Created:.*$/m.exec(text)?.[0] ?? "";
 
   const criteria: Criterion[] = [];
   for (const line of s.get("Acceptance criteria") ?? []) {
@@ -113,7 +158,9 @@ export function parseCard(text: string): Card | null {
     const m = /^- \[( |x|X)\] (.+)$/.exec(line);
     if (!m?.[2]) continue;
     const q = m[2].trim();
+    // The template's placeholders: `<…>` alone, or its shape with `<question>`.
     if (q === "(none)" || /^<.*>$/.test(q)) continue;
+    if (/^<[^>]*>$/.test(questionParts(q).ask)) continue;
     questions.push({ text: q, open: m[1] === " " });
   }
 
@@ -129,6 +176,7 @@ export function parseCard(text: string): Card | null {
     heldBy: !held || held === "nobody" || /^<.*>$/.test(held) ? null : held,
     created: field(text, "Created"),
     source: field(text, "Source"),
+    gate: field(createdLine, "Gate"),
     why: prose(s.get("Why")),
     criteria,
     filesInScope: bullets(s.get("Files in scope")),

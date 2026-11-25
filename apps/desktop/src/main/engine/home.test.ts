@@ -20,6 +20,7 @@ const state = (repoPath: string): NowState => ({
     lastNight: null,
   },
   needsYou: [],
+  questions: [],
   running: [],
   recent: [],
 });
