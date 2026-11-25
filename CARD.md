@@ -43,7 +43,7 @@ Named on purpose, so the session doesn't drift into them.
 - Still read-only: no git call that writes.
 - The gate is read from the `Created:` line only, through the existing `field` helper's `·`-separated layout; no other line of the card can set it.
 - `Card` gains `gate: string | null`; `TaskCard` in `shared/ipc.ts` is not changed.
-- Every existing test other than `home.e2e.ts` passes without an edit; `now.test.ts` and `source.test.ts` are not touched.
+- Every existing test other than `home.e2e.ts` passes without an edit; `now.test.ts`, `source.test.ts`, `branch-states.test.ts` and `branch-states.e2e.ts` are not touched.
 
 ## Skills
 
@@ -55,13 +55,12 @@ At most three, from `skills/INDEX.md`. Read these and no others.
 
 Besides the standing list in CLAUDE.md:
 
-- Depends on: T-0018 (both edit apps/desktop/src/main/engine/now.ts). Don't start until T-0018 has merged into `day/2026-11-25`; then merge the day branch into `card/T-0019` (no rebase) before the first edit.
 - If any existing test other than `home.e2e.ts` fails because of the change.
 - If the gate needs `shared/ipc.ts` or the renderer to change.
 
 ## Next step
 
-Wait for T-0018 to merge into the day branch (both edit `now.ts`); then start with A1: write "reads Gate from the Created line, and only from there" in `approve-gate.test.ts` and watch it fail.
+T-0018 has merged and the day branch is merged in; start with A1: write "reads Gate from the Created line, and only from there" in `approve-gate.test.ts` and watch it fail.
 
 ## Decisions
 
@@ -71,6 +70,10 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The fixture's T-0004 gets the gate rather than the tests changing their counts, so `now.test.ts`, `source.test.ts` and Home's "4 waiting on you" stay as they are.
 - 2026-11-25: The new tests go in a new file, `approve-gate.test.ts`, with its own small fake watcher, so no existing test file is edited except `home.e2e.ts`.
 - 2026-11-25: Owner's answers (18:29): no Gate raises nothing; only exactly `low` is quiet, any other present gate asks; `Card` gains `gate`; the `home.e2e.ts` and `test/kit-fixture.ts` edits are approved. Set ready by the foreman (approvals in chat).
+- 2026-11-25: Depends-on T-0018 removed: T-0018 merged into `day/2026-11-25`, and the day branch is merged into `card/T-0019` (no rebase).
+- 2026-11-25: T-0018's `needsYouItems` skips a drafting branch before any card is read, so it never reaches the gate check; `NowHub` now withholds only `merge` from `onNew`, so an `approve` still notifies and A3 stands as written. Neither changes A1-A5 or the file list.
+- 2026-11-25: decided for the owner: T-0018's `branch-states.test.ts` and `branch-states.e2e.ts` join the untouched tests under Constraints; its relative badge counts hold because the fixture's T-0004 keeps asking with `Gate: needs you` (alternative: leave them covered only by A5's "every other existing test").
+- 2026-11-25: Pre-build re-check against day/2026-11-25 at 4aae976: still ready; T-0018's `now.ts` change leaves the criteria and Files in scope as they were, one constraint widened.
 
 ## Questions for me
 
