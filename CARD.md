@@ -1,7 +1,7 @@
 # T-0023 · feat(skills): take code-simplification, add a deslop skill and the Slop defaults /setup drafts
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0023 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0023 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4e · Gate: needs you
 
 ## Why
