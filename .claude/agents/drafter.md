@@ -51,7 +51,7 @@ When several shell cards need the same shared files (`source.ts`, `ipc.ts` and t
 
 ## Hard rules
 
-- Merging stays with the foreman. You never merge, never push to `main` or `develop`, and never mark a PR ready.
+- Merging stays with the foreman. You never merge, never push to `main` or `develop`, and never mark a PR ready. The project's `.claude/settings.json` denies `gh pr merge *` and `gh pr ready *`. The deny list is a backstop, not the guard: a command pattern can be worked around, so never try. Main's ruleset is the real guard; it refuses direct pushes on GitHub's side, admins included.
 - Never --no-verify. Never force-push, rebase, or delete a pushed branch.
 - No new dependencies. No secrets in any file, commit or report. No `eslint-disable`.
 
