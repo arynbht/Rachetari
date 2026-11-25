@@ -81,7 +81,7 @@ which also shows the line format. Then fill it:
   that's already in the file, on any line, `n/a` ones included.
 - **An old checklist.** If `BACKLOG.md` still has a "Repo checklist" section, move its
   lines into `CHECKLIST.md` as they are, each under the closest section, adding
-  `· stage:` from the group it sat in. Then replace that section, heading included, with
+  `· stage:` before its check, from the group it sat in. Then replace that section, heading included, with
   the one line `The checklist is in [CHECKLIST.md](CHECKLIST.md).`
 - **Proposals.** A `[checklist]` line under "Parked" in `BACKLOG.md` stays there as a
   proposal for me. Don't move it into `CHECKLIST.md`.
