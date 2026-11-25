@@ -114,8 +114,7 @@ Owner, 19:26:12:
 ### Evidence
 
 Waiting on the owner (wall clock, UTC):
-draft → ready 19:22:54 → 19:27:30 4 min 36 s
-draft 19:25 → ready (pending)
+draft → ready 19:22:54 → 19:26:12 3 min 18 s (questions in docs/open-questions.md from 19:22:54)
 
 ```
 <commands and results>
