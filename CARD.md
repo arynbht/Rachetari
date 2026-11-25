@@ -3,6 +3,7 @@
 Status: in progress <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0003 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: build prompt, phase 1 step 4
+Stacked on: card/T-0002 (PR #2)
 
 ## Why
 
@@ -27,6 +28,7 @@ Only these may be edited. Anything else needs a stop-and-ask.
 - `.claude/skills/{card,park,done,handoff}/SKILL.md`
 - `.gitattributes` (the union-merge line only)
 - `.prettierignore` (to keep copied kit files as written)
+- `DECISIONS.md`, `SHELVED.md` (the overnight records)
 - `CARD.md`, `cards/done/T-0003.md`
 - Outside the repo: `~/.claude/skills/setup/`
 
@@ -53,11 +55,15 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy `kit/setup/` to `~/.claude/skills/setup/`, then follow its SKILL.md on this repo.
+Commit the /setup output, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
+
+- 2026-11-25: The owner is away overnight; their rules replace "stop and ask" for tonight — choices go to DECISIONS.md, unsafe ones to SHELVED.md
+- 2026-11-25: `DECISIONS.md` and `SHELVED.md` added to this card's scope (D-05)
+- 2026-11-25: `/setup` ran through the Skill tool from `~/.claude/skills/setup`; `CLAUDE.md` holds the section only (D-02); the template's example lines replaced by real ones (D-03); `DESIGN.md` written as a no-UI draft (D-04)
 
 ## Questions for me
 
