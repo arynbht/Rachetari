@@ -13,7 +13,11 @@ const inOneFork = (glob: string): [string, "forks"] => [
 export default defineConfig({
   test: {
     // Discover *.test.ts / *.spec.ts across all workspace packages.
-    include: ["packages/**/*.{test,spec}.ts", "apps/**/*.{test,spec}.ts"],
+    include: [
+      "packages/**/*.{test,spec}.ts",
+      "apps/**/*.{test,spec}.ts",
+      "kit/**/*.test.ts",
+    ],
     exclude: ["**/node_modules/**", "**/dist/**"],
     // Many tests drive real git repos and child processes. Under the whole suite
     // they timed each other out on a loaded Windows machine, so they run one at a
