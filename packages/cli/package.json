@@ -29,13 +29,8 @@
   ],
   "scripts": {},
   "dependencies": {
-    "@arynbht/rivetari-catalog": "workspace:*",
     "@arynbht/rivetari-engine": "workspace:*",
-    "@arynbht/rivetari-registry": "workspace:*",
     "@arynbht/rivetari-runtime": "workspace:*",
-    "@clack/prompts": "^1.8.1",
-    "commander": "^15.0.0",
-    "picocolors": "^1.1.1",
-    "yaml": "^2.9.1"
+    "commander": "^15.0.0"
   }
 }

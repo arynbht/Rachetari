@@ -1,34 +1,20 @@
 import { execFileSync } from "node:child_process";
 
-import { installationToken, loadApp } from "./app.js";
-import { resolveRepoSlug } from "../context.js";
-
 /** Where a token came from: Rivetari's App acts as itself, the rest as a person. */
 export type TokenSource = "explicit" | "env" | "app" | "gh";
 
 /**
  * The token Rivetari acts on a repo with: an explicit one,
- * else `GITHUB_TOKEN`/`GH_TOKEN` (CI passes the App's installation token
- * there), else Rivetari's GitHub App when it's registered here and
- * installed on the repo's origin, else the `gh` login. With the App, reviews,
- * evidence and PRs come from Rivetari, not from whoever ran it.
+ * else `GITHUB_TOKEN`/`GH_TOKEN`, else the `gh` login. There is no GitHub App
+ * here, so reviews come from whoever ran it.
  */
 export async function githubToken(
-  repoPath: string,
+  _repoPath: string,
   explicit?: string,
-  options: { fetch?: typeof fetch } = {},
 ): Promise<{ token: string; source: TokenSource } | null> {
   if (explicit) return { token: explicit, source: "explicit" };
   const fromEnv = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
   if (fromEnv) return { token: fromEnv, source: "env" };
-  const app = await loadApp();
-  const slug = app ? await resolveRepoSlug(repoPath) : null;
-  if (app && slug) {
-    const minted = await installationToken(app, slug, options).catch(
-      () => null,
-    );
-    if (minted) return { token: minted.token, source: "app" };
-  }
   const gh = resolveToken();
   return gh ? { token: gh, source: "gh" } : null;
 }

@@ -2,18 +2,33 @@
 // with the two-round limit and posting as a single PR review.
 import {
   type AiClient,
-  carryJudgeCheck,
   type Effort,
   Octokit,
-  QUIET_LOG,
-  resolveRepoSlug,
+  parseRepoSlug,
+  type RepoSlug,
 } from "@arynbht/rivetari-engine";
 import { simpleGit } from "simple-git";
 
-import type { ReviewProof } from "./tier2.js";
+import type { AllowedDecision, ReviewProof } from "./tier2.js";
 import type { Card } from "../task/card.js";
-import type { AllowedDecision } from "../task/tasks.js";
 import type { Tier1Checks } from "./tier1-criteria.js";
+
+const QUIET_LOG = {
+  debug: () => undefined,
+  info: () => undefined,
+  warn: (message: string) => console.warn(message),
+  error: () => undefined,
+};
+
+async function resolveRepoSlug(root: string): Promise<RepoSlug | null> {
+  try {
+    const remotes = await simpleGit(root).getRemotes(true);
+    const origin = remotes.find((r) => r.name === "origin") ?? remotes[0];
+    return parseRepoSlug(origin?.refs.fetch);
+  } catch {
+    return null;
+  }
+}
 import {
   type Finding,
   renderReview,
@@ -284,7 +299,6 @@ export async function reviewPullRequest(
   // A carried review isn't a round: nothing was reviewed again.
   const round =
     marked.filter((m) => !(m.mark.carried && mine.includes(m))).length + 1;
-  const from = carried?.from ?? "";
   if (carried) {
     options.log?.(
       `head ${head.slice(0, 12)} has the tree reviewed at ${carried.from.slice(0, 12)}; carrying its verdict (${carried.verdict})`,
@@ -303,21 +317,6 @@ export async function reviewPullRequest(
       outcome,
       [],
     );
-    // What the judge passed is byte for byte what this head holds, so CI may
-    // skip on it here too. Only an App can create check runs; anything else
-    // is refused, and that costs CI time, never the review.
-    if (carried.verdict === "approve")
-      outcome.check = await carryJudgeCheck(
-        { octokit, owner, repo, cached: (_key, fn) => fn() },
-        { from: carried.from, head, tree },
-      ).then(
-        (url) =>
-          url
-            ? `judge check carried: ${url}`
-            : `no rivetari/judge check to carry from ${from.slice(0, 12)}, or this head has one`,
-        (err: Error) =>
-          `judge check not carried: ${err.message.replace(/\s+/g, " ").slice(0, 200)}`,
-      );
     return outcome;
   }
   if (!result) throw new Error("the review didn't run");
@@ -411,15 +410,13 @@ async function postReview(
   outcome: ReviewOutcome,
   comments: ReviewComment[],
 ): Promise<void> {
+  // Never APPROVE: a review is advice, and an approval would satisfy a
+  // one-approval merge rule. An approve verdict posts as a comment.
   const event =
-    outcome.verdict === "approve"
-      ? "APPROVE"
-      : outcome.verdict === "request-changes"
-        ? "REQUEST_CHANGES"
-        : "COMMENT";
+    outcome.verdict === "request-changes" ? "REQUEST_CHANGES" : "COMMENT";
 
   const attempts: {
-    event: "APPROVE" | "REQUEST_CHANGES" | "COMMENT";
+    event: "REQUEST_CHANGES" | "COMMENT";
     comments: ReviewComment[];
   }[] = [
     { event, comments },

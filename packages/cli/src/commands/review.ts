@@ -1,28 +1,17 @@
 import { resolve } from "node:path";
 
+import { AiError, createAiClient, githubToken } from "@arynbht/rivetari-engine";
 import {
-  AiError,
-  buildContext,
-  createAiClient,
-  githubToken,
-} from "@arynbht/rivetari-engine";
-import {
-  findJudgedTree,
   JUDGE_DEFAULT_MODEL,
-  loadTask,
   type ReviewOutcome,
   reviewLocal,
   reviewPullRequest,
-  whoami,
 } from "@arynbht/rivetari-runtime";
-
-import { today } from "../dates.js";
 
 export interface ReviewFlags {
   pr?: string;
   base?: string;
   head?: string;
-  task?: string;
   model?: string;
   token?: string;
   dryRun?: boolean;
@@ -46,37 +35,14 @@ export async function runReview(
     ? undefined
     : (line: string) => process.stderr.write(`· ${line}\n`);
 
-  let card;
-  let task;
-  if (flags.task) {
-    task = await loadTask(repo, flags.task).catch((err: Error) => {
-      console.error(`rivetari review: ${err.message}`);
-      return null;
-    });
-    if (!task) return 1;
-    if (task.problems.length > 0 || !task.confirmed) {
-      console.error(
-        `rivetari review: task ${flags.task} ${task.problems.length > 0 ? "fails verification" : "isn't confirmed yet"}; not reviewing against it.`,
-      );
-      return 1;
-    }
-    card = task.card;
-  }
-
-  const profile = await buildContext(repo)
-    .profile()
-    .catch(() => null);
-  const model = flags.model ?? profile?.ai?.judge_model ?? JUDGE_DEFAULT_MODEL;
+  const model = flags.model ?? JUDGE_DEFAULT_MODEL;
   const common = {
     repoPath: repo,
     // One retry: a call that failed for a passing reason is worth one more.
     ai: createAiClient({ timeoutMs: 600_000, maxRetries: 1 }),
     model,
-    // No risk is derived here, so a high-risk card is the only one that
-    // thinks hard; medium keeps the long runaway reviews away.
-    effort: card?.risk === "high" ? ("high" as const) : ("medium" as const),
-    card,
-    usageDate: today(),
+    // No risk is derived here; medium keeps the long runaway reviews away.
+    effort: "medium" as const,
     log,
   };
 
@@ -102,7 +68,6 @@ export async function runReview(
         token,
         post: !flags.dryRun,
         fresh: flags.fresh,
-        findJudged: (tree, head) => findJudgedTree(repo, tree, head),
       });
     } else {
       outcome = await reviewLocal({
@@ -116,17 +81,6 @@ export async function runReview(
       `rivetari review: ${err instanceof AiError ? err.message : (err as Error).message}`,
     );
     return 1;
-  }
-
-  // A dry run posted nothing, so it isn't a round.
-  if (task && !(flags.pr && flags.dryRun)) {
-    const r = outcome.result;
-    await task.ledger.append({
-      beat: "judge",
-      section: "judge",
-      text: `review round ${outcome.round}: ${outcome.verdict}; ${r.blocking.length} blocking, ${r.suggestions.length} suggestion(s) (${r.model}) · ${r.usage.tokens} tokens · $${r.usage.costUsd.toFixed(2)}`,
-      by: `rivetari judge (for ${await whoami(repo)})`,
-    });
   }
 
   if (flags.json) {

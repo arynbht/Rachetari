@@ -25,9 +25,7 @@ import picomatch from "picomatch";
 import { type SimpleGit, simpleGit } from "simple-git";
 import { z } from "zod";
 
-import type { Shot } from "../proof/shoot.js";
 import type { Card } from "../task/card.js";
-import type { AllowedDecision } from "../task/tasks.js";
 import { bannedSection, loadBanned } from "./banned.js";
 import { isTestFile, parseNameStatus } from "./protected.js";
 import {
@@ -35,6 +33,46 @@ import {
   tier1Section,
   tier1Status,
 } from "./tier1-criteria.js";
+
+// The shapes of a proof screenshot and of a person's stop-and-ask answer, as
+// the task runtime (not part of this repo) defined them in proof/shoot.ts and
+// task/tasks.ts. Review only passes them through when a caller supplies them.
+export interface Shot {
+  page: string;
+  breakpoint: string;
+  /** Absolute path of the PNG. */
+  file: string;
+  /** The page's HTTP status (0 when there was no response). */
+  status: number;
+  /** What was measured on the page, so a text-only reviewer can judge the shot. */
+  layout?: Layout | undefined;
+  /** The viewport's width in CSS pixels. */
+  width?: number | undefined;
+  /** The PNG's size: a loading skeleton is a fraction of the real page's. */
+  bytes?: number | undefined;
+  /** Whether the page really rendered before the shot. */
+  ready?: boolean | undefined;
+  /** Why it didn't, when it didn't: the shot is of whatever showed at the timeout. */
+  notReady?: string | undefined;
+}
+
+export interface Layout {
+  /** The viewport's width and the page's scroll width, in CSS pixels. */
+  viewport: number;
+  scrollWidth: number;
+  /** Up to five visible elements that reach past the viewport's edge. */
+  overflowing: string[];
+  /** The start of the page's visible text. */
+  text?: string | undefined;
+}
+
+export interface AllowedDecision {
+  asked: string;
+  by: string;
+  at: string;
+  note: string;
+  flagged?: boolean | undefined;
+}
 
 export const BLOCKING_KINDS = ["defect", "contract", "acceptance"] as const;
 export const FINDING_KINDS = [...BLOCKING_KINDS, "suggestion"] as const;
