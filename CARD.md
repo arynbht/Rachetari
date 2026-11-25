@@ -1,7 +1,7 @@
 # T-0018 · fix(shell): tell done, drafting and broken card branches apart
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0018 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0018 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Done branches show as done · Gate: low
 
 ## Why
