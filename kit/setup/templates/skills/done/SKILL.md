@@ -19,7 +19,7 @@ stopped because the card is `<status>`, not `in progress`, and stop there.
    card's criteria and evidence, set the status to `done`, and move the card to
    `cards/done/<id>.md`. Then delete this card's own line from "Next up" in `BACKLOG.md`:
    the one line that ends with `· from <Source>`, where `<Source>` is the card's `Source:`
-   value exactly. Leave the other lines and their numbers as they are. If no line or more
-   than one line matches, delete none and say so in your report. Never merge.
+   value exactly. If no line or more than one line matches, delete none and say so in your
+   report. Never merge.
 6. Otherwise set the status to `blocked`, write what's needed under "Questions for me",
    and stop.
