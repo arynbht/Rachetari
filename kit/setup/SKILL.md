@@ -56,26 +56,50 @@ so. Never change a `CONSTRAINTS.md` that already has a `## Slop` heading.
 
 ## 4. Build the checklist
 
-Under "Repo checklist" in `BACKLOG.md`, one line per thing that must stay true, grouped
-by stage (Foundation, Building, Hardening, Live). Start from what applies to this stack:
-builds; tests exist and pass; lint and typecheck clean; CI runs them on PRs; no secrets
-in the repo; dependencies locked; README says how to run it; plus accessibility for UI,
-migrations reversible for a database, and so on.
+The checklist is `CHECKLIST.md`, one line per thing that must stay true, in fifteen
+sections that are always there. If it's missing, write it from `templates/CHECKLIST.md`,
+which also shows the line format. Then fill it:
 
-- Every line names a check that can be run. Run it. Mark pass `[x]`, fail `[ ]`, or
-  `n/a` with the reason. A line you can't check is marked `unchecked`, never passed.
-- On a re-run, keep my lines and my edits. Only update results and add new lines at the
-  bottom of each group, marked `new`.
+- **Lines.** Read `templates/sections.md`. From each section, keep the controls that
+  apply to this repo's stack and type, judged from their titles and what step 1 found: a
+  control about UI, a database, a deployed service or a public site applies only when the
+  repo has one. Write each as a line that leads with its id in backticks, then its title.
+  Add the starter lines under their sections, without an id: it builds (development);
+  tests exist and pass (testing); lint and typecheck are clean (quality); CI runs them on
+  PRs (cicd); no secrets in the repo (security); dependencies are locked (hygiene); the
+  README says how to run it (documentation).
+- **Stages.** Tag each catalog line `· stage:` from the phase-to-stage table at the top of
+  `sections.md`, and each starter line `foundation`. The tag is mine to change after that.
+- **Checks.** Every line names its check after `· check:`. Run it, and mark the line pass
+  `[x]` or fail `[ ]`. A line you can't check by a command, which includes most `manual`
+  and `reviewed` controls, is `[ ] unchecked:` with what a person should look at as its
+  check. It is never marked passed.
+- **n/a.** A section where nothing applies keeps its heading and gets one `- n/a:` line
+  saying why.
+- **Re-runs.** Keep my lines and my edits, stage tags included, and only update results.
+  Add new lines at the bottom of their section, marked `new`. Never add a catalog id
+  that's already in the file, on any line, `n/a` ones included.
+- **An old checklist.** If `BACKLOG.md` still has a "Repo checklist" section, move its
+  lines into `CHECKLIST.md` as they are, each under the closest section, adding
+  `· stage:` from the group it sat in. Then replace that section, heading included, with
+  the one line `The checklist is in [CHECKLIST.md](CHECKLIST.md).`
+- **Proposals.** A `[checklist]` line under "Parked" in `BACKLOG.md` stays there as a
+  proposal for me. Don't move it into `CHECKLIST.md`.
+
+End this step by printing a table of the pass, fail, unchecked and n/a counts for each
+section.
 
 ## 5. State the stage
 
-The stage is the lowest group with a failing line. Write it at the top of the checklist
-as `Stage: <name>` with the lines that decide it.
+The stage is the lowest stage with a failing line, read from the lines' stage tags.
+Write it on the `Stage:` line at the top of `CHECKLIST.md`, as
+`Stage: <name> — decided by <the lines that decide it>`, and fill in the line below it,
+``Last `/setup`:``, with today's date and the branch.
 
 ## 6. Seed the backlog
 
-Add failing checklist lines and any unbuilt items from a spec you found to "Next up", in
-the order you'd do them, each one line. Do not draft cards.
+Add the failing lines from `CHECKLIST.md` and any unbuilt items from a spec you found to
+"Next up" in `BACKLOG.md`, in the order you'd do them, each one line. Do not draft cards.
 
 ## 7. Commit, report and stop
 
