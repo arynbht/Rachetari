@@ -6,6 +6,9 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import {
   IpcChannel,
+  NowRepoRequest,
+  NowSelectRequest,
+  NowState,
   PingRequest,
   PingResponse,
   RepoFetchRequest,
@@ -47,6 +50,35 @@ const api = {
         IpcChannel.ReposFetch,
         RepoFetchRequest.parse({ repoPath }),
       );
+    },
+  },
+
+  now: {
+    /** A repo's Now state as main last read it; `onUpdate` hears every change. */
+    async get(repoPath: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.NowGet,
+        NowRepoRequest.parse({ repoPath }),
+      );
+      return NowState.parse(raw);
+    },
+    /** The repo on show (or none), which main reads more often. */
+    async select(repoPath: string | null) {
+      await ipcRenderer.invoke(
+        IpcChannel.NowSelect,
+        NowSelectRequest.parse({ repoPath }),
+      );
+    },
+    onUpdate(callback: (state: NowState) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = NowState.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.NowUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.NowUpdate, listener);
+      };
     },
   },
 

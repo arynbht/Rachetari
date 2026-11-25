@@ -263,21 +263,35 @@ export function parseBacklog(text: string): Backlog {
   return { nextUp, parked, checklist };
 }
 
+export interface NightRow {
+  /** The card the row is about (its first T-NNNN), or null. */
+  card: string | null;
+  result: "merged" | "held" | "blocked";
+  /** The row's result cell as written, e.g. "held: test failed twice". */
+  text: string;
+}
+
 export interface NightCounts {
   merged: number;
   held: number;
   blocked: number;
+  rows: NightRow[];
 }
 
-/** Count a night report's rows by result: merged, held or blocked. */
+/** A night report's rows by result: merged, held or blocked. */
 export function parseNight(text: string): NightCounts {
-  const counts: NightCounts = { merged: 0, held: 0, blocked: 0 };
+  const counts: NightCounts = { merged: 0, held: 0, blocked: 0, rows: [] };
   for (const line of text.split(/\r?\n/)) {
     if (!/^\|/.test(line) || /^\|\s*-/.test(line)) continue;
-    const cells = line.split("|").map((c) => c.trim().toLowerCase());
-    if (cells.some((c) => c.startsWith("merged"))) counts.merged++;
-    else if (cells.some((c) => c.startsWith("held"))) counts.held++;
-    else if (cells.some((c) => c.startsWith("blocked"))) counts.blocked++;
+    const cells = line.split("|").map((c) => c.trim());
+    const card = cells.map((c) => /\bT-\d{4,}\b/.exec(c)?.[0]).find(Boolean);
+    for (const result of ["merged", "held", "blocked"] as const) {
+      const cell = cells.find((c) => c.toLowerCase().startsWith(result));
+      if (!cell) continue;
+      counts[result]++;
+      counts.rows.push({ card: card ?? null, result, text: cell });
+      break;
+    }
   }
   return counts;
 }

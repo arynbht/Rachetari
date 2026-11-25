@@ -36,7 +36,7 @@ test("Home says it isn't built yet, and the sidebar says sign-in is shelved", as
   await shot("frame-home");
 });
 
-test("a repo opens on Now with the five tabs in order, each a placeholder", async () => {
+test("a repo opens on Now with the five tabs in order", async () => {
   const { page } = launched;
   await page.getByRole("button", { name: /^frame-repo/ }).click();
   const tabs = page.getByRole("tab");
@@ -45,11 +45,7 @@ test("a repo opens on Now with the five tabs in order, each a placeholder", asyn
     "aria-selected",
     "true",
   );
-  await expect(
-    page.getByText(
-      "The Now view isn't built yet. It arrives with card T-0008.",
-    ),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Now" })).toBeVisible();
   await shot("frame-repo-now");
   expect(await runAxe(page)).toEqual([]);
 });

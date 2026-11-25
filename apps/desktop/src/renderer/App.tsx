@@ -1,6 +1,7 @@
 import { FolderPlus, House, Settings as SettingsIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { Now } from "@/components/Now";
 import { Settings } from "@/components/Settings";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/errors";
@@ -131,6 +132,14 @@ export function App() {
       },
     );
   }, [bridgeReady]);
+
+  // Main reads the repo on show more often than the rest of the sidebar's.
+  useEffect(() => {
+    if (!bridgeReady) return;
+    window.rivetari.now.select(selected).catch((err: unknown) => {
+      setError(errorMessage(err));
+    });
+  }, [bridgeReady, selected]);
 
   // Re-apply "system" theme when the OS preference changes while the app is open.
   useEffect(() => {
@@ -319,7 +328,13 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "now"}
               >
-                <NotBuiltYet what="The Now view" card="T-0008" />
+                {/* key starts the newly selected repo's view afresh. */}
+                <Now
+                  key={selectedRepo.path}
+                  repoPath={selectedRepo.path}
+                  focus={null}
+                  onOpenTask={() => showView("tasks")}
+                />
               </div>
             )}
 
