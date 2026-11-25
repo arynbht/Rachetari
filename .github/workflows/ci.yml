@@ -164,6 +164,10 @@ jobs:
       - name: Typecheck
         if: steps.scope.outputs.none != 'true'
         run: pnpm exec tsc --build ${{ steps.scope.outputs.tsconfigs }}
+      # The desktop app is built by electron-vite, outside the tsc --build graph.
+      - name: Typecheck desktop
+        if: steps.scope.outputs.desktop == 'true'
+        run: pnpm --filter @arynbht/rivetari-desktop typecheck
       - *cancel
 
   test:
@@ -230,6 +234,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Not required on PRs: it runs when the desktop app or the runtime it drives
+  # changes, and on every main run.
+  desktop-e2e:
+    name: desktop-e2e
+    needs: changes
+    if: needs.changes.outputs.desktop == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - *pnpm
+      - *node
+      - *install
+      - name: Install Electron runtime libraries + xvfb
+        run: |
+          pnpm --filter @arynbht/rivetari-desktop exec playwright install-deps
+          sudo apt-get install -y xvfb
+      - name: Run desktop e2e (xvfb)
+        # Chromium won't render on xvfb's 8-bit default, so force 24-bit.
+        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" pnpm --filter @arynbht/rivetari-desktop e2e
+
   # Main and nightly: every check on both OSes.
   build-test:
     name: build-test (${{ matrix.os }})
@@ -252,6 +278,8 @@ jobs:
       - *install
       - name: Typecheck
         run: pnpm typecheck
+      - name: Typecheck desktop
+        run: pnpm --filter @arynbht/rivetari-desktop typecheck
       - name: Lint
         run: pnpm lint
       - name: Format check

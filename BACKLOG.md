@@ -47,6 +47,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `webapp-testing`'s `with_server.py` pipes server output without reading it, so a chatty dev server can hang it (if the skill is ever taken) · seen on T-0005 · S-15
 - 2026-11-25 [product] `data-inventory-mapping`'s example company "Vanguard Financial Services" reads like a real brand · seen on T-0005 · `skills/legal/data-inventory-mapping/assets/template.md`
 - 2026-11-25 [tool] The old skill scan matches hook declarations but not hook-installer code or remote scripts in HTML (hallmark, skill-creator); reading each body caught them · seen on T-0005 · `SHELVED.md` S-12, S-13
+- 2026-11-25 [tool] `r28-forged-marker.test.ts` timed out at 30 s once in a full run that took 391 s (machine under load); alone it takes under 1 s and the rerun passed in 27 s · seen on T-0006 · `pnpm test`
+- 2026-11-25 [product] The sidebar's empty text still says "Add a local folder to audit it" and the title still says "Rivetari" · seen on T-0006 · `apps/desktop/src/renderer/App.tsx`
 
 ## Repo checklist
 

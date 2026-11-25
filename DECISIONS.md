@@ -105,3 +105,23 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
   hash check depends on it, and a nested `.github/` has no effect on this repo.
 - **Reverse:** move a folder to another area and update `skills/INDEX.md`; or delete
   native-writing's extra files (its hash would no longer match).
+
+## D-10 · T-0006 · Copied shell tests that would need edits
+
+- **Question:** In phase 0 the owner chose to edit salvageable shell tests and list the
+  edits (S1). Tonight's rules say always shelve a copied test that would need changing.
+- **Options:** (a) follow tonight's rule: drop and list them, write new tests for the
+  kept views, shelve the salvage; (b) follow S1 and edit them.
+- **Chose:** (a). Tonight's rule is the newer and stricter one, and the new tests don't
+  touch copied code. Shelved as S-17 with a recommendation to salvage two of them.
+- **Reverse:** follow S-17's issue.
+
+## D-11 · T-0006 · What the frame does about the map's webview before the Map exists
+
+- **Question:** The frame keeps `webviewTag: true` (the Map tab needs it), but the
+  map's attach check (`attachMapWebview`) comes with the Map card.
+- **Options:** (a) refuse every webview attach until the Map card; (b) bring `map.ts`
+  into the frame early; (c) turn the webview tag off and back on later.
+- **Chose:** (a). It is stricter than the source and changes nothing a person can see:
+  no view attaches a webview yet. T-0012 puts the source's check back.
+- **Reverse:** n/a; T-0012 replaces it.
