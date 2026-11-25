@@ -1,6 +1,6 @@
 # T-0045 · test(shell): make the real-git and child-process tests reliable on Windows
 
-Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0045 · Held by: nobody
 Created: 2026-11-25 · Gate: low · Source: `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
 
@@ -58,10 +58,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Blocked on "Questions for me". A1–A3 are done and pushed; the change is in `vitest.config.ts`.
-Once the owner answers: re-run A4's loop (`bash <scratchpad>/loop.sh <dir> 20`, then
-`summarise.js` and `filetimes.js`, all re-creatable from the A1 evidence) on a machine with
-memory to spare, then A5 from the draft PR's Windows shards.
+Answered: re-run A4's 20-run loop while this builder holds the foreman's test lock (no other builder runs tests), treat run 2 as void if the 20 pass, and add PR #66's Windows shards to A4's evidence. Then A5.
 
 ## Decisions
 
@@ -74,10 +71,12 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Gate `low`: one config file plus the card, five criteria, nothing on the stop-and-ask list. No test is edited.
 - 2026-11-25: The timing loop runs with `--coverage.enabled=false`, as CI's test shards do: decided for the owner (alternative: coverage on, which fails the global floor on any subset and slows every run). Per-file times come from the default reporter, because the JSON reporter leaves out `beforeAll` time (A1's first pass, kept in the scratchpad, gave `now.test.ts` 6 ms).
 - 2026-11-25: The new `apps/desktop/src/main/**` fork line also takes in the files develop added since drafting (`fetch-loop`, `live-status`, `now-sections` tests): decided for the owner, since it is the card's own glob (alternative: list the real-git files one by one).
+- 2026-11-25: Owner answered A4's question: re-run the 20 runs with nothing else running tests, run 2 void if they pass, PR #66's Windows shards as extra evidence.
 
 ## Questions for me
 
-- [ ] A4 stopped at run 2 of 20, and the card says an affected test failing in A4's runs is a stop. Run 1 passed (53 s wall, against a 22–31 s baseline, because the whole subset now runs one file at a time). In run 2, `tasks-needs.test.ts`'s `beforeAll` sat 859 s in the fixture's `git checkout -q main` and then failed, and `history.test.ts`'s fixture failed at `git init -q -b main`. At that moment the machine had 870–921 MB free of 32 GB, and Claude Code then killed the loop for low memory and asked that it not be restarted. Failing in `git init` inside the fixture looks like the machine, not the change, but I can't show that. What next? — Recommended: re-run A4's 20 runs when the machine has memory to spare (no other builders running tests), and treat run 2 as void if those 20 pass. Options: accept CI's Windows shards on the draft PR as A4's evidence instead of a local loop; re-run A4 with 10 runs; hold the card.
+- [x] A4 stopped at run 2 of 20, and the card says an affected test failing in A4's runs is a stop. Run 1 passed (53 s wall, against a 22–31 s baseline, because the whole subset now runs one file at a time). In run 2, `tasks-needs.test.ts`'s `beforeAll` sat 859 s in the fixture's `git checkout -q main` and then failed, and `history.test.ts`'s fixture failed at `git init -q -b main`. At that moment the machine had 870–921 MB free of 32 GB, and Claude Code then killed the loop for low memory and asked that it not be restarted. Failing in `git init` inside the fixture looks like the machine, not the change, but I can't show that. What next? — Recommended: re-run A4's 20 runs when the machine has memory to spare (no other builders running tests), and treat run 2 as void if those 20 pass. Options: accept CI's Windows shards on the draft PR as A4's evidence instead of a local loop; re-run A4 with 10 runs; hold the card.
+  - Answer (owner, 2026-11-25): re-run the 20 runs with nothing else running tests, as recommended, and treat run 2 as void if they pass. Also attach PR #66's Windows CI shards as extra evidence.
 
 ## Parked
 
