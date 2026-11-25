@@ -1,7 +1,7 @@
 # T-0027 · feat(kit): /done deslops the card's diff first
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0027 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0027 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4e-2 · Gate: needs you
 
 ## Why
