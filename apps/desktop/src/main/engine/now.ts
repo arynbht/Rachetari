@@ -172,6 +172,13 @@ export function nowState(
     ready,
     error,
     cardCount: snapshot.cards.length,
+    cards: snapshot.cards.map((c) => ({
+      id: c.card?.id ?? c.branch,
+      title: c.card?.title ?? "CARD.md can't be read",
+      status: c.card?.status ?? "unreadable",
+      heldBy: c.card?.heldBy ?? null,
+      branch: c.branch,
+    })),
     health: nowHealth(snapshot),
     needsYou: needsYouItems(snapshot),
     running: runningCards(snapshot),

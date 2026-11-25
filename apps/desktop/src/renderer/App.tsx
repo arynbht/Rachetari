@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Checklist } from "@/components/Checklist";
 import { History } from "@/components/History";
+import { Home } from "@/components/Home";
 import { Now } from "@/components/Now";
 import { RepoMap } from "@/components/RepoMap";
 import { Settings } from "@/components/Settings";
@@ -25,7 +26,7 @@ const TABS: { id: View; label: string }[] = [
 /** The view a repo opens on. */
 const DEFAULT_VIEW: View = "now";
 
-import type { RepoEntry, Theme } from "../shared/ipc";
+import type { NowBadges, NowFocus, RepoEntry, Theme } from "../shared/ipc";
 
 /** The screen tab bar as an ARIA tablist: roving tabindex + arrow-key nav. */
 function TabBar({
@@ -85,15 +86,14 @@ function TabBar({
   );
 }
 
-/**
- * A view that isn't built yet. It says so, and which card brings it, so it
- * can never be mistaken for a view with nothing to show.
- */
-function NotBuiltYet({ what, card }: { what: string; card: string }) {
+/** How many items wait on a person in a repo, beside its name in the sidebar. */
+function NeedsYouBadge({ count }: { count: number }) {
+  if (count === 0) return null;
   return (
-    <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
-      {what} isn&apos;t built yet. It arrives with card {card}.
-    </p>
+    <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 text-xs font-medium tabular-nums text-amber-300">
+      {count}
+      <span className="sr-only"> waiting on you</span>
+    </span>
   );
 }
 
@@ -119,7 +119,22 @@ export function App() {
     id: string;
     seq: number;
   } | null>(null);
+  // How many items wait on a person in each repo, from main's watchers.
+  const [badges, setBadges] = useState<NowBadges>([]);
+  // A Needs-you item to bring into view, and a task to open in the Tasks tab;
+  // `seq` makes asking for the same one twice count.
+  const [nowFocus, setNowFocus] = useState<{ id: string; seq: number } | null>(
+    null,
+  );
   const focusSeq = useRef(0);
+  // What a clicked notification does, renewed each render so the listener,
+  // which outlives renders, acts on the repo selected now.
+  const onFocusRef = useRef<(focus: NowFocus) => void>(() => undefined);
+  onFocusRef.current = ({ repoPath, id }) => {
+    if (selected !== repoPath) handleSelect(repoPath);
+    showView("now");
+    setNowFocus({ id, seq: ++focusSeq.current });
+  };
 
   function showView(next: View): void {
     setView(next);
@@ -150,6 +165,27 @@ export function App() {
       setError(errorMessage(err));
     });
   }, [bridgeReady, selected]);
+
+  // The sidebar's badges, and a clicked notification bringing its item up.
+  useEffect(() => {
+    if (!bridgeReady) return;
+    let active = true;
+    const offBadges = window.rivetari.now.onBadges(
+      (next) => active && setBadges(next),
+    );
+    window.rivetari.now.badges().then(
+      (next) => active && setBadges(next),
+      (err: unknown) => active && setError(errorMessage(err)),
+    );
+    const offFocus = window.rivetari.now.onFocus((focus) =>
+      onFocusRef.current(focus),
+    );
+    return () => {
+      active = false;
+      offBadges();
+      offFocus();
+    };
+  }, [bridgeReady]);
 
   // Re-apply "system" theme when the OS preference changes while the app is open.
   useEffect(() => {
@@ -186,6 +222,7 @@ export function App() {
     setError(null);
     setView(DEFAULT_VIEW);
     setOpened(new Set<View>([DEFAULT_VIEW])); // fresh state for the new repo
+    setNowFocus(null);
     setTasksFocus(null);
     // Opening a repo fetches it, so the other machine's card branches appear.
     window.rivetari.repos.fetch(path).catch((err: unknown) => {
@@ -260,6 +297,12 @@ export function App() {
                     >
                       <span className="flex items-center gap-2">
                         <span className="truncate text-sm">{repo.name}</span>
+                        <NeedsYouBadge
+                          count={
+                            badges.find((b) => b.repoPath === repo.path)
+                              ?.count ?? 0
+                          }
+                        />
                       </span>
                       <span className="block truncate text-xs text-muted-foreground">
                         {repo.path}
@@ -343,7 +386,7 @@ export function App() {
                 <Now
                   key={selectedRepo.path}
                   repoPath={selectedRepo.path}
-                  focus={null}
+                  focus={nowFocus}
                   onOpenTask={(id) => {
                     setTasksFocus({ id, seq: ++focusSeq.current });
                     showView("tasks");
@@ -419,7 +462,8 @@ export function App() {
             )}
           </div>
         ) : (
-          <NotBuiltYet what="Home" card="T-0013" />
+          // A repo opens on Now, as picking it from the sidebar does.
+          <Home repos={repos} onOpenRepo={handleSelect} />
         )}
       </main>
     </div>

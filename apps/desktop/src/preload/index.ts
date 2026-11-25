@@ -19,6 +19,9 @@ import {
   MapBlocked,
   MapGetRequest,
   MapView,
+  HomeView,
+  NowBadges,
+  NowFocus,
   NowRepoRequest,
   NowSelectRequest,
   NowState,
@@ -96,6 +99,39 @@ const api = {
       return () => {
         ipcRenderer.removeListener(IpcChannel.NowUpdate, listener);
       };
+    },
+    async badges() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.NowBadges);
+      return NowBadges.parse(raw);
+    },
+    onBadges(callback: (badges: NowBadges) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        const parsed = NowBadges.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.NowBadgesUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.NowBadgesUpdate, listener);
+      };
+    },
+    /** A clicked notification's item, to show; returns an unsubscribe fn. */
+    onFocus(callback: (focus: NowFocus) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        const parsed = NowFocus.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.NowFocus, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.NowFocus, listener);
+      };
+    },
+  },
+
+  home: {
+    /** One line per registered repo; main reads its own list, not a path from here. */
+    async get() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.HomeGet);
+      return HomeView.parse(raw);
     },
   },
 

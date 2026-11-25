@@ -29,9 +29,9 @@ async function shot(name: string): Promise<void> {
   if (dir) await launched.page.screenshot({ path: join(dir, `${name}.png`) });
 }
 
-test("Home says it isn't built yet, and the sidebar says sign-in is shelved", async () => {
+test("Home opens first, and the sidebar says sign-in is shelved", async () => {
   const { page } = launched;
-  await expect(page.getByText("Home isn't built yet.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Home" })).toBeVisible();
   await expect(page.getByText(/GitHub sign-in isn't built/)).toBeVisible();
   await shot("frame-home");
 });
