@@ -1,7 +1,7 @@
 # T-0037 · docs(kit): describe the standing develop branch in SCOPE.md and the kit
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0037 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0037 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Kit and scope: describe develop (and §The line, "Branches") · Gate: low
 
 ## Why
