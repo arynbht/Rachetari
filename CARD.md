@@ -154,6 +154,7 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Only `origin` counts as the remote, decided for the owner. Alternative: any remote's `develop`.
 - 2026-11-25: The header line is "showing develop" in all three views per Next up item 2, though T-0030's split had put it in part 3; part 3 keeps the running commit, "fetched N s ago" and the behind warning. Decided for the owner; alternative: leave the whole header to part 3.
 - 2026-11-25: Tests go in a new `display-branch.test.ts`, decided for the owner, so `source.test.ts` stays unedited. Alternative: add the cases to `source.test.ts`.
+- 2026-11-25: Decided for the owner by the foreman: one card, not the drafter's proposed 2a/2b split (alternative: split into the source and its tests, then the IPC field, headers and e2e) — the owner wants develop on screen soonest, and a split adds an inspection cycle.
 
 ## Questions for me
 
