@@ -42,10 +42,12 @@ test.beforeEach(async () => {
 });
 
 test.afterEach(async () => {
-  if (launched) await closeApp(launched);
-  // Cutting the connections ends any git process a timeout left behind.
+  // Server first: a git process still waiting on it would hold the app's
+  // pipes open on Linux, and closing the app would wait for it forever.
+  const closed = new Promise<void>((resolve) => server.close(() => resolve()));
   for (const socket of sockets) socket.destroy();
-  await new Promise<void>((resolve) => server.close(() => resolve()));
+  await closed;
+  if (launched) await closeApp(launched);
   for (const fx of fixtures) {
     for (let waited = 0; ; waited += 100) {
       try {
@@ -59,6 +61,15 @@ test.afterEach(async () => {
     }
   }
 });
+
+/**
+ * The timed-out fetch reached the hanging remote, and the kill took every git
+ * process down with it: none is left holding a connection open.
+ */
+async function connectionsClosed(): Promise<void> {
+  expect(connections).toBeGreaterThan(0);
+  await expect.poll(() => sockets.size).toBe(0);
+}
 
 /** A kit repo with a second remote that never answers. */
 function hangingRepo(): KitFixture {
@@ -83,6 +94,7 @@ test("a fetch that hangs shows its message in that repo's error box, and opening
   await page.getByRole("button", { name: /^hang-repo/ }).click();
   await expect(page.getByRole("alert")).toHaveText(MESSAGE);
   await expect(page.getByText("4 waiting", { exact: true })).toBeVisible();
+  await connectionsClosed();
 
   // The remote answers now; another machine's draft arrives with the next fetch.
   git(fx.repo, "remote", "set-url", "hang", fx.origin);
@@ -120,4 +132,5 @@ test("a late fetch failure doesn't show on the repo opened since", async () => {
   // Past the limit, the hanging repo's fetch has failed; calm-repo doesn't show it.
   await page.waitForTimeout(LIMIT_MS + 2000);
   await expect(page.getByRole("alert")).toHaveCount(0);
+  await connectionsClosed();
 });

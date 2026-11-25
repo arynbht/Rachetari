@@ -3,7 +3,7 @@
 // skills/INDEX.md and floorplan/ — through git, and never writes to the repo.
 // Its one write is fetchRepo, which only updates remote-tracking refs, so the
 // other machine's branches appear; nothing here runs it on a timer.
-import { execFile } from "node:child_process";
+import { type ChildProcess, execFile, spawn } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -47,7 +47,39 @@ function orNone<T>(fallback: T): (err: unknown) => T {
   };
 }
 
-/** Read-only git: no shell, no prompts, no pager, and a time limit. */
+/**
+ * Kill git and everything it started: a fetch's sub-fetch and remote helper
+ * outlive git itself and hold its remote connection (and, on Linux, any pipe
+ * git inherited, so the shell can't exit) until the remote closes it.
+ */
+function killTree(child: ChildProcess): void {
+  const { pid } = child;
+  if (pid === undefined) return;
+  if (process.platform === "win32") {
+    execFile("taskkill", ["/pid", String(pid), "/T", "/F"], {
+      windowsHide: true,
+    }).on("error", () => child.kill());
+    return;
+  }
+  // git leads its own process group (spawned detached): signal the group.
+  const signalGroup = (signal: NodeJS.Signals) => {
+    try {
+      process.kill(-pid, signal);
+    } catch {
+      // The group is gone already.
+    }
+  };
+  signalGroup("SIGTERM");
+  setTimeout(() => signalGroup("SIGKILL"), 5000).unref();
+}
+
+/** The most stdout a git call may give before it's stopped. */
+const MAX_OUTPUT = 16 * 1024 * 1024;
+
+/**
+ * Read-only git: no shell, no prompts, no pager, and a time limit. It fails
+ * as `execFile` does: `Command failed: git <args>` and git's stderr.
+ */
 function git(
   repo: string,
   args: string[],
@@ -55,39 +87,63 @@ function git(
 ): Promise<string> {
   const ms = limitMs(kind);
   return new Promise((resolve, reject) => {
+    // spawn, not execFile: execFile drops `detached`.
+    const child = spawn("git", args, {
+      cwd: repo,
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true,
+      // On POSIX, its own process group, so a timeout can kill the whole tree.
+      detached: process.platform !== "win32",
+      env: {
+        ...process.env,
+        GIT_TERMINAL_PROMPT: "0",
+        GIT_OPTIONAL_LOCKS: "0",
+      },
+    });
     let settled = false;
-    const child = execFile(
-      "git",
-      args,
-      {
-        cwd: repo,
-        encoding: "utf8",
-        maxBuffer: 16 * 1024 * 1024,
-        windowsHide: true,
-        env: {
-          ...process.env,
-          GIT_TERMINAL_PROMPT: "0",
-          GIT_OPTIONAL_LOCKS: "0",
-        },
-      },
-      (err, stdout) => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timer);
-        if (err) reject(err);
-        else resolve(stdout);
-      },
-    );
-    const timer = setTimeout(() => {
+    const settle = (err: Error | null, stdout = "") => {
       if (settled) return;
       settled = true;
-      child.kill();
-      // Git's own children (a fetch's remote helper) can keep its pipes open
-      // after it's killed; let go of them rather than wait for them to close.
-      child.stdout?.destroy();
-      child.stderr?.destroy();
-      reject(new GitTimeout(`git ${args[0]} timed out after ${ms / 1000} s`));
-    }, ms);
+      clearTimeout(timer);
+      if (err) reject(err);
+      else resolve(stdout);
+    };
+    // Stop git and let go of its pipes rather than wait for them to close.
+    const stop = (err: Error) => {
+      killTree(child);
+      child.stdout.destroy();
+      child.stderr.destroy();
+      settle(err);
+    };
+    const out: Buffer[] = [];
+    const errOut: Buffer[] = [];
+    let outBytes = 0;
+    child.stdout.on("data", (chunk: Buffer) => {
+      outBytes += chunk.length;
+      if (outBytes > MAX_OUTPUT)
+        stop(new RangeError(`git ${args[0]} gave more than 16 MiB`));
+      else out.push(chunk);
+    });
+    child.stderr.on("data", (chunk: Buffer) => errOut.push(chunk));
+    child.on("error", (err) => settle(err));
+    child.on("close", (code, signal) => {
+      if (code === 0) {
+        settle(null, Buffer.concat(out).toString("utf8"));
+        return;
+      }
+      const stderr = Buffer.concat(errOut).toString("utf8");
+      const err = Object.assign(
+        new Error(`Command failed: git ${args.join(" ")}
+${stderr}`),
+        { code, signal, stderr },
+      );
+      settle(err);
+    });
+    const timer = setTimeout(
+      () =>
+        stop(new GitTimeout(`git ${args[0]} timed out after ${ms / 1000} s`)),
+      ms,
+    );
   });
 }
 

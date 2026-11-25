@@ -36,8 +36,18 @@ async function removeDir(dir: string): Promise<void> {
   }
 }
 
+/**
+ * The timed-out call reached the hanging remote, and the kill took every git
+ * process down with it: none is left holding a connection open.
+ */
+async function connectionsClosed(): Promise<void> {
+  expect(connections).toBeGreaterThan(0);
+  await expect.poll(() => sockets.size, { timeout: 3_000 }).toBe(0);
+}
+
 let server: Server;
 let sockets: Set<Socket>;
+let connections: number;
 let hangUrl: string;
 let fx: KitFixture;
 let scratch: string;
@@ -48,7 +58,9 @@ beforeEach(async () => {
   for (const k of ENV) process.env[k] = String(LIMIT_MS);
 
   sockets = new Set();
+  connections = 0;
   server = createServer((socket) => {
+    connections += 1;
     sockets.add(socket);
     socket.on("close", () => sockets.delete(socket));
     socket.on("error", () => undefined);
@@ -65,9 +77,11 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  // Cutting the connections ends any git process a timeout left behind.
+  // Stop taking connections, then cut the open ones, so a failed test leaves
+  // no git process waiting on the remote.
+  const closed = new Promise<void>((resolve) => server.close(() => resolve()));
   for (const socket of sockets) socket.destroy();
-  await new Promise<void>((resolve) => server.close(() => resolve()));
+  await closed;
   await removeDir(scratch);
   await removeDir(dirname(fx.repo));
   for (const k of ENV)
@@ -97,6 +111,7 @@ describe("the file source's time limits", { timeout: 30_000 }, () => {
       `git show timed out after ${LIMIT_MS / 1000} s`,
     );
     expect(Date.now() - started).toBeLessThan(6_000);
+    await connectionsClosed();
 
     const events: KitEvent[] = [];
     const watchStarted = Date.now();
@@ -125,6 +140,7 @@ describe("the file source's time limits", { timeout: 30_000 }, () => {
     const took = Date.now() - started;
     expect(took).toBeGreaterThanOrEqual(LIMIT_MS - 100);
     expect(took).toBeLessThan(6_000);
+    await connectionsClosed();
 
     git(fx.repo, "remote", "remove", "hang");
     await expect(fetchRepo(fx.repo)).resolves.toBeUndefined();
