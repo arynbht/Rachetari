@@ -107,7 +107,7 @@ for i in 1..20: pnpm exec vitest run apps/desktop/src/main/kit/source.test.ts --
   normal time ≤ 656 ms locally, 961 ms in CI; 30 s is ~30–45x that → a hang, not slowness
   vitest.config.ts unchanged (git diff main -- vitest.config.ts: empty)
 # A3 — Next up (BACKLOG.md, c78e667)
-  removed 3–13 (the build prompt's phases 2–5, all merged as #4 … #32) and 15 (ci is required on main since 17:3x today)
+  removed 3–13 (the build prompt's phases 2–5, all merged as #4 … #32) and 15 (ci has been required on main since step 3 today)
   kept: done-branches fix, coverage floor; added: git-call timeouts, Tasks record placement, army mode design
   T-0016's own line comes out when this card closes
 # A4 — local, on card/T-0016 at c78e667
