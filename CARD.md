@@ -1,7 +1,7 @@
 # T-0024 · fix(shell): time out the shell's git calls
 
-Status: done <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0024 · Held by: AB_Rouge
+Status: ready <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0024 · Held by: nobody
 Created: 2026-11-25 · Gate: low · Source: `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
 
 ## Why
@@ -61,7 +61,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Done, waiting on the foreman: inspect PR #41 (base `day/2026-11-25`) and merge it; at merge the foreman removes this card's line from Next up. A4's `desktop-e2e` and A5's `ci` results are on the PR.
+Back from CI, uninspected (red check): on PR #41 (run 45687104827, Ubuntu, xvfb) both `fetch-timeout.e2e.ts` tests time out at 60 s in the `afterEach` hook (`closeApp(launched)`, then destroying the hang server's sockets), twice each with the retry; the tests themselves reached teardown. Likely a timed-out git leaves a child process (the parked [product] line) that keeps the app from closing on Linux. Fix the teardown or the kill so the suite passes on Ubuntu, then re-run /done on PR #41.
 
 ## Decisions
 
@@ -76,6 +76,7 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The stale-fetch guard: decided for the owner: a counter of openings in a `useRef` beside `handleSelect`; only the latest opening's fetch may set the error box (alternative: compare the failed fetch's path with the selected repo, which would still let a late failure from an earlier opening of the same repo replace a recovered one).
 - 2026-11-25: A4's "recovers" in the e2e: decided for the owner: the hanging remote's URL is pointed at the fixture's origin ("the remote answers"), and a gated draft pushed there showing as "5 waiting" proves the reopened fetch succeeded (alternative: only assert the error box is gone, which a cleared-on-open message passes without any fetch).
 - 2026-11-25: Test teardown: decided for the owner: destroy the hang server's sockets, then retry removing the temp folders for up to 10 s, since on Windows a cut-off git child still running in the repo blocks the removal and `rmSync`'s `maxRetries` didn't retry it (alternative: kill git's process tree, out of scope; parked).
+- 2026-11-25: Sent back by the foreman: `desktop-e2e` red on PR #41 (fetch-timeout teardown hangs on Ubuntu); `ci` itself was green but this card rests on the e2e.
 
 ## Questions for me
 
