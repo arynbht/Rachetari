@@ -1,7 +1,7 @@
 # T-0025 · feat(kit): a report of the comments a card's diff adds
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0025 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0025 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4f · Gate: low
 
 ## Why
@@ -67,7 +67,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Ready. Wait for T-0023 and T-0021 to merge, then merge the day branch in and start with A1's copy commit.
+Start with A1's copy commit.
 
 ## Decisions
 
@@ -79,6 +79,7 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Language: decided for the owner: plain `.mjs` (alternative: `.ts` run by Node's type stripping, which needs Node 22.18 or later and prints a warning; the kit runs in other repos).
 - 2026-11-25: Output: decided for the owner: `path:line: text`, with the full trimmed text, and exit 0 whether comments are found or not (alternative: Rivetari's `path: text` cut to 80 characters). The deslop pass needs the whole comment and its place to judge it. Line numbers need `Hunk.start` from the `@@` header, a small addition logged in `EXTRACTED.md`.
 - 2026-11-25: Base argument: decided for the owner: required, usage and exit 2 without it (alternative: default to `origin/HEAD`). `/done` knows the card's base, and a wrong default reports the wrong diff without any warning.
+- 2026-11-25: Depends on T-0023 and T-0021: both satisfied. They have merged into `develop` (the day line, `day/2026-11-25` in this card), which was merged into this branch (no rebase) before `EXTRACTED.md` was edited. `vitest.config.ts` on `develop` collects `kit/**/*.test.ts`. Checks that name `origin/day/2026-11-25` run against `origin/develop`.
 
 ## Questions for me
 
