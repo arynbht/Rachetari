@@ -1,7 +1,7 @@
 # T-0024 · fix(shell): time out the shell's git calls
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0024 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0024 · Held by: AB_Rouge
 Created: 2026-11-25 · Gate: low · Source: `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
 
 ## Why
