@@ -1,7 +1,7 @@
 # T-0036 · feat(shell): fetch every repo in the background and show it in the header
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0036 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0036 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Shell: live shell (part 3 of 3), §Shell: background fetch · Gate: low
 
 ## Why
