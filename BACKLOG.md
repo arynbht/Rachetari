@@ -142,4 +142,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 
 - 2026-11-25 [product] `Part`'s unused `aside` prop in `tasks/RecordTabs.tsx` (already there before T-0046) · inspector, T-0046
 
+- 2026-11-25 [tool] `tools` can't narrow Bash per command, so every role can still run `gh pr merge` or push to `develop`; only `permissions.deny` in `.claude/settings.json` can block those, and it applies to the foreman too: an owner decision (answer individually) · seen on T-0049 · `.claude/settings.json`
+- 2026-11-25 [tool] The `Bash(...)` deny rules don't cover the PowerShell tool (the docs say a Bash rule isn't a boundary around the program), so on Windows a session could still run `gh pr merge` through PowerShell; matching `PowerShell(gh pr merge *)` / `PowerShell(gh pr ready *)` denies would close it, an owner decision (answer individually) · seen on T-0049 · `.claude/settings.json`
+- 2026-11-25 [tool] Role files: inspector.md step 1 says `git pull --ff-only`, which fails in a detached worktree (fetch and check out the PR head instead); builder.md's `--base develop` needs "unless in shell chain mode"; builder.md holds the card for "this session" where CLAUDE.md says "this machine" · inspector, T-0049
+
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
