@@ -277,6 +277,19 @@ export const TaskItem = z.object({
   unreadable: z.boolean(),
   /** Where it was read: a card branch, cards/done/, or "Next up" in BACKLOG.md. */
   source: z.enum(["card", "done", "next-up"]),
+  /**
+   * What it waits on the owner for, from the same items as Now's Needs you
+   * (matched by branch): empty when nothing waits on the owner.
+   */
+  needs: z.array(
+    z.object({
+      kind: NeedsYouItem.shape.kind,
+      /** Short, for the board: "Needs your approval", "1 open question". */
+      label: z.string(),
+      /** Exactly what to do, and where, as Needs you says it. */
+      todo: z.string(),
+    }),
+  ),
 });
 export type TaskItem = z.infer<typeof TaskItem>;
 
