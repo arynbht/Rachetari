@@ -97,9 +97,9 @@ export class FetchLoop {
   private run(entry: Entry): Promise<void> {
     if (entry.timer) clearTimeout(entry.timer);
     entry.timer = null;
-    const running = this.options.fetch(entry.repoPath).then(
-      () => this.settled(entry, running, null),
-      (err: unknown) => {
+    const running: Promise<void> = this.options.fetch(entry.repoPath).then(
+      (): void => this.settled(entry, running, null),
+      (err: unknown): never => {
         this.settled(entry, running, message(err));
         throw err;
       },
