@@ -27,7 +27,7 @@ Each one is checked by something that can be run or looked at. No criterion with
 Only these may be edited. Anything else needs a stop-and-ask.
 
 - `vitest.config.ts`
-- `BACKLOG.md` (the two Next up lines below, and parked lines)
+- `BACKLOG.md` (Next up: the two owner lines, removing done lines; parked lines)
 - `CARD.md`, `cards/done/T-0016.md`
 
 ## Out of scope
@@ -53,11 +53,11 @@ None: nothing in the index fits a one-line test-config change.
 
 Besides the standing list in CLAUDE.md:
 
-- If A2's 20 runs show the test taking more than 10 s on Windows, or hanging.
+- If A1's 20 runs show the test taking more than 10 s on Windows, or hanging.
 
 ## Next step
 
-Run A1's 20-run loop of the fetch test on Windows, then decide A2 from its numbers.
+Owner decides how this card goes on: A1's local numbers show a hang, not slowness, so A2 leaves the timeout alone. Still to do: A3 (Next up cleanup), the PR and its Windows CI time.
 
 ## Decisions
 
@@ -68,10 +68,11 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Id T-0016, not T-0014 — T-0014 is the shelved GitHub sign-in card (S-16).
 - 2026-11-25: Owner set ready with a change: measure first; raise the timeout only if the test is slow but finishing, else park the hang and stop.
 - 2026-11-25: Owner: remove the already-done lines from "Next up" in this card and list them in the PR body.
+- 2026-11-25: A2 resolved as "leave the timeout": the fetch test took 515–656 ms in 20 local Windows runs (max 2% of 30 s), so PR #30's 30 s was a hang. Hang parked; stopped to tell the owner, per their rule.
 
 ## Questions for me
 
-- [ ] (none)
+- [ ] The timeout stays at 30 s and the hang is parked. Shall I go on with A3 (remove the done Next up lines) and open the PR, whose Windows CI shard gives A1's last number? Or close the card differently?
 
 ## Done
 
@@ -87,4 +88,19 @@ Appended by the session, one line each, newest last.
 Waiting on the owner (wall clock, UTC):
   /card question   17:36:17 → 17:40:00   3 min 43 s
   draft → ready    17:40:35 → 17:42:06   1 min 31 s
+
+# A1 — the fetch test, alone, 20 runs on this machine (Windows 11, Node 22.23.2, git 2.54.0.windows.1)
+for i in 1..20: pnpm exec vitest run apps/desktop/src/main/kit/source.test.ts --coverage.enabled=false --reporter=json
+  20 of 20 passed
+  "only sees a card pushed from another machine after a fetch":
+    min 515 ms · median 566 ms · max 656 ms
+    per run: 519 581 515 607 534 590 530 647 550 656 522 597 561 607 539 597 528 573 523 571
+  whole file (7 tests): min 2311 · median 2377 · max 2612 ms
+# A1 — the same test in CI, Windows shard 3/3, commit 7eefc8d (PR #30)
+  run 45663184235 attempt 1: timed out at 30 000 ms (Test timed out in 30000ms; 39 other tests passed)
+  run 45663184235 attempt 2: 961 ms
+  this PR's Windows shard: UNTESTED (no PR yet)
+# A2 — decision
+  normal time ≤ 656 ms locally, 961 ms in CI; 30 s is ~30–45x that → a hang, not slowness
+  vitest.config.ts unchanged (git diff main -- vitest.config.ts: empty)
 ```
