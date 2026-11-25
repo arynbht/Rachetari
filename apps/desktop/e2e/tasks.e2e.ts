@@ -302,11 +302,12 @@ test("a card opens in full: criteria, scope, skills, questions, evidence and com
   await expect(
     record.getByText("testing/test-driven-development"),
   ).toBeVisible();
-  await expect(record.getByText("feat: the CSV button")).toBeVisible();
   // Evidence is collapsed until asked for.
   await expect(record.getByText("pnpm test -> 3 passed")).toBeHidden();
-  await record.getByText("Show the evidence").click();
+  await record.getByRole("tab", { name: "Evidence" }).click();
   await expect(record.getByText("pnpm test -> 3 passed")).toBeVisible();
+  await record.getByRole("tab", { name: "Commits" }).click();
+  await expect(record.getByText("feat: the CSV button")).toBeVisible();
   await shot("tasks-record");
   expect(await runAxe(page)).toEqual([]);
 });
@@ -317,7 +318,295 @@ test("Open in Tasks from Now opens that card's record", async () => {
   const record = page.getByRole("region", { name: "T-0005 record" });
   await expect(record).toBeVisible();
   await expect(
-    record.getByText("Open: Round half up or half even?"),
+    record
+      .getByRole("group", { name: /open question/ })
+      .getByText("Round half up or half even?"),
   ).toBeVisible();
+  await record.getByRole("tab", { name: "Commits" }).click();
   await expect(record.getByText("chore(card): T-0005")).toBeVisible();
+});
+
+/** Push a card to the origin and fetch it, as another machine's card. */
+function pushCard(id: string, text: string): void {
+  fx.pushToOrigin(id, text);
+  execFileSync("git", ["-C", fx.repo, "fetch", "-q", "origin"]);
+}
+
+/** Open a card's record from the board. */
+async function openRecord(page: Page, id: string): Promise<Locator> {
+  await page.getByRole("tab", { name: "Tasks" }).click();
+  await page
+    .getByRole("region", { name: "Board" })
+    .getByRole("button", { name: new RegExp(`^${id}`) })
+    .click();
+  const record = page.getByRole("region", { name: `${id} record` });
+  await expect(record).toBeVisible();
+  return record;
+}
+
+test("the record header fits at 1140×780 and stays put while the record scrolls", async () => {
+  const { page } = launched;
+  const title =
+    "feat: the totals row on the monthly export rounds each line half even and says which rule it used in a footnote below it";
+  const nextStep =
+    "Write the failing test for the totals row first: a report of three lines whose cents round differently half up and half even, " +
+    "checked against the bank's own statement for the same month. Then change the totals writer so it rounds each line half even, " +
+    "sums the rounded lines and writes the rule it used in a footnote under the row. Run the CSV and the PDF export again and " +
+    "compare both with the statement before moving on to the footnote's wording. Push the branch and paste what you ran under Evidence.";
+  expect(title).toHaveLength(120);
+  expect(nextStep.length).toBeGreaterThanOrEqual(500);
+  pushCard(
+    "T-0060",
+    cardText({
+      id: "T-0060",
+      title,
+      status: "in progress",
+      heldBy: "laptop",
+      nextStep,
+      pr: 9,
+    }),
+  );
+  await atWindowSize(page);
+  const record = await openRecord(page, "T-0060");
+
+  const header = record.locator("[data-record=header]");
+  const heading = header.getByRole("heading", { level: 3 });
+  await expect(heading).toHaveText(`T-0060 ${title}`);
+  for (const text of [
+    "Status",
+    "in progress",
+    "Held by",
+    "laptop",
+    "PR",
+    "#9, draft",
+    "Branch",
+    "card/T-0060",
+    "Next step",
+  ])
+    await expect(header).toContainText(text);
+
+  // Wholly inside the window, short, not scrolling in itself, the title whole.
+  const at = await box(header);
+  expect(at.y).toBeGreaterThanOrEqual(0);
+  expect(at.x + at.width).toBeLessThanOrEqual(1140);
+  expect(at.y + at.height).toBeLessThanOrEqual(780);
+  expect(at.height).toBeLessThanOrEqual(220);
+  expect(
+    await header.evaluate((el) => el.scrollHeight <= el.clientHeight),
+  ).toBe(true);
+  expect(
+    await heading.evaluate(
+      (el) =>
+        el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight,
+    ),
+  ).toBe(true);
+  // The next step takes two lines at most here; the Card tab has it in full.
+  expect(
+    await header
+      .locator("[data-next-step]")
+      .evaluate(
+        (el) =>
+          el.getBoundingClientRect().height <=
+          2 * parseFloat(getComputedStyle(el).lineHeight) + 1,
+      ),
+  ).toBe(true);
+  await expect(
+    record
+      .getByRole("tabpanel", { name: "Card" })
+      .getByText(nextStep, { exact: true }),
+  ).toBeAttached();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollHeight),
+  ).toBeLessThanOrEqual(780);
+  await expect(
+    record.getByRole("tablist", { name: "T-0060 record tabs" }),
+  ).toBeInViewport();
+
+  // The body scrolls under the header, which doesn't move.
+  const body = record.locator("[data-record=body]");
+  expect(await body.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(
+    true,
+  );
+  await body.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+  await expect
+    .poll(() => body.evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  expect(await box(header)).toEqual(at);
+  expect(await runAxe(page)).toEqual([]);
+});
+
+test("open questions are pinned above the tabs, each with its recommendation, leaving room for answer buttons", async () => {
+  const { page } = launched;
+  pushCard(
+    "T-0061",
+    cardText({
+      id: "T-0061",
+      title: "fix: the totals row rounds wrong",
+      status: "blocked",
+      heldBy: "laptop",
+      nextStep: "Answer the two questions, then fix the rounding.",
+    }).replace(
+      "- [ ] (none)",
+      [
+        "- [x] Keep the old totals column? — Recommended: no.",
+        "- [ ] Round half up or half even? — Recommended: half even, as the bank's statements do. Options: half up; truncate.",
+        "- [ ] Round the totals row too, or only each line?",
+      ].join("\n"),
+    ),
+  );
+  await atWindowSize(page);
+  const record = await openRecord(page, "T-0061");
+
+  const pinned = record.getByRole("group", { name: "2 open questions" });
+  const rows = pinned.getByRole("listitem");
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText("Round half up or half even?");
+  await expect(rows.nth(0)).toContainText(
+    "Recommended: half even, as the bank's statements do",
+  );
+  await expect(rows.nth(0)).toContainText("Other options: half up; truncate");
+  await expect(rows.nth(1)).toContainText(
+    "Round the totals row too, or only each line?",
+  );
+  await expect(rows.nth(1)).toContainText("No recommendation written");
+  await expect(pinned).not.toContainText("Keep the old totals column?");
+  // The answered one is in the Card tab.
+  await expect(
+    record
+      .getByRole("tabpanel", { name: "Card" })
+      .getByText(/Keep the old totals column\?/),
+  ).toBeAttached();
+
+  // Above the tabs, whole, with room under the tabs for a 32 px row of answer
+  // buttons per question.
+  const tabs = record.getByRole("tablist", { name: "T-0061 record tabs" });
+  const q = await box(pinned);
+  const t = await box(tabs);
+  expect(q.y + q.height).toBeLessThanOrEqual(t.y);
+  expect(
+    await pinned.evaluate((el) => el.scrollHeight <= el.clientHeight),
+  ).toBe(true);
+  const pane = await box(page.locator("[data-pane=record]"));
+  expect(t.y + t.height).toBeLessThanOrEqual(pane.y + pane.height - 64);
+  expect(await mainScrolls(page)).toEqual({ down: false, sideways: false });
+  await shot("3-blocked-question");
+  expect(await runAxe(page)).toEqual([]);
+
+  // Anything else it waits on the owner for is one line, with what to do.
+  await page
+    .getByRole("region", { name: "Cards" })
+    .getByRole("button", { name: /^T-0004/ })
+    .click();
+  const draft = page.getByRole("region", { name: "T-0004 record" });
+  const waits = draft.locator("[data-record=waits]");
+  await expect(waits).toContainText("Needs your approval");
+  await expect(waits).toContainText(
+    "Set Status to ready in CARD.md on card/T-0004.",
+  );
+  await expect(draft.getByRole("group", { name: /open question/ })).toHaveCount(
+    0,
+  );
+});
+
+test("the record's Card, Evidence and Commits tabs, by click and by arrow keys", async () => {
+  const { page } = launched;
+  await atWindowSize(page);
+  const record = await openRecord(page, "T-0003");
+  const tablist = record.getByRole("tablist", { name: "T-0003 record tabs" });
+  const tab = (name: string) => tablist.getByRole("tab", { name });
+  await expect(tablist.getByRole("tab")).toHaveText([
+    "Card",
+    "Evidence",
+    "Commits",
+  ]);
+  await expect(tab("Card")).toHaveAttribute("aria-selected", "true");
+  await expect(record.getByRole("tabpanel")).toHaveCount(1);
+
+  // Card: what the card is, in full.
+  const card = record.getByRole("tabpanel", { name: "Card" });
+  for (const text of [
+    "Because feat: export the report as csv is missing.",
+    "prompt",
+    "A CSV downloads",
+    "Commas are quoted",
+    "Files in scope",
+    "Out of scope",
+    "the other thing",
+    "Constraints",
+    "No new dependencies.",
+    "testing/test-driven-development",
+    "2026-11-20: Keep it small",
+    "No answered questions.",
+  ])
+    await expect(card.getByText(text).first()).toBeAttached();
+  expect(await mainScrolls(page)).toEqual({ down: false, sideways: false });
+  await shot("2-selected");
+  expect(await runAxe(page)).toEqual([]);
+
+  // Click.
+  await tab("Evidence").click();
+  await expect(tab("Evidence")).toHaveAttribute("aria-selected", "true");
+  await expect(tab("Card")).toHaveAttribute("aria-selected", "false");
+  await expect(record.getByRole("tabpanel")).toHaveCount(1);
+  await expect(
+    record.getByRole("tabpanel", { name: "Evidence" }),
+  ).toContainText("pnpm test -> 3 passed");
+
+  // Arrow keys, Home and End; focus moves with the selection.
+  await page.keyboard.press("ArrowRight");
+  await expect(tab("Commits")).toBeFocused();
+  await expect(tab("Commits")).toHaveAttribute("aria-selected", "true");
+  const commits = record.getByRole("tabpanel", { name: "Commits" });
+  await expect(commits).toContainText("feat: the CSV button");
+  await expect(commits).toContainText(
+    "on its branch, not on the default branch",
+  );
+  await page.keyboard.press("ArrowRight");
+  await expect(tab("Card")).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
+  await expect(tab("Commits")).toBeFocused();
+  await page.keyboard.press("Home");
+  await expect(tab("Card")).toBeFocused();
+  await expect(tab("Card")).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("End");
+  await expect(tab("Commits")).toBeFocused();
+  await expect(tab("Commits")).toHaveAttribute("aria-selected", "true");
+  expect(await runAxe(page)).toEqual([]);
+
+  // Escape on a tab stays in the record.
+  await page.keyboard.press("Escape");
+  await expect(record).toBeVisible();
+
+  // Another card opens on Card.
+  const list = page.getByRole("region", { name: "Cards" });
+  await list.getByRole("button", { name: /^T-0005/ }).click();
+  await expect(
+    page
+      .getByRole("region", { name: "T-0005 record" })
+      .getByRole("tab", { name: "Card" }),
+  ).toHaveAttribute("aria-selected", "true");
+
+  // An unreadable card keeps its note in Card, and has no evidence.
+  await list.getByRole("button", { name: /^T-0006/ }).click();
+  const t6 = page.getByRole("region", { name: "T-0006 record" });
+  await expect(t6.getByRole("tabpanel", { name: "Card" })).toContainText(
+    "unreadable",
+  );
+  await t6.getByRole("tab", { name: "Evidence" }).click();
+  await expect(t6.getByRole("tabpanel", { name: "Evidence" })).toHaveText(
+    "No evidence written yet.",
+  );
+
+  // A Next up line: its header and note, no tabs.
+  await list.getByRole("button", { name: /^T-0006/ }).focus();
+  await page.keyboard.press("Escape");
+  const board = page.getByRole("region", { name: "Board" });
+  await board.getByRole("button", { name: /^Next up/ }).click();
+  await board
+    .getByRole("button", { name: /Dark mode for the settings page/ })
+    .click();
+  const line = page.getByRole("region", { name: "Next up 2 record" });
+  await expect(line.locator("[data-record=header]")).toContainText("next up");
+  await expect(line).toContainText("not a card yet");
+  await expect(line.getByRole("tablist")).toHaveCount(0);
 });
