@@ -1,6 +1,6 @@
 # T-0020 · fix(shell): label the Docs viewer's task-list checkboxes
 
-Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0020 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4b, `SHELVED.md` S-18, issue #28 · Gate: low
 
@@ -16,8 +16,8 @@ DOMPurify hook, and turn the shelved axe test back on. Closes #28.
 
 Each one is checked by something that can be run or looked at. No criterion without a check.
 
-- [ ] A1: Every task-list checkbox the Docs viewer renders has an accessible name: `done` when ticked, `not done` when not. It stays a disabled checkbox with its ticked state, with no visual change · check: `pnpm --filter @arynbht/rivetari-desktop e2e e2e/history.e2e.ts`, new test "the Docs viewer names each task-list checkbox done or not done" (with the backlog showing in the Docs region, `getByRole("checkbox", { name: "done", exact: true })` and `{ name: "not done", exact: true }` each find at least one box, every box is disabled, the `done` ones are checked, the `not done` ones aren't, and their counts add up to all the checkboxes in the region); runs in CI's desktop-e2e
-- [ ] A2: The shelved test runs again and passes: `test.fixme` becomes `test`, its body is unchanged, and the S-18 comment above it goes · check: same command, test "History passes axe with the Docs viewer showing a backlog" (its `runAxe(page)` returns `[]`), and `grep -rn "fixme" apps/desktop/e2e` prints nothing
+- [ ] A1: The ticked state is visible: the Docs viewer renders each task-list item as text, a ticked (☑) or unticked (☐) box character then the item, with "done" or "not done" available to screen readers (visually hidden), and renders no `<input>` element · check: `pnpm --filter @arynbht/rivetari-desktop e2e e2e/history.e2e.ts`, test "the Docs viewer shows each task-list item's tick as text" (asserts the ☑/☐ text, the hidden done/not done text, and zero `input` elements in the Docs region), and the screenshot `docs/screenshots/T-0020/history-backlog.png` showing ticked and unticked items
+- [ ] A2: Axe passes on History showing a backlog, and the fixme test is turned back on, checking the text, not a checkbox role: `test.fixme` becomes `test`, the S-18 comment goes, and no assertion looks for a checkbox role · check: same command, test "History passes axe with the Docs viewer showing a backlog" (`runAxe(page)` returns `[]`); `grep -rn "fixme" apps/desktop/e2e` prints nothing; `grep -n "checkbox" apps/desktop/e2e/history.e2e.ts` prints nothing
 - [ ] A3: Nothing else moves: links in docs still get `rel="noopener noreferrer"` and `target="_blank"`, every other existing test passes unchanged, and lint, typecheck and `ci` are green · check: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter @arynbht/rivetari-desktop typecheck`, `pnpm --filter @arynbht/rivetari-desktop e2e`, `git diff --stat origin/day/2026-11-25` (only the files below), `gh pr checks`
 
 ## Files in scope
@@ -26,6 +26,7 @@ Only these may be edited. Anything else needs a stop-and-ask.
 
 - `apps/desktop/src/renderer/lib/markdown.ts`
 - `apps/desktop/e2e/history.e2e.ts`
+- `docs/screenshots/T-0020/` (new: A1's screenshot)
 - `CARD.md`, `cards/done/T-0020.md`, `BACKLOG.md` (Parked lines only)
 
 ## Out of scope
@@ -58,7 +59,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Wait for the owner's answer under "Questions for me". Both tests are already in `history.e2e.ts` and red (committed). If the answer is (1): in `markdown.ts` add `ADD_URI_SAFE_ATTR: ["type"]` to the `DOMPurify.sanitize` config and, in the `afterSanitizeAttributes` hook, set `aria-label` to `done`/`not done` on `INPUT` nodes whose `type` is `checkbox`; run the history e2e green, then the full checks and `/done`.
+Replace the red A1 test (checkbox names) with the text test; in `markdown.ts`, render task-list items as ☑/☐ text plus visually hidden done/not done, and drop the inputs; run the history e2e green, take the screenshot, then the full checks.
 
 ## Decisions
 
@@ -68,13 +69,16 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The kept-component rule that shelved S-18 is settled by the owner choosing option (a) in §4b.
 - 2026-11-25: The names are `done` and `not done`, as S-18's option (a) gives them — short, and they say the state the box shows.
 - 2026-11-25: Blocked rather than widening the sanitizer: keeping `type` needs a `sanitize` config change outside the hook and makes a visual change A1 rules out, so it's the owner's call (see Questions).
+- 2026-11-25: Owner (18:29): task-list items render as ☑/☐ text with screen-reader done/not done, no inputs; this changes the kept Docs viewer, approved (today the tick state is invisible). A1 and A2 rewritten to the owner's criteria; `docs/screenshots/T-0020/` added to scope for A1's screenshot. Set ready by the foreman (approvals in chat).
 
 ## Questions for me
 
-- [ ] A1's premise doesn't hold: the Docs viewer's task-list boxes are not checkboxes today. `renderMarkdown` passes `ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|#)/i`, and DOMPurify checks every attribute not in its URI-safe list against that regexp, so `type="checkbox"` (no scheme) is stripped. The boxes render as `<input checked disabled>`: disabled empty text fields (aria tree: `textbox [disabled]`), the ticked state invisible. So "it stays a disabled checkbox with its ticked state, with no visual change" can't be met, and labelling in the hook alone (which only sees inputs after `type` is gone) can't make `getByRole("checkbox")` find anything. Which way?
+- [x] A1's premise doesn't hold: the Docs viewer's task-list boxes are not checkboxes today. `renderMarkdown` passes `ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|#)/i`, and DOMPurify checks every attribute not in its URI-safe list against that regexp, so `type="checkbox"` (no scheme) is stripped. The boxes render as `<input checked disabled>`: disabled empty text fields (aria tree: `textbox [disabled]`), the ticked state invisible. So "it stays a disabled checkbox with its ticked state, with no visual change" can't be met, and labelling in the hook alone (which only sees inputs after `type` is gone) can't make `getByRole("checkbox")` find anything. Which way?
   1. Keep `type` through the sanitizer with `ADD_URI_SAFE_ATTR: ["type"]` in the `sanitize` config (one line in `markdown.ts`, outside the hook), and label `type=checkbox` inputs in the hook as planned. The boxes become real disabled checkboxes showing their state: a visual change, and a small widening of the sanitizer (`type` values no longer URI-checked; DOMPurify's default regexp would have kept `checkbox` anyway). I spiked this locally and reverted it: all 5 history e2e tests pass, axe returns `[]`.
   2. Leave the sanitizer alone and label every `INPUT` in the hook. Axe (A2) would pass, but A1 fails (no checkbox role) and a screen reader hears "done, edit text, disabled".
   3. Something else (e.g. option (b) of S-18, text ☑/☐), which is out of this card's scope.
+
+  Owner, 18:29: don't keep the inputs. Render task-list items as text: a ticked or unticked box character followed by the item, with "done" or "not done" available to screen readers. No input elements in the Docs viewer. New criteria: the ticked state is visible; axe passes on History showing a backlog; the fixme test is turned back on, checking the text, not a checkbox role. This changes the kept viewer, and the owner approves it: today the tick state is invisible.
 
 ## Done
 
@@ -100,5 +104,5 @@ Spike (reverted, not committed): ADD_URI_SAFE_ATTR ["type"] + aria-label in the 
 
 ```
 Waiting on the owner (wall clock, UTC):
-  none (low card)
+  blocked → ready  18:21:02 → 18:29:27   8 min 25 s
 ```
