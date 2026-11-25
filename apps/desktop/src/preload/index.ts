@@ -5,6 +5,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 import {
+  ChecklistRequest,
+  ChecklistView,
   IpcChannel,
   NowRepoRequest,
   NowSelectRequest,
@@ -113,6 +115,17 @@ const api = {
       return () => {
         ipcRenderer.removeListener(IpcChannel.TasksUpdate, listener);
       };
+    },
+  },
+
+  checklist: {
+    /** The repo checklist in BACKLOG.md on the default branch, read now. */
+    async get(repoPath: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.ChecklistGet,
+        ChecklistRequest.parse({ repoPath }),
+      );
+      return ChecklistView.parse(raw);
     },
   },
 

@@ -7,6 +7,8 @@ import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron";
 import type { ZodType } from "zod";
 
 import {
+  ChecklistRequest,
+  ChecklistView,
   IpcChannel,
   NowRepoRequest,
   NowSelectRequest,
@@ -24,6 +26,7 @@ import {
   TasksState,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
+import { readChecklist } from "./engine/checklist";
 import { NowHub } from "./engine/now";
 import { taskDetail, tasksState } from "./engine/tasks";
 import { fetchRepo } from "./kit/source";
@@ -333,6 +336,12 @@ function registerIpcHandlers(): void {
     return TaskDetail.parse(
       await taskDetail(repoPath, nowHub.snapshot(repoPath), key),
     );
+  });
+
+  ipcMain.handle(IpcChannel.ChecklistGet, async (_event, raw: unknown) => {
+    const { repoPath: asked } = ChecklistRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return ChecklistView.parse(await readChecklist(repoPath));
   });
 
   ipcMain.handle(IpcChannel.SettingsLoad, async () =>
