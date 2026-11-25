@@ -61,13 +61,27 @@ test("a night report opens and renders", async () => {
   await shot("history");
 });
 
-// Shelved (SHELVED.md S-18): the Docs viewer, copied unchanged, renders a
-// task list in BACKLOG.md ("- [x] …") as checkboxes with no label, which axe
-// calls critical. Fixing it changes a kept component, so the check waits.
-test.fixme("History passes axe with the Docs viewer showing a backlog", async () => {
+test("History passes axe with the Docs viewer showing a backlog", async () => {
   const { page } = launched;
   await expect(page.getByRole("heading", { name: "Backlog" })).toBeVisible();
   expect(await runAxe(page)).toEqual([]);
+});
+
+test("the Docs viewer names each task-list checkbox done or not done", async () => {
+  const { page } = launched;
+  const docs = page.getByRole("region", { name: "Docs" });
+  await expect(docs.getByRole("heading", { name: "Backlog" })).toBeVisible();
+  const boxes = docs.getByRole("checkbox");
+  const done = docs.getByRole("checkbox", { name: "done", exact: true });
+  const notDone = docs.getByRole("checkbox", { name: "not done", exact: true });
+  const doneCount = await done.count();
+  const notDoneCount = await notDone.count();
+  expect(doneCount).toBeGreaterThan(0);
+  expect(notDoneCount).toBeGreaterThan(0);
+  expect(doneCount + notDoneCount).toBe(await boxes.count());
+  for (const box of await boxes.all()) await expect(box).toBeDisabled();
+  for (const box of await done.all()) await expect(box).toBeChecked();
+  for (const box of await notDone.all()) await expect(box).not.toBeChecked();
 });
 
 test("the Docs viewer lists the repo's Markdown and renders one", async () => {

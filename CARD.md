@@ -1,6 +1,6 @@
 # T-0020 · fix(shell): label the Docs viewer's task-list checkboxes
 
-Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Status: blocked <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0020 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4b, `SHELVED.md` S-18, issue #28 · Gate: low
 
@@ -58,7 +58,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Start with A2: change `test.fixme` to `test` in `history.e2e.ts`, run it, and see axe's `label` violation.
+Wait for the owner's answer under "Questions for me". Both tests are already in `history.e2e.ts` and red (committed). If the answer is (1): in `markdown.ts` add `ADD_URI_SAFE_ATTR: ["type"]` to the `DOMPurify.sanitize` config and, in the `afterSanitizeAttributes` hook, set `aria-label` to `done`/`not done` on `INPUT` nodes whose `type` is `checkbox`; run the history e2e green, then the full checks and `/done`.
 
 ## Decisions
 
@@ -67,10 +67,14 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Turning the fixme test back on is a change to an existing test, but the owner's spec (§4b: "turn the fixme test back on") asks for exactly that, so it doesn't make the card `needs you`; with two code files and three criteria the card is `low`.
 - 2026-11-25: The kept-component rule that shelved S-18 is settled by the owner choosing option (a) in §4b.
 - 2026-11-25: The names are `done` and `not done`, as S-18's option (a) gives them — short, and they say the state the box shows.
+- 2026-11-25: Blocked rather than widening the sanitizer: keeping `type` needs a `sanitize` config change outside the hook and makes a visual change A1 rules out, so it's the owner's call (see Questions).
 
 ## Questions for me
 
-- [ ] (none)
+- [ ] A1's premise doesn't hold: the Docs viewer's task-list boxes are not checkboxes today. `renderMarkdown` passes `ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|#)/i`, and DOMPurify checks every attribute not in its URI-safe list against that regexp, so `type="checkbox"` (no scheme) is stripped. The boxes render as `<input checked disabled>`: disabled empty text fields (aria tree: `textbox [disabled]`), the ticked state invisible. So "it stays a disabled checkbox with its ticked state, with no visual change" can't be met, and labelling in the hook alone (which only sees inputs after `type` is gone) can't make `getByRole("checkbox")` find anything. Which way?
+  1. Keep `type` through the sanitizer with `ADD_URI_SAFE_ATTR: ["type"]` in the `sanitize` config (one line in `markdown.ts`, outside the hook), and label `type=checkbox` inputs in the hook as planned. The boxes become real disabled checkboxes showing their state: a visual change, and a small widening of the sanitizer (`type` values no longer URI-checked; DOMPurify's default regexp would have kept `checkbox` anyway). I spiked this locally and reverted it: all 5 history e2e tests pass, axe returns `[]`.
+  2. Leave the sanitizer alone and label every `INPUT` in the hook. Axe (A2) would pass, but A1 fails (no checkbox role) and a screen reader hears "done, edit text, disabled".
+  3. Something else (e.g. option (b) of S-18, text ☑/☐), which is out of this card's scope.
 
 ## Done
 
@@ -81,6 +85,18 @@ Appended by the session, one line each, newest last.
 - [ ] Draft PR opened, its body saying `Closes #28`: #
 
 ### Evidence
+
+```
+RED (before touching markdown.ts), 2026-11-25:
+$ pnpm --filter @arynbht/rivetari-desktop e2e e2e/history.e2e.ts
+  2 failed
+    e2e\history.e2e.ts:64:1 › History passes axe with the Docs viewer showing a backlog
+      (one violation: id "label", impact critical, 5 nodes, all `<input [checked=""] disabled="">`; nothing else)
+    e2e\history.e2e.ts:70:1 › the Docs viewer names each task-list checkbox done or not done
+      (expect(doneCount).toBeGreaterThan(0): received 0 — error-context aria tree shows the boxes as `textbox [disabled]`)
+  3 passed (11.7s)
+Spike (reverted, not committed): ADD_URI_SAFE_ATTR ["type"] + aria-label in the hook → 5 passed (11.7s)
+```
 
 ```
 Waiting on the owner (wall clock, UTC):
