@@ -216,6 +216,9 @@ export function App() {
     }
   }
 
+  // Which opening of a repo is the latest: only its fetch may report a failure.
+  const fetchSeq = useRef(0);
+
   function handleSelect(path: string): void {
     setSettingsOpen(false);
     setSelected(path);
@@ -225,7 +228,11 @@ export function App() {
     setNowFocus(null);
     setTasksFocus(null);
     // Opening a repo fetches it, so the other machine's card branches appear.
+    // A fetch can fail late (it may run up to its time limit): by then another
+    // repo, or this one again, may have been opened, so a stale failure is dropped.
+    const seq = ++fetchSeq.current;
     window.rivetari.repos.fetch(path).catch((err: unknown) => {
+      if (seq !== fetchSeq.current) return;
       setError(`Couldn't fetch this repo: ${errorMessage(err)}`);
     });
   }
