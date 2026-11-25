@@ -1,7 +1,7 @@
 # T-0045 · test(shell): make the real-git and child-process tests reliable on Windows
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0045 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0045 · Held by: builder C (this session)
 Created: 2026-11-25 · Gate: low · Source: `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
 
 ## Why
