@@ -10,17 +10,16 @@ Ordered. The top line becomes the next `CARD.md`.
 2. Kit: the rest of the kit says parked lines live in the card: `kit/setup/SKILL.md` (lines 26, 102), `templates/skills/done/SKILL.md` (line 48), `templates/CHECKLIST.md` (lines 9–10) (low; follows T-0052)
 3. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-5. Fix card (end of the shell chain, after the CI screenshot card): commit T-0041's `docs/screenshots/T-0041/home-sections.png` (and T-0044's three shots) from the `desktop-e2e` artifact and mark T-0041's A3 met
-6. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-7. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-8. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-15. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+7. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -171,3 +170,5 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [tool] Builders keep filing cards with the Done box "Draft PR opened: #" unticked and no number (T-0051, T-0052) · seen on T-0052 inspection · `cards/done/`
 - 2026-11-25 [tool] `SCREENSHOT_DIR` is set twice in the `desktop-e2e` job (ci.yml:256 and the e2e step); a job-level `env` would be tidier · seen on T-0056 inspection · `.github/workflows/ci.yml`
 - 2026-11-25 [tool] T-0056's evidence says the artifact held 23 PNGs; the inspector's download of the same run held 22 · seen on T-0056 inspection · `cards/done/T-0056.md`
+- 2026-11-25 [tool] `cards/done/T-0041.md` still says its screenshot "needs one local run" (Next step) and lists A3 as UNTESTED (Done line), though T-0057 made the shot and ticked A3 · seen on T-0057 inspection · `cards/done/T-0041.md`
+- 2026-11-25 [tool] The review can't view PNGs, so a screenshot-only card gets "needs-human" from it; the inspector's hash and look are the check · seen on T-0057 inspection · `review --pr 71`
