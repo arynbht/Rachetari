@@ -6,12 +6,11 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. Give the tests that drive real git a longer timeout on Windows, and record how long the fetch test takes there (it hit 30 s on PR #30's CI, then took 961 ms on the re-run) · from owner, 2026-11-25 (T-0016)
-2. A `card/*` branch whose card is already in `cards/done/` shows as done, not as an unreadable card in Needs you · from owner, 2026-11-25
-3. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from owner, 2026-11-25
-4. Tasks: opening a card shows its record without a scroll to the bottom, either in a panel beside the board or scrolled into view; the card proposes which, with a screenshot of each · from owner, 2026-11-25
-5. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from owner, 2026-11-25
-6. Set a coverage floor once the review tests land · from checklist "coverage floor"
+1. A `card/*` branch whose card is already in `cards/done/` shows as done, not as an unreadable card in Needs you · from owner, 2026-11-25
+2. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from owner, 2026-11-25
+3. Tasks: opening a card shows its record without a scroll to the bottom, either in a panel beside the board or scrolled into view; the card proposes which, with a screenshot of each · from owner, 2026-11-25
+4. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from owner, 2026-11-25
+5. Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
