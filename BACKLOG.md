@@ -6,19 +6,11 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. PR review transplanted: `review --pr` posts COMMENT or REQUEST_CHANGES, never APPROVE, with its tests (T-0004) · from build prompt phase 2
-2. Area skills: the clean, permissively licensed ones into `skills/` with `skills/INDEX.md` · from build prompt phase 3
-3. Shell frame: window, sidebar, fence, tab bar, theme · from build prompt phase 4.1
-4. Shell file source with unit tests on a fixture repo · from build prompt phase 4.2
-5. Shell Now view · from build prompt phase 4.3
-6. Shell Tasks view · from build prompt phase 4.4
-7. Shell Checklist view · from build prompt phase 4.5
-8. Shell History and Docs · from build prompt phase 4.6
-9. Shell Map · from build prompt phase 4.7
-10. Shell Home, badges and notifications · from build prompt phase 4.8
-11. Hand-over: run `/setup`, `/card`, `/park`, `/done`, `/handoff` once on a scratch repo · from build prompt phase 5
-12. Set a coverage floor once the review tests land · from checklist "coverage floor"
-13. Require `ci` on main (repo setting, owner only) · from checklist "ci required on main"
+1. A `card/*` branch whose card is already in `cards/done/` shows as done, not as an unreadable card in Needs you · from owner, 2026-11-25
+2. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from owner, 2026-11-25
+3. Tasks: opening a card shows its record without a scroll to the bottom, either in a panel beside the board or scrolled into view; the card proposes which, with a screenshot of each · from owner, 2026-11-25
+4. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from owner, 2026-11-25
+5. Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
@@ -57,6 +49,9 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] `/setup`'s "DESIGN.md if there is UI" reads two ways: one run wrote a no-UI DESIGN.md, the other skipped it · seen on T-0015 · `kit/setup/SKILL.md`
 - 2026-11-25 [tool] `/done` says to set `blocked` on any failure, but CLAUDE.md says to stop on a draft card; on a draft the trial session kept `draft` and wrote no evidence · seen on T-0015 · `kit/setup/templates/skills/done/SKILL.md`
 - 2026-11-25 [tool] `/park` doesn't say whether to commit the line; it stays uncommitted until something else commits it · seen on T-0015 · `kit/setup/templates/skills/park/SKILL.md`
+- 2026-11-25 [tool] A test that drives real git hung once on Windows CI: `source.test.ts › only sees a card pushed from another machine after a fetch` hit 30 s on PR #30 (run 45663184235, attempt 1) but takes 515–656 ms locally (20 runs) and 961 ms on the CI re-run; vitest reported the timeout, so the wait was in an async git call (`readLiveCards` or `fetchRepo`, which runs `git fetch --all --prune` with no timeout of its own) · seen on T-0016 · `apps/desktop/src/main/kit/source.ts`
+- 2026-11-25 [product] `fetchRepo` has no timeout, so a hung `git fetch` would leave the shell's Fetch waiting forever · seen on T-0016 · `apps/desktop/src/main/kit/source.ts:322`
+- 2026-11-25 [checklist] The checklist's "`ci` is required before a merge to main" line still reads failing (404), but `ci` has been required since today; `/setup` hasn't been re-run · seen on T-0016 · `gh api repos/arynbht/Rachetari/branches/main/protection`
 
 ## Repo checklist
 
