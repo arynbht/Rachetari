@@ -1,6 +1,6 @@
 # T-0040 · test: set a coverage floor
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0040 · Held by: nobody
 Created: 2026-11-25 · Source: BACKLOG.md Next up "Set a coverage floor once the review tests land" (from checklist `quality.coverage.floor`) · Gate: needs you
 
@@ -42,9 +42,7 @@ Each one is checked by something that can be run or looked at. No criterion with
       `pnpm exec vitest run packages/engine --passWithNoTests; echo exit=$?` exits 1 and
       prints `ERROR: Coverage for lines (…) does not meet global threshold (45%)` (the
       untested files still count, so totals fall to about 7% lines)
-- [ ] A4: `CHECKLIST.md`'s `quality.coverage.floor` line is ticked, with today's numbers
-      and the floor in its check text, and no other line changes · check:
-      `git diff origin/develop...HEAD -- CHECKLIST.md` shows that one line only
+- [ ] A4: `CHECKLIST.md` is not edited by this card (T-0039 is rewriting it); the PR body says the next `/setup` run should tick `quality.coverage.floor` with today's numbers and the floor · check: `git diff --stat origin/develop...HEAD` lists no `CHECKLIST.md`; the PR body has the note
 - [ ] A5: `ci` is green on the PR on both OSes · check: `gh pr checks <PR>` shows `ci`
       pass, with lint, typecheck and test passed or skipped on ubuntu and windows
 
@@ -54,7 +52,6 @@ Only these may be edited. Anything else needs a stop-and-ask.
 
 - `vitest.config.ts` (the `coverage.thresholds` block, and the one comment above
   `enabled`)
-- `CHECKLIST.md` (the `quality.coverage.floor` line only)
 - `CARD.md`, `cards/done/T-0040.md`
 - `BACKLOG.md` (Parked lines only, appended)
 
@@ -77,10 +74,7 @@ Named on purpose, so the session doesn't drift into them.
   to develop and main on both OSes. The PR's own `ci` doesn't check it (shards run with
   coverage off), so A2 is the local proof; Linux numbers aren't measured here and the
   3.5-point margin is meant to cover any OS difference.
-- Depends on: T-0039 (`CHECKLIST.md`): it re-runs `/setup`, which rewrites
-  `CHECKLIST.md`. Start after T-0039 merges into develop and merge `origin/develop` in (no
-  rebase); if the `quality.coverage.floor` line has moved or been reworded, edit it where
-  it is; a conflict in `CHECKLIST.md` is a stop.
+- If the floor fails in `build-test` on develop after merge, the line's rule applies: the foreman stops merging cards and puts a fix card first (owner, 2026-11-25).
 
 ## Skills
 
@@ -120,12 +114,16 @@ Appended by the session, one line each, newest last.
   edit: `coverage.all` counts untested files, so running only `packages/engine` drops the
   totals below the floor with no file change. Tried with the proposed floor passed as CLI
   flags: exit 1, all four metrics reported below threshold
+- 2026-11-25: Owner (21:06:58): floor 45/78/72/45; build-test on develop enforces it; a failure stops merges and puts a fix card first. Set ready by the foreman.
+- 2026-11-25: Decided for the owner by the foreman: this card no longer edits `CHECKLIST.md` (alternative: wait for T-0039, which is rewriting that file, then tick the line) — so the card can be built now in parallel; the next `/setup` run ticks the coverage line. A4 rewritten and the T-0039 dependency removed.
 
 ## Questions for me
 
 One question per line, in this shape; options are separated by `;`.
 
-- [ ] What coverage floor goes in `vitest.config.ts` (global; lines/branches/functions/statements)? — Recommended: 45/78/72/45, today's 48.5/81.7/75.8/48.5 less about 3.5 points, so it holds on both OSes and catches a real drop. Options: 48/81/75/48 (today rounded down; catches any drop but may fail on a small refactor or on Linux); 40/75/70/40 (loose; catches only a large drop).
+- [x] What coverage floor goes in `vitest.config.ts` (global; lines/branches/functions/statements)? — Recommended: 45/78/72/45, today's 48.5/81.7/75.8/48.5 less about 3.5 points, so it holds on both OSes and catches a real drop. Options: 48/81/75/48 (today rounded down; catches any drop but may fail on a small refactor or on Linux); 40/75/70/40 (loose; catches only a large drop).
+
+Owner, 21:06:58: 45/78/72/45, as recommended. Coverage stays off on PR runs, so ci stays fast, and build-test on develop enforces the floor. If it fails, the existing rule applies: stop merging cards and put a fix card first. Park a [tool] line for a ratchet that raises the floor when coverage climbs, as Rivetari's quality.json did (the foreman parked it on develop).
 
 ## Done
 
@@ -139,6 +137,7 @@ One question per line, in this shape; options are separated by `;`.
 
 ```
 Waiting on the owner (wall clock, UTC):
+  question         21:04:02 → 21:06:58   2 min 56 s
 
 Drafting (2026-11-25, Windows, no file changes):
 $ pnpm test
