@@ -54,13 +54,15 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy `Tasks.tsx` verbatim, then cut.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: TaskRecord.tsx is not copied; its Field and Part are, into Tasks.tsx (EXTRACTED.md)
+- 2026-11-25: Unreadable and unknown-status cards go under Blocked; Tasks reads the hub's snapshot (D-16, D-17)
 
 ## Questions for me
 

@@ -176,3 +176,25 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
   placeholder until T-0009); (b) hide the buttons until then.
 - **Chose:** (a): it keeps the source's behaviour, and T-0009 makes it open the card.
 - **Reverse:** n/a; T-0009 completes it.
+
+## D-16 · T-0009 · Where the board puts what doesn't fit a column
+
+- **Question:** The seven columns come from the card statuses. Where do an unreadable
+  card, a status the template doesn't list, and a card that is both on a live branch and
+  in `cards/done/` go?
+- **Options and choices:** an unreadable card and an unknown status go under **Blocked**
+  (a person has to look at both; the unreadable one is drawn in rose with its branch).
+  A card on a live branch is shown from its branch only, not twice. A done card with a
+  PR number goes under **PR open**; without one, under **Done**. Tasks has no needs-you
+  list of its own; Now has it.
+- **Why:** each keeps every card visible and none twice, with the fewest special cases.
+- **Reverse:** `columnOf` and `taskItems` in `apps/desktop/src/main/engine/tasks.ts`.
+
+## D-17 · T-0009 · Where Tasks reads from
+
+- **Question:** The source's Tasks tab shared Now's watcher so no repo was polled twice.
+- **Options:** (a) read the hub's snapshot, and push `tasks:update` whenever the hub
+  pushes `now:update`; (b) a second watcher for the Tasks tab.
+- **Chose:** (a), the source's design. A record is looked up by the board's key in that
+  snapshot, never by a path the renderer sends.
+- **Reverse:** n/a.
