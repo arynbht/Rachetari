@@ -1,7 +1,7 @@
 # T-0020 · fix(shell): label the Docs viewer's task-list checkboxes
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0020 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0020 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4b, `SHELVED.md` S-18, issue #28 · Gate: low
 
 ## Why
