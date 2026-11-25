@@ -3,8 +3,13 @@
 // looked up by the key the board gave it, never by a path the renderer sends,
 // so a record can only be read from the repo's own cards. Nothing here writes.
 import type { KitSnapshot } from "../kit/watch";
+import { needsYouItems } from "./now";
+import { questionParts } from "../kit/parse";
 import { cardRef, readCardCommits, readDoneCard } from "../kit/source";
 import type {
+  NeedsYouItem,
+  NowQuestion,
+  TaskCard,
   TaskColumn,
   TaskDetail,
   TaskItem,
@@ -30,8 +35,39 @@ export function columnOf(status: string, pr: number | null): TaskColumn {
   }
 }
 
+/** What a Needs you item says on the board, in a few words. */
+function needLabel(item: NeedsYouItem, snapshot: KitSnapshot): string {
+  switch (item.kind) {
+    case "approve":
+      return "Needs your approval";
+    case "question": {
+      const card = snapshot.cards.find((c) => c.branch === item.branch)?.card;
+      const open = card?.questions.filter((q) => q.open).length ?? 0;
+      return open === 0
+        ? "Blocked, no question written"
+        : `${open} open question${open === 1 ? "" : "s"}`;
+    }
+    case "merge":
+      return "PR to merge";
+    case "unreadable":
+      return "Can't be read";
+    case "held":
+      return "Held overnight";
+  }
+}
+
 /** Every card in the repo, in board order within each column. */
 export function taskItems(snapshot: KitSnapshot): TaskItem[] {
+  // What waits on the owner, as Now's Needs you lists it, by branch.
+  const waiting = needsYouItems(snapshot);
+  const needsOf = (branch: string): TaskItem["needs"] =>
+    waiting
+      .filter((n) => n.branch === branch)
+      .map((n) => ({
+        kind: n.kind,
+        label: needLabel(n, snapshot),
+        todo: n.todo,
+      }));
   const nextUp = (snapshot.backlog?.nextUp ?? []).map((line, i): TaskItem => ({
     key: `next-up:${i + 1}`,
     id: `Next up ${i + 1}`,
@@ -44,6 +80,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
     pr: null,
     unreadable: false,
     source: "next-up",
+    needs: [],
   }));
   const live = snapshot.cards.map((c): TaskItem =>
     c.card
@@ -59,6 +96,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
           pr: c.card.pr,
           unreadable: false,
           source: "card",
+          needs: needsOf(c.branch),
         }
       : c.drafting
         ? {
@@ -73,6 +111,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
             pr: null,
             unreadable: false,
             source: "card",
+            needs: needsOf(c.branch),
           }
         : {
             key: `branch:${c.branch}`,
@@ -86,6 +125,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
             pr: null,
             unreadable: true,
             source: "card",
+            needs: needsOf(c.branch),
           },
   );
   // A card whose branch is still live is shown from its branch, not twice.
@@ -104,6 +144,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
       pr: d.pr,
       unreadable: d.status === "unreadable",
       source: "done",
+      needs: [],
     }));
   return [...nextUp, ...live, ...done];
 }
@@ -123,6 +164,13 @@ export function tasksState(
   };
 }
 
+/** A card's open questions in parts, numbered from 1; none without a card. */
+function openQuestionsOf(card: TaskCard | null): NowQuestion[] {
+  return (card?.questions ?? [])
+    .filter((q) => q.open)
+    .map((q, i) => ({ n: i + 1, ...questionParts(q.text) }));
+}
+
 /** One card in full: the card, and the commits on its branch (or to its done file). */
 export async function taskDetail(
   repoPath: string,
@@ -138,6 +186,7 @@ export async function taskDetail(
       card: null,
       error: null,
       commits: [],
+      openQuestions: [],
     };
 
   if (item.source === "done") {
@@ -148,6 +197,7 @@ export async function taskDetail(
       card,
       error: card ? null : `unreadable: ${path} isn't a card`,
       commits: await readCardCommits(repoPath, { path }, 50, snapshot.display),
+      openQuestions: openQuestionsOf(card),
     };
   }
 
@@ -157,6 +207,7 @@ export async function taskDetail(
   return {
     item,
     card: live.card,
+    openQuestions: openQuestionsOf(live.drafting ? null : live.card),
     error: live.card || live.drafting ? null : (live.error ?? "unreadable"),
     commits: ref
       ? await readCardCommits(repoPath, { ref }, 50, snapshot.display)
