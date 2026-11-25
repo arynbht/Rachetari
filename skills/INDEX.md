@@ -1,7 +1,9 @@
 # Area skills
 
-Plain folders, each unchanged from its upstream at the pinned commit (each folder's
-content hash equals the pin's hash in Rivetari's manifest). A card names at most three
+Plain folders. Each one taken from upstream is unchanged at its pinned commit, and its
+content hash equals the pin's hash in Rivetari's manifest. `quality/code-simplification`
+isn't in the manifest, so its hash was computed at the pin and logged in `EXTRACTED.md`.
+`quality/deslop` is ours, written here (T-0023), not taken. A card names at most three
 under its "Skills" heading; only those are read for that card.
 
 "Used on a real task" means the skill was loaded at build on a BreathBand pilot task
@@ -17,6 +19,8 @@ under its "Skills" heading; only those are read for that card.
 | legal    | [retention-schedule](legal/retention-schedule/)                          | Deciding how long each kind of data is kept, the event that starts the clock, and how it's deleted                                             | mukul975/Privacy-Data-Protection-Skills `skills/privacy/retention-schedule`     | `9b2ef9ea` | Apache-2.0 | no                                            |
 | motion   | [animate](motion/animate/)                                               | Adding motion or a transition to UI: whether to animate, easing, duration, reduced motion                                                      | emilkowalski/skills `skills/animate`                                            | `715c1807` | MIT        | no (routed on T-0026, abandoned before build) |
 | motion   | [review-animations](motion/review-animations/)                           | Reviewing animation code in a diff against the same standards (only when asked; not auto-invoked)                                              | emilkowalski/skills `skills/review-animations`                                  | `715c1807` | MIT        | no                                            |
+| quality  | [code-simplification](quality/code-simplification/)                      | Code that works but reads harder than it should: simplify it without changing behaviour, scoped to what changed                                | addyosmani/agent-skills `skills/code-simplification`                            | `301b02b1` | MIT        | no                                            |
+| quality  | [deslop](quality/deslop/)                                                | Taking slop out of a card's diff (narrating comments, one-use helpers, casts) without changing behaviour                                       | written here (T-0023), not taken                                                | —          | MIT        | no                                            |
 | testing  | [playwright-cli](testing/playwright-cli/)                                | Driving a browser from the shell: open a page, snapshot, click and fill, screenshots, video, and writing or healing Playwright tests           | microsoft/playwright-cli `skills/playwright-cli`                                | `ce9b41b6` | Apache-2.0 | yes (always-on, 28 of 32)                     |
 | testing  | [test-driven-development](testing/test-driven-development/)              | Adding logic, fixing a bug or changing behaviour: write the failing test first, then the fix                                                   | addyosmani/agent-skills `skills/test-driven-development`                        | `301b02b1` | MIT        | yes (always-on, 18 tasks)                     |
 | ui       | [frontend-design](ui/frontend-design/)                                   | Building or restyling UI: typography, layout, avoiding generic looks, plan then critique                                                       | anthropics/skills `skills/frontend-design`                                      | `2c5958ec` | Apache-2.0 | yes (T-0022, T-0023, T-0025)                  |

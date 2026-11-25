@@ -6,25 +6,26 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. Shell: background fetch of every registered repo every 2 minutes; the header shows "fetched N min ago", `develop`'s latest commit, and a failed fetch (low; after T-0024) · from `docs/queue-2026-11-25.md` §Shell: background fetch
-2. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-3. Clean code 1a: take `code-simplification`, write the `deslop` skill and the Slop defaults `/setup` drafts, with a test that the twelve lines never differ (T-0023) · from `docs/queue-2026-11-25.md` §4e. Clean code, part 1: guidance
-4. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
-5. Clean code 2: the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
-6. Questions panel on Now (T-0026, read-only half): one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
-7. Shell: the display branch is `develop` when it exists, else the default branch; "showing develop" in the header of Now, Tasks and Checklist · from `docs/queue-2026-11-25.md` §Shell: the display branch
-8. Kit and scope: `SCOPE.md` and the kit's CLAUDE.md section describe `develop` · from `docs/queue-2026-11-25.md` §Kit and scope: describe develop
-9. Clean code 1b: `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
-10. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
-11. Checklist by section, the kit: `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
-12. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-13. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-14. Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
-15. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
-16. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-17. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
-18. Set a coverage floor once the review tests land · from checklist "coverage floor"
-19. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
+1. Shell: live shell, part 1 (T-0030): the script and dev mode with watching; parts 2 and 3 follow — `develop` read from the newer of local and origin, background fetch every 60 s, `scripts/live-shell.mjs` keeps a tested, fast-forwarded dev-mode worktree, header shows commit, "showing develop", "fetched N s ago" and a behind warning (low) · from `docs/queue-2026-11-25.md` §Shell: live shell
+2. Shell: live shell part 2, the display branch: the file source reads `develop` from the newer of local and origin, falling back to the default branch, replacing T-0018's `day/*` reading; "showing develop" in the header of Now, Tasks and Checklist (low; after T-0024) · from `docs/queue-2026-11-25.md` §Shell: the display branch
+3. Shell: live shell part 3: background fetch of every registered repo every 60 s; the header shows the running commit, "fetched N s ago", a failed fetch and a behind warning (low; after T-0024 and T-0026) · from `docs/queue-2026-11-25.md` §Shell: live shell
+4. Checklist by section, the kit (T-0029, part 1): `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
+5. Checklist by section, part 2: run `/setup` on this repo, move its checklist into `CHECKLIST.md`, show the per-section counts (needs you; after 4h and the kit reinstall) · from `docs/queue-2026-11-25.md` §4g. Checklist by section: the kit
+6. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
+7. Tasks overhaul 1, design only (T-0028): a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
+8. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
+9. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
+10. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
+11. Timeouts on the shell's git calls (T-0024): `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
+12. Questions panel on Now (T-0026, read-only half): one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
+13. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+14. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+15. (paused) Clean code 2 (T-0025): the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
+16. (paused) Clean code 1b (T-0027): `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
+17. (paused) Kit and scope: `SCOPE.md` and the kit's CLAUDE.md section describe `develop` · from `docs/queue-2026-11-25.md` §Kit and scope: describe develop
+18. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
+19. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
+20. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
@@ -79,6 +80,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [checklist] `DESIGN.md` still says there is no UI and `apps/desktop` is empty, though the shell has landed; a `/setup` re-run would draft its tokens and components · seen on T-0028 · `DESIGN.md`
 - 2026-11-25 [tool] §The line gives two inspection caps: "Waiting for inspection at most 2" under Limits and "the inspection cap is 3" under Inspection · seen on T-0028 · `docs/queue-2026-11-25.md`
 - 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
+- 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
 
 ## Repo checklist
 
