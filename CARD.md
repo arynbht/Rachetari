@@ -25,7 +25,7 @@ Only these may be edited. Anything else needs a stop-and-ask.
 
 - `.gitignore` (the `.scratch/` line only), `scripts/kit-trial.mjs` (new)
 - `docs/kit-trial-2026-11-25.md` (new)
-- `EXTRACTED.md`, `BACKLOG.md`, `DECISIONS.md`, `SHELVED.md`, `CARD.md`, `cards/done/T-0015.md`
+- `EXTRACTED.md`, `BACKLOG.md`, `DECISIONS.md`, `SHELVED.md`, `MORNING.md`, `CARD.md`, `cards/done/T-0015.md`
 
 ## Out of scope
 
@@ -48,13 +48,15 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Build the scratch repo, then run `/setup`.
+Push, open the draft PR, wait for CI, run the done check, then write MORNING.md.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: /setup stopped twice at headless permissions; the command skills were copied by hand in the scratch repo and the other four commands run (D-19)
+- 2026-11-25: MORNING.md, the overnight hand-back, is written on this card, the last in the stack
 
 ## Questions for me
 
