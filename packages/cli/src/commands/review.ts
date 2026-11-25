@@ -1,0 +1,152 @@
+import { resolve } from "node:path";
+
+import {
+  AiError,
+  buildContext,
+  createAiClient,
+  githubToken,
+} from "@arynbht/rivetari-engine";
+import {
+  findJudgedTree,
+  JUDGE_DEFAULT_MODEL,
+  loadTask,
+  type ReviewOutcome,
+  reviewLocal,
+  reviewPullRequest,
+  whoami,
+} from "@arynbht/rivetari-runtime";
+
+import { today } from "../dates.js";
+
+export interface ReviewFlags {
+  pr?: string;
+  base?: string;
+  head?: string;
+  task?: string;
+  model?: string;
+  token?: string;
+  dryRun?: boolean;
+  fresh?: boolean;
+  json?: boolean;
+}
+
+const EXIT = { approve: 0, "request-changes": 1, "needs-human": 2 } as const;
+
+/**
+ * `rivetari review`: judge tier 2. With `--pr <n>`, reviews that pull request and
+ * posts one review (unless `--dry-run`); otherwise reviews the local change
+ * from `--base` (default origin/main) to `--head` and prints it.
+ */
+export async function runReview(
+  path: string,
+  flags: ReviewFlags,
+): Promise<number> {
+  const repo = resolve(path);
+  const log = flags.json
+    ? undefined
+    : (line: string) => process.stderr.write(`· ${line}\n`);
+
+  let card;
+  let task;
+  if (flags.task) {
+    task = await loadTask(repo, flags.task).catch((err: Error) => {
+      console.error(`rivetari review: ${err.message}`);
+      return null;
+    });
+    if (!task) return 1;
+    if (task.problems.length > 0 || !task.confirmed) {
+      console.error(
+        `rivetari review: task ${flags.task} ${task.problems.length > 0 ? "fails verification" : "isn't confirmed yet"}; not reviewing against it.`,
+      );
+      return 1;
+    }
+    card = task.card;
+  }
+
+  const profile = await buildContext(repo)
+    .profile()
+    .catch(() => null);
+  const model = flags.model ?? profile?.ai?.judge_model ?? JUDGE_DEFAULT_MODEL;
+  const common = {
+    repoPath: repo,
+    // One retry: a call that failed for a passing reason is worth one more.
+    ai: createAiClient({ timeoutMs: 600_000, maxRetries: 1 }),
+    model,
+    // No risk is derived here, so a high-risk card is the only one that
+    // thinks hard; medium keeps the long runaway reviews away.
+    effort: card?.risk === "high" ? ("high" as const) : ("medium" as const),
+    card,
+    usageDate: today(),
+    log,
+  };
+
+  let outcome: ReviewOutcome;
+  try {
+    if (flags.pr) {
+      if (!/^[1-9]\d*$/.test(flags.pr)) {
+        console.error(
+          `rivetari review: --pr takes a PR number, not "${flags.pr}".`,
+        );
+        return 1;
+      }
+      const token = (await githubToken(repo, flags.token))?.token;
+      if (!token) {
+        console.error(
+          "rivetari review: --pr needs GitHub: Rivetari's App installed on the repo, GITHUB_TOKEN, or `gh auth login`.",
+        );
+        return 1;
+      }
+      outcome = await reviewPullRequest({
+        ...common,
+        pr: Number(flags.pr),
+        token,
+        post: !flags.dryRun,
+        fresh: flags.fresh,
+        findJudged: (tree, head) => findJudgedTree(repo, tree, head),
+      });
+    } else {
+      outcome = await reviewLocal({
+        ...common,
+        base: flags.base ?? "origin/main",
+        head: flags.head,
+      });
+    }
+  } catch (err) {
+    console.error(
+      `rivetari review: ${err instanceof AiError ? err.message : (err as Error).message}`,
+    );
+    return 1;
+  }
+
+  // A dry run posted nothing, so it isn't a round.
+  if (task && !(flags.pr && flags.dryRun)) {
+    const r = outcome.result;
+    await task.ledger.append({
+      beat: "judge",
+      section: "judge",
+      text: `review round ${outcome.round}: ${outcome.verdict}; ${r.blocking.length} blocking, ${r.suggestions.length} suggestion(s) (${r.model}) · ${r.usage.tokens} tokens · $${r.usage.costUsd.toFixed(2)}`,
+      by: `rivetari judge (for ${await whoami(repo)})`,
+    });
+  }
+
+  if (flags.json) {
+    process.stdout.write(
+      `${JSON.stringify({ ...outcome, result: { ...outcome.result, packed: { ...outcome.result.packed, lines: undefined } } }, null, 2)}\n`,
+    );
+  } else {
+    process.stdout.write(`${outcome.body}\n`);
+    if (outcome.posted) {
+      process.stdout.write(
+        `\nposted (${outcome.posted.event}): ${outcome.posted.url}\n`,
+      );
+    }
+    if (outcome.check) process.stdout.write(`${outcome.check}\n`);
+    const r = outcome.result;
+    process.stderr.write(
+      outcome.carried
+        ? `· carried ${outcome.verdict} from ${outcome.carried.from.slice(0, 12)} (${outcome.carried.source}): identical tree, no review call\n`
+        : `· review: ${r.model}${r.effort ? ` at ${r.effort} effort` : ""} · ${r.calls} call(s) · ${r.usage.tokens} tokens · $${r.usage.costUsd.toFixed(2)}\n`,
+    );
+  }
+  return EXIT[outcome.verdict];
+}

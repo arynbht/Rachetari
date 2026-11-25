@@ -1,0 +1,204 @@
+import { execFile } from "node:child_process";
+import { access, constants } from "node:fs/promises";
+import { delimiter, isAbsolute, join } from "node:path";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+
+/**
+ * Resolve a bare command name to a concrete file on Windows, honouring PATHEXT so
+ * `.cmd`/`.bat` shims (e.g. `npm`) are found. `execFile` on Windows can't launch a
+ * `.cmd` directly, so we resolve the real file here (to tell "missing" from
+ * "failed" and to decide whether a `cmd.exe` wrapper is needed). Returns the
+ * resolved path, or null if not found.
+ */
+export async function resolveOnWindows(binary: string): Promise<string | null> {
+  const exts = (process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD")
+    .split(";")
+    .filter(Boolean);
+  const hasExt = exts.some((e) =>
+    binary.toLowerCase().endsWith(e.toLowerCase()),
+  );
+  // On Windows only a file with an executable extension can be launched; a bare
+  // name (e.g. an extensionless `npm` bash shim that coexists with `npm.cmd`) is
+  // not runnable, so when the name has no extension we consider PATHEXT variants
+  // only — mirroring how cmd.exe resolves a command.
+  const candidates = hasExt ? [binary] : exts.map((e) => binary + e);
+
+  // Resolve only from PATH (and PATHEXT), never the current working directory.
+  // Tools run with `cwd = ctx.repoPath`, so including CWD would let a malicious
+  // repo drop a `scorecard.cmd`/`npm.cmd` in its root and have it executed ahead
+  // of the real tool — a CWD-search hijack. Modern `cmd.exe`/`where` do not search
+  // CWD for this reason.
+  const dirs = isAbsolute(binary)
+    ? [""]
+    : (process.env.PATH ?? "").split(delimiter).filter(Boolean);
+
+  for (const dir of dirs) {
+    for (const cand of candidates) {
+      const full = dir ? join(dir, cand) : cand;
+      try {
+        await access(full, constants.F_OK);
+        return full;
+      } catch {
+        // keep looking
+      }
+    }
+  }
+  return null;
+}
+
+/** Thrown when the requested binary is not on PATH (→ detector skip). */
+export class ToolNotFoundError extends Error {
+  constructor(public readonly binary: string) {
+    super(`tool not found: ${binary}`);
+    this.name = "ToolNotFoundError";
+  }
+}
+
+export interface ToolResult {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+}
+
+/**
+ * Split a command line into tokens on whitespace. Good enough for the simple
+ * tool invocations controls use (e.g. `scorecard --format json`); it does not
+ * honour shell quoting, so avoid arguments containing spaces.
+ */
+export function splitArgs(line: string): string[] {
+  return line.trim().split(/\s+/).filter(Boolean);
+}
+
+/**
+ * What a tool needs to run, and nothing else: system paths, the user's home and
+ * temp dirs, toolchain homes. Tokens, API keys and every other secret in the
+ * caller's shell stay out — a test script or a skill can't read what it never
+ * receives. `extra` names any further variables to pass through on purpose.
+ */
+export const ENV_ALLOWLIST = [
+  "PATH",
+  "Path",
+  "PATHEXT",
+  "SystemRoot",
+  "SYSTEMROOT",
+  "SystemDrive",
+  "ComSpec",
+  "COMSPEC",
+  "WINDIR",
+  "OS",
+  "PROCESSOR_ARCHITECTURE",
+  "NUMBER_OF_PROCESSORS",
+  "ProgramFiles",
+  "ProgramFiles(x86)",
+  "ProgramData",
+  "TEMP",
+  "TMP",
+  "TMPDIR",
+  "HOME",
+  "USERPROFILE",
+  "HOMEDRIVE",
+  "HOMEPATH",
+  "APPDATA",
+  "LOCALAPPDATA",
+  "XDG_CACHE_HOME",
+  "XDG_CONFIG_HOME",
+  "LANG",
+  "LC_ALL",
+  "TERM",
+  "SHELL",
+  "PNPM_HOME",
+  "COREPACK_HOME",
+  "GOPATH",
+  "GOCACHE",
+  "GOMODCACHE",
+  "CARGO_HOME",
+  "RUSTUP_HOME",
+] as const;
+
+export function allowlistedEnv(
+  extra: readonly string[] = [],
+  source: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { CI: "1" };
+  for (const name of [...ENV_ALLOWLIST, ...extra]) {
+    const value = source[name];
+    if (value !== undefined) env[name] = value;
+  }
+  return env;
+}
+
+/** A tool that did not finish within its timeout (and was killed). */
+export class ToolTimeoutError extends Error {
+  constructor(binary: string, timeoutMs: number) {
+    super(`"${binary}" did not finish within ${Math.round(timeoutMs / 1000)}s`);
+    this.name = "ToolTimeoutError";
+  }
+}
+
+/**
+ * Run a binary (no shell) in `cwd`, capturing output and exit code. A missing
+ * binary raises {@link ToolNotFoundError}; a non-zero exit is returned normally
+ * so callers can compare it to an expected code.
+ *
+ * On Windows the binary is resolved via PATH+PATHEXT first (so a missing tool is a
+ * clean ToolNotFoundError). A `.cmd`/`.bat` shim — which `execFile` cannot launch
+ * directly — is run through `cmd.exe /d /s /c`; everything else runs directly.
+ * Crucially we never pass `shell: true`, so Node applies its own argument quoting
+ * and a path containing spaces (e.g. `C:\…\Rivetari - Dev`) is passed as a
+ * single argument rather than split.
+ */
+export async function runTool(
+  binary: string,
+  args: string[],
+  cwd: string,
+  options: {
+    timeoutMs?: number | undefined;
+    /** The child's whole environment (default: inherit this process's). */
+    env?: NodeJS.ProcessEnv | undefined;
+  } = {},
+): Promise<ToolResult> {
+  let file = binary;
+  let argv = args;
+
+  if (process.platform === "win32") {
+    const resolved = await resolveOnWindows(binary);
+    if (!resolved) throw new ToolNotFoundError(binary);
+    if (/\.(cmd|bat)$/i.test(resolved)) {
+      file = "cmd.exe";
+      argv = ["/d", "/s", "/c", resolved, ...args];
+    } else {
+      file = resolved;
+    }
+  }
+
+  try {
+    const { stdout, stderr } = await execFileAsync(file, argv, {
+      cwd,
+      maxBuffer: 16 * 1024 * 1024,
+      windowsHide: true,
+      timeout: options.timeoutMs ?? 0,
+      ...(options.env ? { env: options.env } : {}),
+    });
+    return { exitCode: 0, stdout: String(stdout), stderr: String(stderr) };
+  } catch (err) {
+    const e = err as NodeJS.ErrnoException & {
+      stdout?: string | Buffer;
+      stderr?: string | Buffer;
+      killed?: boolean;
+    };
+    if (e.code === "ENOENT") throw new ToolNotFoundError(binary);
+    if (e.killed && options.timeoutMs) {
+      throw new ToolTimeoutError(binary, options.timeoutMs);
+    }
+    if (typeof e.code === "number") {
+      return {
+        exitCode: e.code,
+        stdout: String(e.stdout ?? ""),
+        stderr: String(e.stderr ?? ""),
+      };
+    }
+    throw err;
+  }
+}
