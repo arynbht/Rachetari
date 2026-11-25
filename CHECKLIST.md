@@ -1,7 +1,7 @@
 # Checklist
 
-Stage: Foundation — decided by `dev.conventional-commits`, `dev.precommit-hooks`, `repo.dependency-update-bot`, `repo.license.present` and `sec.secret-scanning.pre-commit`, the five failing foundation lines. Every foundation line from the old Repo checklist passes.
-Last `/setup`: 2026-11-25, on card/T-0033.
+Stage: Foundation — decided by `dev.conventional-commits`, `dev.precommit-hooks`, `repo.dependency-update-bot`, `repo.license.present`, `sec.secret-scanning.pre-commit`, "Complexity and file-length limits are set", "A dead-code check runs" and "`/done` runs the comment report", the eight failing foundation lines. Every foundation line from the old Repo checklist passes.
+Last `/setup`: 2026-11-25, on card/T-0039.
 
 What must stay true for this repo, in fifteen sections. Every section stays, even one
 that doesn't apply: it says `n/a` and why, so leaving it out is a recorded choice.
@@ -66,7 +66,7 @@ rather than deleting it, so a re-run doesn't add it back.
 - [ ] `dev.precommit-hooks` Pre-commit hooks installed · stage: foundation · check: look for `.husky/`, `lefthook.yml` or `.pre-commit-config.yaml` (none)
 - [x] `dev.linter.in-ci` Linter runs in CI · stage: building · check: the `lint` job in `.github/workflows/ci.yml`; `gh pr checks 44` shows it passing
 - [ ] `dev.code-review-required` Code review required before merge · stage: building · check: `gh api repos/arynbht/Rachetari/branches/main/protection` (`required_approving_review_count: 0`)
-- [ ] The kit is installed on each machine · stage: building · check: `diff -r kit/setup ~/.claude/skills/setup` (this machine: no difference; the second machine: unchecked)
+- [ ] The kit is installed on each machine · stage: building · check: `diff -r kit/setup ~/.claude/skills/setup` (not re-run on T-0039, whose `/setup` was told not to read `~/.claude/skills`; on T-0033 this machine showed no difference and the second machine was unchecked)
 
 ## documentation
 
@@ -113,16 +113,20 @@ rather than deleting it, so a re-run doesn't add it back.
 - [x] `quality.typecheck.clean` Typecheck is clean · stage: foundation · check: `pnpm typecheck` and `pnpm --filter @arynbht/rivetari-desktop typecheck`
 - [x] `quality.lint.clean` Lint is clean · stage: foundation · check: `pnpm lint`
 - [x] Format is clean · stage: foundation · check: `pnpm format`
-- [x] `quality.boundaries.clean` Module boundaries hold · stage: foundation · check: `pnpm boundaries` (no violations, 145 modules)
-- [x] `quality.tests.pass` Tests exist and pass · stage: foundation · check: `pnpm test` (34 files, 170 tests passed)
+- [x] `quality.boundaries.clean` Module boundaries hold · stage: foundation · check: `pnpm boundaries` (no violations, 154 modules)
+- [x] `quality.tests.pass` Tests exist and pass · stage: foundation · check: `pnpm test` (38 files, 207 tests passed)
 - [x] `quality.required-checks.named` `ci` is required before a merge to main · stage: foundation · check: `gh api repos/arynbht/Rachetari/branches/main/protection` (`required_status_checks.contexts: ["ci"]`)
 - [x] `review --pr` posts COMMENT or REQUEST_CHANGES and never APPROVE · stage: building · check: the never-APPROVE test (`review-never-approve.test.ts` passes), and one real review on a PR here (PR #4: `COMMENTED`)
 - [x] The shell's views read only the kit files, through one module · stage: building · check: the shell's unit tests on a fixture repo (`pnpm test`: `apps/desktop/src/main/kit/source.test.ts` and the engine tests on `test/kit-fixture.ts` pass)
-- [ ] `quality.coverage.floor` A coverage floor is set and met · stage: hardening · check: `pnpm test` with thresholds in `vitest.config.ts` (no thresholds set; today 47.12% lines, 80.93% branches, 74.49% functions)
+- [ ] `quality.coverage.floor` A coverage floor is set and met · stage: hardening · check: `pnpm test` with thresholds in `vitest.config.ts` (no thresholds set; today 48.5% lines, 81.78% branches, 75.76% functions)
+- [x] Lint fails on unused code · stage: foundation · check: `pnpm exec eslint --print-config packages/cli/src/cli.ts` (`@typescript-eslint/no-unused-vars` at 2, error) new
+- [ ] Complexity and file-length limits are set · stage: foundation · check: `pnpm exec eslint --print-config packages/cli/src/cli.ts` (neither `complexity` nor `max-lines` is in the resolved rules; `eslint.config.js` sets no limits) new
+- [ ] A dead-code check runs · stage: foundation · check: knip in a `package.json` script and in `.github/workflows/ci.yml`, then `pnpm exec knip` (no script or CI step names knip; `pnpm exec knip --version`: `Command "knip" not found`, so knip is missing) new
+- [ ] `/done` runs the comment report · stage: foundation · check: `.claude/skills/done/SKILL.md` calls `comment-report.mjs` and the script is beside it (nothing under `.claude/skills/` names `comment-report`; `.claude/skills/done/` holds only `SKILL.md`) new
 
 ## security
 
-- [x] No secrets in the repo · stage: foundation · check: `gitleaks git --redact .` and `gitleaks dir --redact .` (269 commits, no leaks)
+- [x] No secrets in the repo · stage: foundation · check: `gitleaks git --redact .` and `gitleaks dir --redact .` (343 commits, no leaks)
 - [ ] `sec.secret-scanning.pre-commit` Secret scanning runs before commit · stage: foundation · check: look for a pre-commit hook running gitleaks (none)
 - [x] `sec.secret-scanning.ci` Secret scanning runs in CI · stage: hardening · check: the `secret-scan` job (gitleaks-action) in `.github/workflows/ci.yml`
 - [ ] `sec.dependabot-security-updates` Dependabot security updates enabled · stage: hardening · check: `gh api repos/arynbht/Rachetari/automated-security-fixes` (`enabled: false`)
@@ -138,7 +142,7 @@ rather than deleting it, so a re-run doesn't add it back.
 - [x] `test.runner.configured` Test runner configured · stage: building · check: `vitest.config.ts`
 - [x] `test.runner.in-ci` Tests run in CI · stage: building · check: the `test` job in `.github/workflows/ci.yml`; `gh pr checks 44` shows six shards passing
 - [x] `test.coverage-config` Test coverage configured · stage: building · check: the `coverage` block in `vitest.config.ts` (v8, json-summary)
-- [x] `test.e2e.present` End-to-end tests present · stage: building · check: `apps/desktop/e2e/*.e2e.ts` (11 files)
+- [x] `test.e2e.present` End-to-end tests present · stage: building · check: `apps/desktop/e2e/*.e2e.ts` (13 files)
 
 ## ux
 
