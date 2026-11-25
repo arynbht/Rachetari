@@ -1,7 +1,7 @@
 # T-0056 · ci: desktop-e2e uploads its screenshots as a run artifact
 
-Status: ready
-Branch: card/T-0056 · Held by: nobody
+Status: in progress
+Branch: card/T-0056 · Held by: session T-0056
 Created: 2026-11-25 · Source: owner's answer to T-0041's question · Gate: needs you (CI change), approved by the owner 2026-11-25
 
 ## Why
