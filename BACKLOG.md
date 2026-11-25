@@ -8,19 +8,10 @@ Ordered. The top line becomes the next `CARD.md`.
 
 1. Give the tests that drive real git a longer timeout on Windows, and record how long the fetch test takes there (it hit 30 s on PR #30's CI, then took 961 ms on the re-run) · from owner, 2026-11-25 (T-0016)
 2. A `card/*` branch whose card is already in `cards/done/` shows as done, not as an unreadable card in Needs you · from owner, 2026-11-25
-3. PR review transplanted: `review --pr` posts COMMENT or REQUEST_CHANGES, never APPROVE, with its tests (T-0004) · from build prompt phase 2
-4. Area skills: the clean, permissively licensed ones into `skills/` with `skills/INDEX.md` · from build prompt phase 3
-5. Shell frame: window, sidebar, fence, tab bar, theme · from build prompt phase 4.1
-6. Shell file source with unit tests on a fixture repo · from build prompt phase 4.2
-7. Shell Now view · from build prompt phase 4.3
-8. Shell Tasks view · from build prompt phase 4.4
-9. Shell Checklist view · from build prompt phase 4.5
-10. Shell History and Docs · from build prompt phase 4.6
-11. Shell Map · from build prompt phase 4.7
-12. Shell Home, badges and notifications · from build prompt phase 4.8
-13. Hand-over: run `/setup`, `/card`, `/park`, `/done`, `/handoff` once on a scratch repo · from build prompt phase 5
-14. Set a coverage floor once the review tests land · from checklist "coverage floor"
-15. Require `ci` on main (repo setting, owner only) · from checklist "ci required on main"
+3. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from owner, 2026-11-25
+4. Tasks: opening a card shows its record without a scroll to the bottom, either in a panel beside the board or scrolled into view; the card proposes which, with a screenshot of each · from owner, 2026-11-25
+5. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from owner, 2026-11-25
+6. Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
