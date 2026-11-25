@@ -17,7 +17,8 @@ Each one is checked by something that can be run or looked at. No criterion with
 - [ ] A3: `NowState` gains `questions`: one group per readable live card with at least one open (unticked) question, in card-id order, each `{ id, title, branch, questions: [{ n, ask, recommended, options }] }`, with `n` counting the card's open questions from 1. Answered (`[x]`) questions, and a blocked card with no open question, add no row. Needs you is unchanged: still one `question` item per card · check: same file, test "groups each card's open questions, in card order"; `pnpm exec vitest run apps/desktop/src/main/engine/now.test.ts` passes unedited
 - [ ] A4: `openQuestionsText(groups)` in `shared/open-questions.ts` writes `docs/open-questions.md`'s format: per card `## T-NNNN · title`, a blank line, `N. <ask> — Recommended: <r>. Other options: <a>; <b>.` per question, a blank line, `Answer:`, and one blank line between cards. No `Recommended` gives `N. <ask>`; no options drops `Other options`; a period already ending `<r>` or the options isn't doubled. Rebuilt from T-0022's two question lines, it equals that card's section of `docs/open-questions.md` at `4aeaa5d` (inlined in the test) byte for byte · check: same file, tests "Copy all writes the open-questions format" and "rebuilds T-0022's section of open-questions.md exactly"
 - [ ] A5: Now shows a "Questions" region below Needs you: a heading per card (`T-NNNN · title`), then one row per open question with its text, `Recommended: …` (or "No recommendation written") and its other options. A "Copy all" button puts A4's text for every open question on the clipboard and announces "Copied" in a live region. The panel has no button that writes to the repo, and the page has no axe violations · check: `pnpm --filter @arynbht/rivetari-desktop e2e -- questions.e2e.ts`, tests "the Questions panel shows one row per open question, grouped by card, each with its recommendation" and "Copy all puts every open question on the clipboard in open-questions.md's format" (the clipboard is read through `app.evaluate(({ clipboard }) => clipboard.readText())`); `desktop-e2e` green on the PR; screenshot `docs/screenshots/T-0026/questions.png`, taken by that run with `SCREENSHOT_DIR`, committed and looked at
-- [ ] A6: Nothing else moves. Every existing test passes, and none is edited except `home.test.ts` gaining `questions: []` (only if the owner approves question 2). Lint and typecheck pass · check: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter @arynbht/rivetari-desktop typecheck`, `git diff --stat origin/day/2026-11-25` (only the files below), `gh pr checks` (`ci` green)
+- [ ] A6: Nothing else moves. Every existing test passes, and none is edited except `home.test.ts` gaining `questions: []` (approved, question 2). Lint and typecheck pass · check: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter @arynbht/rivetari-desktop typecheck`, `git diff --stat origin/day/2026-11-25` (only the files below), `gh pr checks` (`ci` green)
+- [ ] A7: Free-form questions already in cards still read (owner, question 3). A question line not in the template's shape is one question: one row in `NowState.questions` with the whole first line as `ask`, `recommended: null`, `options: []`. Its card still parses (no `unreadable` item in Needs you), and the panel shows "No recommendation written". Covered by real lines from `day/2026-11-25` at `c3e853e`, inlined in the test: T-0016's first question (has `—` but no `Recommended:`), T-0020's first (continuation lines below it), and the fixture's `Round half up or half even?`; T-0019's first question (`Recommended:` with no `—`) gives its ask and recommendation · check: `pnpm exec vitest run apps/desktop/src/main/engine/questions.test.ts`, test "reads free-form questions in existing cards as one question with no recommendation"; A5's first e2e test also shows the seeded blocked T-0005's `Round half up or half even?` row with "No recommendation written"
 
 ## Files in scope
 
@@ -30,7 +31,7 @@ Only these may be edited. Anything else needs a stop-and-ask.
 - `apps/desktop/src/shared/open-questions.ts` (new: `openQuestionsText`)
 - `apps/desktop/src/renderer/components/Now.tsx` (the Questions region)
 - `apps/desktop/src/main/engine/questions.test.ts` (new), `apps/desktop/e2e/questions.e2e.ts` (new)
-- `apps/desktop/src/main/engine/home.test.ts` (`questions: []` in its `NowState` literal; only with question 2 approved)
+- `apps/desktop/src/main/engine/home.test.ts` (`questions: []` in its `NowState` literal; approved, question 2)
 - `docs/screenshots/T-0026/questions.png` (new)
 - `CARD.md`, `cards/done/T-0026.md`, `BACKLOG.md` (Parked lines only: on the line, cards never edit Next up)
 
@@ -39,7 +40,7 @@ Only these may be edited. Anything else needs a stop-and-ask.
 Named on purpose, so the session doesn't drift into them.
 
 - The next card, "answer from the Questions panel": "Accept recommended" per question, "Accept all recommended" per card and a free-text answer, each written into the card's `CARD.md` as a previewed plain commit (the shell's first write, new IPC in `shared/ipc.ts`, `preload/index.ts` and `main/index.ts`). It should share one write path with §Shell action: mark ready (question 4)
-- Changing Needs you, its `question` item, the badge or notifications; `now.test.ts`, `now.e2e.ts`, `home.e2e.ts`, `test/kit-fixture.ts` stay as they are (the e2e pushes its own card through `fx.pushToOrigin`)
+- Changing Needs you, its `question` item, the badge or notifications; `now.test.ts`, `now.e2e.ts`, `home.e2e.ts`, `test/kit-fixture.ts` stay as they are (the e2e pushes its own card through `fx.pushToOrigin`; `cardText`'s `question` holds one line, so the e2e replaces that line in `cardText`'s output with its own question lines)
 - The template's `Created:` line writing a `Gate:` (Parked on T-0019), the kit's `/card` skill text, and `.claude/skills/**`
 - Tasks' record view of questions
 
@@ -50,7 +51,8 @@ Named on purpose, so the session doesn't drift into them.
 - Options are separated by `;`. "Copy all" prints the card's `Options:` as `Other options:`, the wording `docs/open-questions.md` uses.
 - The clipboard is written from the renderer with `navigator.clipboard.writeText`.
 - `openQuestionsText` is pure and has no imports, so the renderer and vitest share it.
-- Every existing test other than `home.test.ts` (A6) passes without an edit.
+- Every existing test other than `home.test.ts` (A6) passes without an edit. `now.e2e.ts` selects `"4 waiting"` page-wide and Needs you by `/Needs you/`, so the panel's region is labelled "Questions" and shows no "N waiting" text.
+- `questions` skips a branch still being drafted (`live.drafting`) and an unreadable card, as Needs you does. It ignores `gate`: a card's open questions show whatever its gate.
 
 ## Skills
 
@@ -64,14 +66,13 @@ At most three, from `skills/INDEX.md`. Read these and no others.
 
 Besides the standing list in CLAUDE.md:
 
-- Depends on: T-0019 (`apps/desktop/src/main/kit/parse.ts`, `apps/desktop/src/main/engine/now.ts`). Start after it merges into `day/2026-11-25`, and merge the day branch into this one (no rebase).
 - If `navigator.clipboard.writeText` is refused in the shell (sandboxed renderer, a permission handler, or an unfocused window in e2e). A clipboard IPC channel through main is a contract change.
 - If T-0021's `axe.e2e.ts`, once merged, scans Now and fails on the new panel in a way the panel's own fix doesn't cover.
 - If showing the panel needs `App.tsx` (T-0024 edits it) or any change to Needs you.
 
 ## Next step
 
-Waiting on the owner: answer the four questions below, then set ready. A builder starts once T-0019 has merged, with A2's failing test in `questions.test.ts`.
+Ready to build. Start with A2's failing test in `questions.test.ts` ("splits a question into its ask, recommendation and options"), then A7's.
 
 ## Decisions
 
@@ -88,6 +89,11 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Split: this card is the read-only half (template, parser, `NowState.questions`, panel, Copy all); answering from the panel is the next card. Pending the owner's answer to question 1.
 - 2026-11-25: Overlaps checked against the in-flight cards: only T-0019 shares files (`parse.ts`, `now.ts`). T-0023 and T-0025 edit `kit/setup/**` but not `kit/setup/templates/CARD.md`. T-0024's `App.tsx` and T-0021's two new e2e files aren't touched here.
 - 2026-11-25: Owner's answers (19:26:12): split in two; required `NowState.questions` and the `home.test.ts` edit approved; both templates identical, and the parser still reads free-form questions in existing cards as one question with no recommendation (not unreadable) — a criterion the builder must cover; the write path is settled for the next card. Set ready by the foreman.
+- 2026-11-25: T-0019 merged into `day/2026-11-25`, so its "Depends on" line is removed. `Card` gained `gate`, `cardText` an optional `gate`, and `needsYouItems` asks approval only for a gated draft that isn't `low`. The `question` item, `Question` and the "Questions for me" loop are unchanged, so no criterion moves. No dependency on T-0024: this card needs neither `kit/source.ts` nor `App.tsx` (the stop-and-ask on `App.tsx` stays).
+- 2026-11-25: Added A7 for the owner's answer 3 (free-form questions in existing cards read as one question with no recommendation), with real lines from the done cards as its cases.
+- 2026-11-25: decided for the owner: a question written over several lines (T-0020's, with numbered options below it) shows its first line only, the text Needs you shows today (alternative: fold indented continuation lines into the ask, which changes `Question.text` and Needs you). Parked.
+- 2026-11-25: decided for the owner: `questions` skips branches still being drafted, as Needs you does, and ignores `gate` (alternative: show a drafting branch's questions too).
+- 2026-11-25: Pre-build re-check against day/2026-11-25 at c3e853e: T-0019 and T-0022 merged; no criterion contradicted; A7 added for the owner's answer 3, constraints added for drafting branches and `now.e2e.ts`'s page-wide "4 waiting"; still ready.
 
 ## Questions for me
 
