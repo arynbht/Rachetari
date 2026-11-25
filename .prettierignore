@@ -15,3 +15,7 @@ apps/desktop/playwright-report/**
 
 # Reports and documents kept as authored.
 inventory/**
+
+# The kit and the spec, kept exactly as the owner wrote them.
+SCOPE.md
+kit/**
