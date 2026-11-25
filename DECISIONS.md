@@ -68,3 +68,40 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
 - **Chose:** (a), for every card tonight. Each card says which branch it's stacked on,
   and its criteria come from the build prompt and `inventory/PHASE-0.md`, not new scope.
 - **Reverse:** set any card back to `draft` and re-plan it.
+
+## D-07 · T-0005 · Which skills count as "passed the scan cleanly"
+
+- **Question:** The owner's rule takes only skills that passed the scan cleanly with a
+  permissive license. Five skills passed only because the owner had allowed a flagged
+  line; three are CC-BY-SA-4.0.
+- **Options:** (a) clean means no finding at all, allowed or not; (b) clean includes
+  allowed lines.
+- **Chose:** (a). An allowed line is a finding the owner accepted for Rivetari; tonight
+  the owner isn't here to accept it again. Those five and the three CC-BY-SA skills are
+  shelved with issues (S-02 to S-09), each with a recommendation.
+- **Reverse:** take any of them from its issue; the skill folder copies in unchanged.
+
+## D-08 · T-0005 · Skills shelved after reading, though they scanned clean
+
+- **Question:** Reading the bodies found things the scan rules don't catch:
+  `skill-creator` loads a remote script in `eval-viewer/viewer.html`; `accessibility-lead`
+  pre-justifies running hidden skill files to subagents and needs ~35 absent siblings
+  (its contract `a11y-core` is useless alone); `webapp-testing` tells the agent to run
+  its scripts before reading them; `hallmark` ships a hook installer.
+- **Options:** (a) shelve them; (b) take them with notes.
+- **Chose:** (a) for all five (S-12 to S-15). Remote code and hook installers are on the
+  owner's stop list; the other two can't be judged safe without the owner.
+- **Reverse:** take any of them from its issue.
+
+## D-09 · T-0005 · A skill with several areas, and native-writing's extra files
+
+- **Question:** A manifest can list several sectors (`code-review-and-quality`:
+  workflow, security, perf, api), and `native-writing` is its upstream repo root, so it
+  brings `.github/`, `evals/` and a README with an `npx skills add` line for people.
+- **Options:** for the area, (a) the manifest's first sector, (b) a sector chosen by
+  judgement. For native-writing, (a) copy the folder unchanged, (b) copy only
+  `SKILL.md` and `references/`.
+- **Chose:** the first sector, and native-writing unchanged. "Unchanged" is the rule, the
+  hash check depends on it, and a nested `.github/` has no effect on this repo.
+- **Reverse:** move a folder to another area and update `skills/INDEX.md`; or delete
+  native-writing's extra files (its hash would no longer match).

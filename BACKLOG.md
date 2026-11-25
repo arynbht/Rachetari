@@ -43,6 +43,10 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] The review withholds `redact.ts`, `redact.test.ts` and `tier2.test.ts` as "looks like it holds a secret" (fake tokens in tests), so it never reviews its own redaction · seen on T-0004 · review on PR #4
 - 2026-11-25 [tool] One review of PR #4 (45 files, 123k tokens) cost an estimated $1.02 at medium effort · seen on T-0004 · `review --pr 4`
 - 2026-11-25 [tool] Reviews on your own PR can only be COMMENT (GitHub refuses REQUEST_CHANGES from the author), so a blocking finding shows only in the body · seen on T-0004 · `packages/runtime/src/judge/review.ts`
+- 2026-11-25 [product] The addyosmani skills link to sibling skills and `../../references/*.md` that aren't in `skills/`; the links are dead · seen on T-0005 · `skills/workflow/*/SKILL.md`
+- 2026-11-25 [product] `webapp-testing`'s `with_server.py` pipes server output without reading it, so a chatty dev server can hang it (if the skill is ever taken) · seen on T-0005 · S-15
+- 2026-11-25 [product] `data-inventory-mapping`'s example company "Vanguard Financial Services" reads like a real brand · seen on T-0005 · `skills/legal/data-inventory-mapping/assets/template.md`
+- 2026-11-25 [tool] The old skill scan matches hook declarations but not hook-installer code or remote scripts in HTML (hallmark, skill-creator); reading each body caught them · seen on T-0005 · `SHELVED.md` S-12, S-13
 
 ## Repo checklist
 
