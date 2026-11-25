@@ -8,12 +8,15 @@ import {
   IpcChannel,
   PingRequest,
   type PingResponse,
+  RepoFetchRequest,
   RepoList,
   RepoRemoveRequest,
   SettingsSaveRequest,
   SettingsView,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
+import { fetchRepo } from "./kit/source";
+import { registeredRepo } from "./store/registered";
 import { addRepo, listRepos, removeRepo } from "./store/repos";
 import { loadSettings, saveSettings } from "./store/settings";
 
@@ -190,6 +193,15 @@ function createWindow(): void {
   }
 }
 
+/**
+ * The registered repo a request names, as main's own list spells it. Every
+ * handler that takes a repo path goes through here, so a renderer that sends
+ * any other folder is refused before anything there is read or written.
+ */
+async function registered(asked: string): Promise<string> {
+  return registeredRepo(asked, await listRepos());
+}
+
 function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.Ping, (_event, raw: unknown) => {
     const request = PingRequest.parse(raw); // re-validate the renderer's request
@@ -221,6 +233,11 @@ function registerIpcHandlers(): void {
     const { path } = RepoRemoveRequest.parse(raw);
     const repos = RepoList.parse(await removeRepo(path));
     return repos;
+  });
+
+  ipcMain.handle(IpcChannel.ReposFetch, async (_event, raw: unknown) => {
+    const { repoPath: asked } = RepoFetchRequest.parse(raw);
+    await fetchRepo(await registered(asked));
   });
 
   ipcMain.handle(IpcChannel.SettingsLoad, async () =>
