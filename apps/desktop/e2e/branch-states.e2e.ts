@@ -38,14 +38,14 @@ function removedCard(repo: string, id: string): void {
 test.beforeEach(async () => {
   fx = kitFixture();
   const repo = fx.repo;
-  // The day branch: T-0007 closed there today.
-  git(repo, "checkout", "-q", "-b", "day/2026-11-25", "main");
+  // develop: T-0007 closed there today.
+  git(repo, "checkout", "-q", "-b", "develop", "main");
   commitFile(
     repo,
     "cards/done/T-0007.md",
     cardText({ id: "T-0007", title: "feat: closed today", status: "done" }),
   );
-  // Done branches: on the default branch, and on the day branch.
+  // Done branches: on the default branch, and on develop.
   removedCard(repo, "T-0001");
   removedCard(repo, "T-0007");
   // Drafting: no CARD.md committed yet.
@@ -109,7 +109,7 @@ test("Tasks greys a drafting branch and shows a done branch under Done", async (
     });
   }
 
-  // The card closed on the day branch opens.
+  // The card closed on develop opens.
   await done.getByRole("button", { name: /T-0007/ }).click();
   const record = page.getByRole("region", { name: "T-0007 record" });
   await expect(record.getByText("add cards/done/T-0007.md")).toBeVisible();
