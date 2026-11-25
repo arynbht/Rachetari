@@ -11,6 +11,8 @@ export const IpcChannel = {
   ReposList: "repos:list",
   ReposAdd: "repos:add",
   ReposRemove: "repos:remove",
+  /** Fetch a repo's remotes, so the other machine's card branches appear. */
+  ReposFetch: "repos:fetch",
   SettingsLoad: "settings:load",
   SettingsSave: "settings:save",
 } as const;
@@ -41,6 +43,9 @@ export type RepoList = z.infer<typeof RepoList>;
 
 export const RepoRemoveRequest = z.object({ path: z.string().min(1) });
 export type RepoRemoveRequest = z.infer<typeof RepoRemoveRequest>;
+
+export const RepoFetchRequest = z.object({ repoPath: z.string().min(1) });
+export type RepoFetchRequest = z.infer<typeof RepoFetchRequest>;
 
 // Settings — personal preferences in `userData` (never the repo).
 export const Theme = z.enum(["system", "light", "dark"]);

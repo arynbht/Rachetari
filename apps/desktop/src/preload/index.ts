@@ -8,6 +8,7 @@ import {
   IpcChannel,
   PingRequest,
   PingResponse,
+  RepoFetchRequest,
   RepoList,
   RepoRemoveRequest,
   SettingsSaveRequest,
@@ -39,6 +40,13 @@ const api = {
         request,
       );
       return RepoList.parse(raw);
+    },
+    /** Fetch the repo's remotes, so the other machine's card branches appear. */
+    async fetch(repoPath: string) {
+      await ipcRenderer.invoke(
+        IpcChannel.ReposFetch,
+        RepoFetchRequest.parse({ repoPath }),
+      );
     },
   },
 

@@ -125,3 +125,35 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
 - **Chose:** (a). It is stricter than the source and changes nothing a person can see:
   no view attaches a webview yet. T-0012 puts the source's check back.
 - **Reverse:** n/a; T-0012 replaces it.
+
+## D-12 · T-0007 · How the file source reads formats the kit leaves open
+
+- **Question:** §6.1 says what to read but not how to settle a few details the kit's
+  files don't pin down.
+- **Options and choices:**
+  - _Default branch:_ origin's `HEAD`, else `main`, else `master`, else the current
+    branch. (Alternative: always `main`.)
+  - _A card on both a local branch and its remote-tracking copy:_ the local one is
+    shown, since that's what this machine would work on. (Alternative: the newer one.)
+  - _Night reports:_ the format isn't fixed until the night runner exists, so a table
+    row counts as merged, held or blocked by a cell that starts with that word.
+  - _Checklist lines:_ `[x]` is pass, `[ ]` is fail, `[ ] unchecked:` is unchecked,
+    `- n/a:` is n/a, and a trailing `new` marks a line `/setup` added — as `/setup`
+    writes them.
+  - _Skills:_ only the first table in `skills/INDEX.md` (the skills taken), not the
+    shelved table.
+  - _A card that doesn't parse:_ it needs a `# T-NNNN · title` line and a `Status:`
+    line; anything else is shown as unreadable with its branch.
+- **Why:** each is the simplest reading of the kit's own templates, and each is one
+  function in `apps/desktop/src/main/kit/parse.ts` or `source.ts`.
+- **Reverse:** change that function and its test.
+
+## D-13 · T-0007 · What opening a non-git folder does
+
+- **Question:** "Add" accepts any folder. Opening a repo now fetches it; a folder that
+  isn't a git repo (or a fetch with no network) fails.
+- **Options:** (a) show "Couldn't fetch this repo: …" in the repo's error box and carry
+  on; (b) say nothing.
+- **Chose:** (a). The source showed every repo error in that box; staying quiet would
+  hide why the other machine's cards are missing.
+- **Reverse:** drop the `.catch` message in `App.tsx`'s `handleSelect`.

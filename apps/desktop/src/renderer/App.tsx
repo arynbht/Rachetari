@@ -167,6 +167,10 @@ export function App() {
     setError(null);
     setView(DEFAULT_VIEW);
     setOpened(new Set<View>([DEFAULT_VIEW])); // fresh state for the new repo
+    // Opening a repo fetches it, so the other machine's card branches appear.
+    window.rivetari.repos.fetch(path).catch((err: unknown) => {
+      setError(`Couldn't fetch this repo: ${errorMessage(err)}`);
+    });
   }
 
   const selectedRepo = repos.find((r) => r.path === selected) ?? null;
