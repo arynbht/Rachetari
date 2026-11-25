@@ -1,7 +1,7 @@
 # T-0036 · feat(shell): fetch every repo in the background and show it in the header
 
-Status: done <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0036 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0036 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Shell: live shell (part 3 of 3), §Shell: background fetch · Gate: low
 
 ## Why
@@ -138,8 +138,8 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Done; draft PR open against develop (#57, T-0035, merged first). Next: CI's unit tests and
-desktop-e2e on the PR (A5's CI half, UNTESTED here), then the owner's inspection and merge.
+Back from CI: desktop-e2e failed (run 45708170904) on `shell-status.e2e.ts:176`. Fix the
+test's last steps, push, and watch desktop-e2e on PR #59.
 
 ## Decisions
 
@@ -165,10 +165,16 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The live status is read in a `setTimeout` chain started with the window and stopped on close (a run counter drops a read that lands late), decided for the owner (alternative: `setInterval`, which can overlap a slow read).
 - 2026-11-25: `ShellStatus` subscribes to main's status itself and shows the fetch of the repo `now:select` names, so `DisplayBranchLine`'s props and the three views stay unchanged, decided for the owner (alternative: pass the repo down, editing Now, Tasks and Checklist).
 - 2026-11-25: `FetchLoop.stop()` leaves the loop restartable by `setRepos`, as the NowHub's is, so a window reopened on macOS (`activate`) fetches again, decided for the owner (alternative: a one-shot loop and a new one per window).
+- 2026-11-25: Back from CI: desktop-e2e hard-coded a commit sha (run 45708170904, `shell-status.e2e.ts:176` expected "running d5e49a1"). Reopened, `Held by: AB_Rouge`. BACKLOG.md restored to develop's (owner rule: cards never edit it); its two lines moved to Parked below.
 
 ## Questions for me
 
 None.
+
+## Parked
+
+- 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
+- 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
 
 ## Done
 
