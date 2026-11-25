@@ -198,3 +198,14 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
 - **Chose:** (a), the source's design. A record is looked up by the board's key in that
   snapshot, never by a path the renderer sends.
 - **Reverse:** n/a.
+
+## D-18 · T-0012 · When the Map shows a map
+
+- **Question:** The source showed a map only when `floorplan/` also held one of the
+  generator's data files (`architecture.json`, `plan.json`, `graph.json`, `.cache`).
+  The build prompt says the Map shows one "whenever `floorplan/index.html` exists".
+- **Options:** (a) the prompt's rule: `index.html` alone; (b) the source's rule.
+- **Chose:** (a). The generator is left behind, and the prompt's fixture has only an
+  `index.html`. The fence is unchanged, so a page that isn't a floorplan map still can't
+  reach outside `floorplan/`.
+- **Reverse:** put `isFloorplanMap` back in `getMap` (`engine/map.ts`).

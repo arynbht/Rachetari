@@ -48,13 +48,14 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy `map.ts`, `RepoMap.tsx` and `map-fence.test.ts` verbatim, then cut.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: The map shows on `floorplan/index.html` alone, as the prompt says (D-18)
 
 ## Questions for me
 
