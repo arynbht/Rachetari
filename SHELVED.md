@@ -140,3 +140,21 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** Owner's call; (a) is reasonable since the scripts were read and are local-only.
 - **Placeholder:** A row in `skills/INDEX.md` marked shelved; no folder.
 - **Issue:** [#19](https://github.com/arynbht/Rachetari/issues/19)
+
+## S-16 · T-0006 · The shell's GitHub sign-in card (device flow, CI and PR state)
+
+- **What:** Phase 4 card 9: GitHub device-flow sign-in in the sidebar, then CI and PR state on Home, Now and Tasks. About 5 files and ~800 lines (`main/auth/*`, `AuthControls.tsx`, the CI and PR readers and their IPC).
+- **Why:** The owner's overnight rules always shelve the GitHub sign-in card. It also needs two new sources: a client id (Rivetari's came from `rivetari app register`, which stayed behind) and the PR number (Rivetari read it from the task ledger; here it would come from the card's "Draft PR opened: #" line).
+- **Options:** (a) Build it: register an OAuth app with device flow for the client id, read PR numbers from cards. (b) Use the `gh` CLI's token instead of a device flow. (c) Leave CI and PR state out of the shell.
+- **Recommend:** (b) is the smallest, but it means the shell runs `gh`, which Rivetari's shell never did; (a) keeps the transplant faithful. Owner's call.
+- **Placeholder:** The sidebar says "GitHub sign-in isn't built: it's shelved (see SHELVED.md)" where the sign-in panel was. No CI or PR cell is shown anywhere.
+- **Issue:** [#21](https://github.com/arynbht/Rachetari/issues/21)
+
+## S-17 · T-0006 · Salvage the copied shell tests that would need edits
+
+- **What:** Rivetari shell tests whose checks still apply but which call dropped channels or runtime fixtures: `e2e/axe.e2e.ts`, `e2e/registered-repos.e2e.ts`, `e2e/shell-defaults.e2e.ts`, `e2e/history-scroll.e2e.ts`, honest-basics test 4, `src/main/store/settings.test.ts`, the CI tests in `now-health.test.ts`, `docs.test.ts`.
+- **Why:** In phase 0 the owner chose "edit them, and list each edit" (S1). Tonight's rules say always shelve a copied test that would need changing, so they are dropped and listed in EXTRACTED.md, and new tests cover the kept views instead.
+- **Options:** (a) Copy each one and edit it, listing every edit (the phase 0 decision). (b) Keep only the new tests.
+- **Recommend:** (a) for `registered-repos.e2e.ts` and `axe.e2e.ts` at least: they check the fence and accessibility across views, which the new per-view tests cover only in part.
+- **Placeholder:** None in the code: the new e2e tests stand on their own. The dropped tests are listed in EXTRACTED.md under each card.
+- **Issue:** [#22](https://github.com/arynbht/Rachetari/issues/22)

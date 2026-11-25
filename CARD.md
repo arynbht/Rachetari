@@ -27,6 +27,7 @@ Only these may be edited. Anything else needs a stop-and-ask.
 - `apps/desktop/**` (only the files listed in `EXTRACTED.md` for T-0006, plus new e2e specs and fixtures)
 - `.github/workflows/ci.yml` (the desktop steps cut in T-0001, and nothing else)
 - `pnpm-lock.yaml`, `eslint.config.js` (only if the renderer needs it), `.prettierignore`
+- `docs/screenshots/T-0006/*.png` (evidence for the PR)
 - `EXTRACTED.md`, `BACKLOG.md`, `DECISIONS.md`, `SHELVED.md`, `CARD.md`, `cards/done/T-0006.md`
 
 ## Out of scope
@@ -52,13 +53,16 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Commit the verbatim copy, then cut `main/index.ts`, `preload/index.ts`, `shared/ipc.ts` and `App.tsx`.
+Push, open the draft PR, wait for CI (desktop-e2e included), run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: Screenshots are committed under `docs/screenshots/<card>/` so the PR can show them (the API can't attach images)
+- 2026-11-25: Copied tests that would need edits are dropped and listed; the salvage is shelved (D-10, S-17); sign-in is shelved (S-16)
+- 2026-11-25: Until the Map card, every webview attach is refused (D-11)
 
 ## Questions for me
 
