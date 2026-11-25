@@ -71,6 +71,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] An empty `Gate:` (no value) parses as null and raises nothing, though a gate line is written; it arguably should ask, like any gate that is not `low` · seen on T-0019 inspection · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] `playwright-cli` suggests an unpinned global install, `npm install -g @playwright/cli@latest`, when the CLI is missing; a pinned version installed ahead of time would keep runs reproducible · seen on T-0022 · `skills/testing/playwright-cli/SKILL.md:415`
 - 2026-11-25 [product] `playwright-cli` bootstraps a missing Playwright install with the unpinned scaffolder `npm init playwright@latest` · seen on T-0022 · `skills/testing/playwright-cli/references/test-generation.md:159`
+- 2026-11-25 [tool] GitHub ignores `BACKLOG.md merge=union`, so a card PR whose Parked lines meet the day branch's shows CONFLICTING though `git merge-tree` and the foreman's local merge are clean (PR #37) · seen on the line · `.gitattributes`
 
 ## Repo checklist
 
