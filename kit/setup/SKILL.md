@@ -31,10 +31,15 @@ Notes from me: $ARGUMENTS
 - Files: `BACKLOG.md`, `cards/TEMPLATE.md` (from `templates/CARD.md`), `cards/done/`,
   `nights/`, the "How work is done here" section for `CLAUDE.md` (from
   `templates/CLAUDE-section.md`), and the commands `card`, `park`, `done` and `handoff`
-  into `.claude/skills/` (from `templates/skills/`).
+  into `.claude/skills/` (from `templates/skills/`). Copy each command's folder whole,
+  not just its `SKILL.md`, so `done/comment-report.mjs` lands beside `/done` in
+  `.claude/skills/done/`. A file there that differs from the kit's is kept, with the
+  kit's version beside it as `<name>.kit.<ext>`, for example `comment-report.kit.mjs`.
 - Area skills: show me `~/.claude/kit-skills/INDEX.md` and ask which areas this repo
-  needs. Copy only those into the repo's `skills/`, with an `INDEX.md` listing what was
-  copied. If the library isn't installed on this machine, say so and carry on without it.
+  needs. Copy those into the repo's `skills/`, and always copy `quality/deslop` into
+  `skills/quality/deslop/` as well, whatever areas I pick, because `/done` runs it. List
+  everything copied in `skills/INDEX.md`. If the library isn't installed on this machine,
+  say so, say that deslop wasn't copied and `/done` will skip it, and carry on without it.
 
 ## 3. Draft the fit files
 
@@ -118,6 +123,8 @@ Commit everything this run wrote as one commit on the branch from step 2, with t
 message `chore(kit): set up the direction kit`. Never push.
 
 Tell me: the branch and the commit, the stack and commands found, files written and files
-placed beside existing ones, whether `DESIGN.md` was written or skipped, the stage and
+placed beside existing ones, whether `comment-report.mjs` landed beside `/done`, whether
+deslop was copied to `skills/quality/deslop/` or not (then `/done` skips it), whether
+`DESIGN.md` was written or skipped, the stage and
 why, the count of passing, failing and unchecked lines, and the first three items in
 "Next up". Then stop. I decide what becomes a card.
