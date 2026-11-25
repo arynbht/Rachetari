@@ -1,7 +1,7 @@
 # T-0039 · feat(kit): five clean-code lines in the starter checklist
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0039 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0039 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4e-3 (and §4e's checklist bullet) · Gate: low
 
 ## Why
