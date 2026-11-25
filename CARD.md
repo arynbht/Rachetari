@@ -1,7 +1,7 @@
 # T-0038 · docs: army mode, a design for running N cards at once
 
-Status: done <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0038 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0038 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Army mode, design only · Gate: low
 
 ## Why
@@ -139,7 +139,11 @@ Appended by the session, one line each, newest last.
 
 One question per line, in this shape; options are separated by `;`.
 
-(none)
+- [x] 2026-11-25: Held at inspection on PR #51. Blocking: "Shared first" under "From
+      today's line" says a small card added the shared types and view cards then ran in
+      parallel; that didn't happen (the rule was adopted in 4b20af6 and replaced by chain
+      mode in 3496249 a minute later). Also: add the owner's answers to "Decisions for the
+      owner", cite the drop to two builders, and say what the 20-agent cap counts.
 
 ## Done
 
