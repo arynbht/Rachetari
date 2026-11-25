@@ -1,7 +1,7 @@
 # T-0047 · ci: require Ubuntu on PRs; Windows runs but is advisory
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0047 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0047 · Held by: builder A (this session)
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §CI: Windows not required on PRs; §The line, Speed-ups (_CI_) · Gate: needs you
 
 ## Why
