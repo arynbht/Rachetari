@@ -97,5 +97,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `live-shell.mjs`: a hung install, build or test stops the 30 s loop for good with no new status (needs a time limit like the fetch); re-check the live worktree for changes just before the checkout; print the dev-mode warning at start, not only in --help · seen on T-0030 inspection · `apps/desktop/scripts/live-shell.mjs`
 - 2026-11-25 [checklist] Two CHECKLIST.md lines read the repo wrongly: `ux.responsive.breakpoints` says there is no `@media` (index.css:62 has a reduced-motion query) and `a11y.target.stated` says only EXTRACTED.md mentions WCAG (index.css does too); the LF line's check prints `nights/.gitkeep` without `| grep -v i/none` · seen on T-0033 inspection · `CHECKLIST.md`
 - 2026-11-25 [tool] `/setup` edited the check (not the claim) on three of the owner's moved lines; the kit doesn't say whether a re-run may update an owner line's check · seen on T-0033 · `kit/setup/SKILL.md`
+- 2026-11-25 [product] The comment report (`diff.no-new-comments`) misses trailing comments after code, JSX `{/* */}` comments and Python docstrings, and skips `.vue` and `.css` files · seen on T-0025 · `kit/setup/templates/skills/done/comment-report.mjs`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
