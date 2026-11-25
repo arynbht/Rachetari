@@ -15,6 +15,8 @@ export interface KitFixture {
   origin: string;
   /** Push a new card branch to the origin only (seen after a fetch). */
   pushToOrigin(id: string, card: string): void;
+  /** Commit a file to the origin's main (seen after a fetch). */
+  commitOnOrigin(path: string, text: string): void;
   remove(): void;
 }
 
@@ -287,6 +289,10 @@ export function kitFixture(): KitFixture {
       write(origin, "CARD.md", card);
       commitAll(origin, `chore(card): ${id}`);
       git(origin, "checkout", "-q", "main");
+    },
+    commitOnOrigin(path, text) {
+      write(origin, path, text);
+      commitAll(origin, `docs: update ${path}`);
     },
     remove() {
       rmSync(root, { recursive: true, force: true });

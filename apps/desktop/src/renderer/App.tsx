@@ -1,6 +1,7 @@
 import { FolderPlus, House, Settings as SettingsIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { Checklist } from "@/components/Checklist";
 import { Now } from "@/components/Now";
 import { Settings } from "@/components/Settings";
 import { Tasks } from "@/components/Tasks";
@@ -374,7 +375,11 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "checklist"}
               >
-                <NotBuiltYet what="The Checklist view" card="T-0010" />
+                {/* key reads the newly selected repo's checklist afresh. */}
+                <Checklist
+                  key={selectedRepo.path}
+                  repoPath={selectedRepo.path}
+                />
               </div>
             )}
 

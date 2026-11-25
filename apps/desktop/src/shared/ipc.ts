@@ -23,6 +23,7 @@ export const IpcChannel = {
   TasksDetail: "tasks:detail",
   /** Push channel (main → renderer): one repo's cards after a change. */
   TasksUpdate: "tasks:update",
+  ChecklistGet: "checklist:get",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -246,3 +247,34 @@ export const TaskDetail = z.object({
   commits: z.array(RecentEvent),
 });
 export type TaskDetail = z.infer<typeof TaskDetail>;
+
+// Checklist — the repo checklist in BACKLOG.md on the default branch: the
+// stage and what decides it, and each line with its status and its check, as
+// /setup last recorded them. Read on demand; nothing here runs a check.
+export const ChecklistStatus = z.enum(["pass", "fail", "unchecked", "n/a"]);
+export type ChecklistStatus = z.infer<typeof ChecklistStatus>;
+
+export const ChecklistView = z.object({
+  repoPath: z.string(),
+  /** Whether the default branch has a BACKLOG.md at all. */
+  hasBacklog: z.boolean(),
+  stage: z.string().nullable(),
+  stageWhy: z.string().nullable(),
+  lastSetup: z.string().nullable(),
+  groups: z.array(
+    z.object({
+      name: z.string(),
+      lines: z.array(
+        z.object({
+          text: z.string(),
+          status: ChecklistStatus,
+          check: z.string().nullable(),
+          isNew: z.boolean(),
+        }),
+      ),
+    }),
+  ),
+});
+export type ChecklistView = z.infer<typeof ChecklistView>;
+
+export const ChecklistRequest = z.object({ repoPath: z.string().min(1) });
