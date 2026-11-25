@@ -47,7 +47,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Gate is `needs you`; the owner approves, then the card goes ready. A builder starts with A1: split the largest self-contained groups (packing, prompt building) out of `tier2.ts`.
+Split done and pushed: tier2-pack/prompt/render.ts, overrides removed, eslint and typecheck clean. Waiting for the test lock: run `pnpm -r test`, fill Evidence, tick criteria, done check, draft PR.
 
 ## Decisions
 
