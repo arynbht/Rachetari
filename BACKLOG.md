@@ -8,16 +8,14 @@ Ordered. The top line becomes the next `CARD.md`.
 
 1. Shell: live shell part 3: background fetch of every registered repo every 60 s; the header shows the running commit, "fetched N s ago", a failed fetch and a behind warning (low; after T-0024 and T-0026) · from `docs/queue-2026-11-25.md` §Shell: live shell
 2. Checklist by section, the shell, part 2: Home shows each repo's stage and its section with the most gaps (low; after T-0034) · from `docs/queue-2026-11-25.md` §4h. Checklist by section: the shell
-3. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
-4. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-5. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-6. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-7. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
-8. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-9. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
-10. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
-11. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-12. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+3. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
+4. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+5. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+6. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
+7. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
+8. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
+9. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+10. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
 
 ## Parked
 
@@ -123,5 +121,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] On a loaded Windows CI runner a test hit T-0024's 10 s read limit ("git log timed out after 10 s", PR #56 run 45704718735 attempt 2, test windows 3/3, with "the child never wrote its pid"); the read limit may be too tight for CI, or the test should set a longer one · seen on T-0042 · `apps/desktop/src/main/kit/source.ts`
 - 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
 - 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
+- 2026-11-25 [product] The Tasks record shows raw backticks in Files in scope and Skills (from the existing `List`), and pinned questions too; render inline code as on Now; the tasks.e2e.ts:303 comment still says "Evidence is collapsed" · seen on T-0035 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
