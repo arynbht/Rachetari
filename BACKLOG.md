@@ -7,7 +7,7 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-2. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
+2. Kit: the rest of the kit says parked lines live in the card: `kit/setup/SKILL.md` (lines 26, 102), `templates/skills/done/SKILL.md` (line 48), `templates/CHECKLIST.md` (lines 9–10) (low; follows T-0052)
 3. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
 5. CI: `desktop-e2e` sets `SCREENSHOT_DIR` and uploads the screenshots as a run artifact, so builders commit shell cards' shots from there (owner-approved CI change, answer to T-0041's question)
@@ -167,3 +167,6 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [product] Each RunningRow in Now calls `useCiState`, so every row adds its own listener and IPC read; one shared prop would do · seen on T-0051 inspection · `apps/desktop/src/renderer/components/Now.tsx:228`
 - 2026-11-25 [tool] T-0051's card record was filed unfinished: empty Evidence, "Draft PR opened: #" with no number, A1–A4 unticked though CI's desktop-e2e passed · seen on T-0051 inspection · `cards/done/T-0051.md`
 - 2026-11-25 [tool] An orphaned `grep -o` with `{0,1500}` repeats on both sides of `63`, run over the earlier foreman session's transcript (`~/.claude/projects/…/90384377-….jsonl`, started 17:14 local, parent gone), held 25.8 GB private and starved the machine; T-0045's run 2 stalled under it. Killed at the owner's word; the role files now forbid bare recursive grep, large repeat counts, and searching worktrees, node_modules, .scratch or transcripts · seen on the line · `.claude/agents/*.md`
+- 2026-11-25 [tool] `kit/**` is in `.prettierignore`, so a card's `prettier --check` on kit files passes whatever they hold; checks need `--ignore-path=` · seen on T-0052 inspection · `.prettierignore`
+- 2026-11-25 [product] Rule 3 in `CLAUDE-section.md` (line 13) and step 5 in `handoff/SKILL.md` (line 21) run past the wrap width the rest of each file keeps · seen on T-0052 inspection · `kit/setup/templates/`
+- 2026-11-25 [tool] Builders keep filing cards with the Done box "Draft PR opened: #" unticked and no number (T-0051, T-0052) · seen on T-0052 inspection · `cards/done/`
