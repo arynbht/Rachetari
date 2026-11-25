@@ -4,8 +4,13 @@ import { pathToFileURL } from "node:url";
 
 import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron";
 
+import type { ZodType } from "zod";
+
 import {
   IpcChannel,
+  NowRepoRequest,
+  NowSelectRequest,
+  NowState,
   PingRequest,
   type PingResponse,
   RepoFetchRequest,
@@ -15,6 +20,7 @@ import {
   SettingsView,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
+import { NowHub } from "./engine/now";
 import { fetchRepo } from "./kit/source";
 import { registeredRepo } from "./store/registered";
 import { addRepo, listRepos, removeRepo } from "./store/repos";
@@ -58,6 +64,42 @@ if (isDev) {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+/** A push that doesn't match the contract is said and dropped, never thrown into the watcher. */
+function push(channel: string, schema: ZodType, payload: unknown): void {
+  const parsed = schema.safeParse(payload);
+  if (parsed.success) mainWindow?.webContents.send(channel, parsed.data);
+  else
+    console.error(
+      `[main] dropped a ${channel} push that doesn't match the contract: ${String(parsed.error)}`,
+    );
+}
+
+/** Every sidebar repo's kit files, watched while the window is open (see engine/now). */
+const nowHub = new NowHub({
+  onState: (state) => push(IpcChannel.NowUpdate, NowState, state),
+  // The sidebar's badges and the OS notifications arrive with T-0013.
+  onBadges: () => undefined,
+  onNew: () => undefined,
+});
+
+/** Watch exactly these repos (the sidebar's list); a failure is said, not thrown. */
+function watchRepos(repos: { path: string }[]): void {
+  nowHub
+    .setRepos(repos.map((r) => r.path))
+    .catch((err: unknown) =>
+      console.error(
+        `[main] couldn't watch the sidebar's repos: ${String(err)}`,
+      ),
+    );
+}
+
+/** Watch the repos in the sidebar now; a failure to list them is said, not thrown. */
+function watchSidebarRepos(): void {
+  listRepos().then(watchRepos, (err: unknown) =>
+    console.error(`[main] couldn't list the repos to watch: ${String(err)}`),
+  );
+}
 
 /** Hosts `shell.openExternal` is allowed to hand to the OS browser. */
 const ALLOWED_EXTERNAL_HOSTS = new Set([
@@ -136,7 +178,9 @@ function createWindow(): void {
   mainWindow = window;
   window.on("closed", () => {
     if (mainWindow === window) mainWindow = null;
+    void nowHub.stop();
   });
+  watchSidebarRepos();
 
   // Show as soon as the first paint is ready; in E2E show immediately so a slow or
   // non-painting headless renderer can't keep the window (and Playwright) waiting.
@@ -226,18 +270,32 @@ function registerIpcHandlers(): void {
       return RepoList.parse(await listRepos());
     }
     const repos = RepoList.parse(await addRepo(chosen));
+    watchRepos(repos);
     return repos;
   });
 
   ipcMain.handle(IpcChannel.ReposRemove, async (_event, raw: unknown) => {
     const { path } = RepoRemoveRequest.parse(raw);
     const repos = RepoList.parse(await removeRepo(path));
+    watchRepos(repos);
     return repos;
   });
 
   ipcMain.handle(IpcChannel.ReposFetch, async (_event, raw: unknown) => {
     const { repoPath: asked } = RepoFetchRequest.parse(raw);
     await fetchRepo(await registered(asked));
+  });
+
+  ipcMain.handle(IpcChannel.NowGet, async (_event, raw: unknown) => {
+    const { repoPath: asked } = NowRepoRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return NowState.parse(nowHub.state(repoPath));
+  });
+
+  ipcMain.handle(IpcChannel.NowSelect, async (_event, raw: unknown) => {
+    const { repoPath: asked } = NowSelectRequest.parse(raw);
+    const repoPath = asked === null ? null : await registered(asked);
+    await nowHub.select(repoPath);
   });
 
   ipcMain.handle(IpcChannel.SettingsLoad, async () =>
