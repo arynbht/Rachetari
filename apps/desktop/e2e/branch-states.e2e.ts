@@ -97,8 +97,12 @@ test("Tasks greys a drafting branch and shows a done branch under Done", async (
 
   const dir = process.env.SCREENSHOT_DIR;
   if (dir) {
-    // Wide enough for all seven columns, Done included.
+    // Wide enough for all seven columns, Done included: the board's scroller
+    // is let out for the picture only.
     await page.setViewportSize({ width: 1600, height: 900 });
+    await board
+      .locator("div.overflow-x-auto")
+      .evaluate((el) => (el.style.overflow = "visible"));
     await page.screenshot({
       path: join(dir, "tasks-branch-states.png"),
       fullPage: true,
