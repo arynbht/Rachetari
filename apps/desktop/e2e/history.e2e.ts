@@ -67,21 +67,46 @@ test("History passes axe with the Docs viewer showing a backlog", async () => {
   expect(await runAxe(page)).toEqual([]);
 });
 
-test("the Docs viewer names each task-list checkbox done or not done", async () => {
+test("the Docs viewer shows each task-list item's tick as text", async () => {
   const { page } = launched;
   const docs = page.getByRole("region", { name: "Docs" });
   await expect(docs.getByRole("heading", { name: "Backlog" })).toBeVisible();
-  const boxes = docs.getByRole("checkbox");
-  const done = docs.getByRole("checkbox", { name: "done", exact: true });
-  const notDone = docs.getByRole("checkbox", { name: "not done", exact: true });
-  const doneCount = await done.count();
-  const notDoneCount = await notDone.count();
-  expect(doneCount).toBeGreaterThan(0);
-  expect(notDoneCount).toBeGreaterThan(0);
-  expect(doneCount + notDoneCount).toBe(await boxes.count());
-  for (const box of await boxes.all()) await expect(box).toBeDisabled();
-  for (const box of await done.all()) await expect(box).toBeChecked();
-  for (const box of await notDone.all()) await expect(box).not.toBeChecked();
+  await expect(docs.locator("input")).toHaveCount(0);
+
+  // The fixture's checklist: "It builds" is ticked, "README says how to run it" is not.
+  const items = docs.getByRole("listitem");
+  const ticked = items.filter({ hasText: "It builds" });
+  const unticked = items.filter({ hasText: "README says how to run it" });
+  await expect(ticked).toHaveText(/^☑\s*done\s+It builds/);
+  await expect(unticked).toHaveText(
+    /^☐\s*not done\s+README says how to run it/,
+  );
+
+  // The box is what the eye reads; "done" / "not done" is what a screen reader reads.
+  await expect(ticked.getByText("☑", { exact: true })).toBeVisible();
+  await expect(unticked.getByText("☐", { exact: true })).toBeVisible();
+  const doneLabel = ticked.getByText("done", { exact: true });
+  const notDoneLabel = unticked.getByText("not done", { exact: true });
+  for (const label of [doneLabel, notDoneLabel]) {
+    await expect(label).toHaveClass(/\bsr-only\b/);
+    await expect(label).toHaveCSS("position", "absolute");
+    await expect(label).toHaveCSS("width", "1px");
+  }
+  expect(await ticked.ariaSnapshot()).toContain("done It builds");
+  expect(await ticked.ariaSnapshot()).not.toContain("☑");
+  expect(await unticked.ariaSnapshot()).toContain("not done README says");
+
+  // Every box in the doc carries its words: one "done" per ☑, one "not done" per ☐.
+  const boxes = await docs.getByText(/^[☑☐]$/).allTextContents();
+  expect(boxes.filter((b) => b === "☑").length).toBeGreaterThan(0);
+  expect(boxes.filter((b) => b === "☐").length).toBeGreaterThan(0);
+  await expect(docs.getByText("done", { exact: true })).toHaveCount(
+    boxes.filter((b) => b === "☑").length,
+  );
+  await expect(docs.getByText("not done", { exact: true })).toHaveCount(
+    boxes.filter((b) => b === "☐").length,
+  );
+  await shot("history-backlog");
 });
 
 test("the Docs viewer lists the repo's Markdown and renders one", async () => {
