@@ -32,7 +32,7 @@ async function shot(name: string): Promise<void> {
 test("Now shows what waits on you, each with what to do and where", async () => {
   const { page } = launched;
   const needsYou = page.getByRole("region", { name: /Needs you/ });
-  await expect(page.getByText("4 waiting")).toBeVisible();
+  await expect(page.getByText("4 waiting", { exact: true })).toBeVisible();
   await expect(
     needsYou.getByText("Set Status to ready in CARD.md on card/T-0004."),
   ).toBeVisible();
@@ -72,7 +72,7 @@ test("Now shows the card in progress, the health and the recent events", async (
 
 test("a card pushed to the repo shows up without reopening it", async () => {
   const { page } = launched;
-  await expect(page.getByText("4 waiting")).toBeVisible();
+  await expect(page.getByText("4 waiting", { exact: true })).toBeVisible();
   // Another machine's card arrives with the next fetch; here the local branch
   // appears directly, as the watcher's next read would see it.
   const { execFileSync } = await import("node:child_process");
@@ -80,5 +80,7 @@ test("a card pushed to the repo shows up without reopening it", async () => {
     cwd: fx.repo,
   });
   // The copy is a second draft with the same id, so it shows as a second item.
-  await expect(page.getByText("5 waiting")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("5 waiting", { exact: true })).toBeVisible({
+    timeout: 20_000,
+  });
 });
