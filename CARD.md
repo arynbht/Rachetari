@@ -1,4 +1,4 @@
-# T-0016 · test: give tests a longer timeout on Windows
+# T-0016 · test: measure the Windows fetch test and park its hang
 
 Status: in progress <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0016 · Held by: AB_Rouge
@@ -57,7 +57,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Owner decides how this card goes on: A1's local numbers show a hang, not slowness, so A2 leaves the timeout alone. Still to do: A3 (Next up cleanup), the PR and its Windows CI time.
+Read the PR's Windows shard 3/3 for the fetch test's time (A1) and its `ci` (A4), then close the card.
 
 ## Decisions
 
@@ -68,11 +68,12 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Id T-0016, not T-0014 — T-0014 is the shelved GitHub sign-in card (S-16).
 - 2026-11-25: Owner set ready with a change: measure first; raise the timeout only if the test is slow but finishing, else park the hang and stop.
 - 2026-11-25: Owner: remove the already-done lines from "Next up" in this card and list them in the PR body.
+- 2026-11-25: Title changed from "give tests a longer timeout on Windows" to what the card does, since A2 kept the timeout.
 - 2026-11-25: A2 resolved as "leave the timeout": the fetch test took 515–656 ms in 20 local Windows runs (max 2% of 30 s), so PR #30's 30 s was a hang. Hang parked; stopped to tell the owner, per their rule.
 
 ## Questions for me
 
-- [ ] The timeout stays at 30 s and the hang is parked. Shall I go on with A3 (remove the done Next up lines) and open the PR, whose Windows CI shard gives A1's last number? Or close the card differently?
+- [x] The timeout stays at 30 s and the hang is parked. Shall I go on with A3 and open the PR? — Owner, 17:48: yes, finish it as a records-and-cleanup card, and add three lines to Next up.
 
 ## Done
 
@@ -88,6 +89,8 @@ Appended by the session, one line each, newest last.
 Waiting on the owner (wall clock, UTC):
   /card question   17:36:17 → 17:40:00   3 min 43 s
   draft → ready    17:40:35 → 17:42:06   1 min 31 s
+  hang: go on?     17:44:43 → 17:48:17   3 min 34 s
+  total                                  8 min 48 s
 
 # A1 — the fetch test, alone, 20 runs on this machine (Windows 11, Node 22.23.2, git 2.54.0.windows.1)
 for i in 1..20: pnpm exec vitest run apps/desktop/src/main/kit/source.test.ts --coverage.enabled=false --reporter=json
@@ -103,4 +106,14 @@ for i in 1..20: pnpm exec vitest run apps/desktop/src/main/kit/source.test.ts --
 # A2 — decision
   normal time ≤ 656 ms locally, 961 ms in CI; 30 s is ~30–45x that → a hang, not slowness
   vitest.config.ts unchanged (git diff main -- vitest.config.ts: empty)
+# A3 — Next up (BACKLOG.md, c78e667)
+  removed 3–13 (the build prompt's phases 2–5, all merged as #4 … #32) and 15 (ci is required on main since 17:3x today)
+  kept: done-branches fix, coverage floor; added: git-call timeouts, Tasks record placement, army mode design
+  T-0016's own line comes out when this card closes
+# A4 — local, on card/T-0016 at c78e667
+  pnpm lint                     exit 0
+  pnpm typecheck                exit 0 (tsc --build)
+  pnpm --filter …desktop typecheck exit 0
+  pnpm test                     Test Files 30 passed (30) · Tests 154 passed (154) · 30.0 s
+  git diff --stat origin/main   BACKLOG.md, CARD.md only
 ```
