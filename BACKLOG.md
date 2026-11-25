@@ -7,22 +7,21 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Tell done, drafting and broken `card/*` branches apart; only broken ones are unreadable; notify for exactly four things (low; T-0018) · from `docs/queue-2026-11-25.md` §Done branches show as done
-2. Kit fixes: the six `[tool]` findings from the kit trial, plus `/done` removing its card's Next up line (T-0017) · from `docs/queue-2026-11-25.md` §4a
-3. Label the Docs viewer's task-list checkboxes and turn the fixme test back on (S-18, #28) · from `docs/queue-2026-11-25.md` §4b
-4. Salvage `registered-repos.e2e.ts` and `axe.e2e.ts` only, listing every edit (S-17, #22) · from `docs/queue-2026-11-25.md` §4c
-5. Take `constraint-driven-development` and `playwright-cli` at their pins (S-02 #6, S-03 #7) · from `docs/queue-2026-11-25.md` §4d
-6. Clean code 1: `code-simplification`, our `deslop` skill, a Slop section in CONSTRAINTS.md, `/done` deslops first, five starter checklist lines, `/setup` re-run · from `docs/queue-2026-11-25.md` §4e
-7. Clean code 2: the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
-8. Checklist by section, the kit: `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
-9. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
-10. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
-11. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
-12. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-13. Shell action: "answer a question" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: answer a question
-14. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
-15. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
-16. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-17. Set a coverage floor once the review tests land · from checklist "coverage floor"
+2. Label the Docs viewer's task-list checkboxes and turn the fixme test back on (S-18, #28) · from `docs/queue-2026-11-25.md` §4b
+3. Salvage `registered-repos.e2e.ts` and `axe.e2e.ts` only, listing every edit (S-17, #22) · from `docs/queue-2026-11-25.md` §4c
+4. Take `constraint-driven-development` and `playwright-cli` at their pins (S-02 #6, S-03 #7) · from `docs/queue-2026-11-25.md` §4d
+5. Clean code 1: `code-simplification`, our `deslop` skill, a Slop section in CONSTRAINTS.md, `/done` deslops first, five starter checklist lines, `/setup` re-run · from `docs/queue-2026-11-25.md` §4e
+6. Clean code 2: the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
+7. Checklist by section, the kit: `sections.md` from the old catalog, `CHECKLIST.md` with fifteen sections, `/setup` fills it · from `docs/queue-2026-11-25.md` §4g
+8. Checklist by section, the shell: per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
+9. Timeouts on the shell's git calls: `fetchRepo` and each read call get a timeout (limits proposed in the card); a call past it fails with a message in the repo's error box and the Fetch button recovers; tested with a git that hangs. Until this merges, a fetch-test hang in CI gets one re-run of that job, noted on the PR · from `docs/queue-2026-11-25.md` §Timeouts on the shell's git calls
+10. Tasks overhaul 1, design only: a static prototype on the fixture with four screenshots (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 1
+11. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+12. Shell action: "answer a question" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: answer a question
+13. Tasks overhaul 2: layout and columns, after the owner picks a design (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 2
+14. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
+15. Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
+16. Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
@@ -65,6 +64,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `fetchRepo` has no timeout, so a hung `git fetch` would leave the shell's Fetch waiting forever · seen on T-0016 · `apps/desktop/src/main/kit/source.ts:322`
 - 2026-11-25 [checklist] The checklist's "`ci` is required before a merge to main" line still reads failing (404), but `ci` has been required since today; `/setup` hasn't been re-run · seen on T-0016 · `gh api repos/arynbht/Rachetari/branches/main/protection`
 - 2026-11-25 [tool] `/setup` on the default branch creates `chore/kit-setup`, with no rule for a re-run when that branch already exists · seen on T-0017 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] Deleting a "Next up" line makes prettier renumber every line below it, so two cards closing at once both rewrite those lines in BACKLOG.md · seen on T-0017 · `BACKLOG.md`
 
 ## Repo checklist
 
