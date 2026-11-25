@@ -1,6 +1,6 @@
 # T-0049 · chore(agents): drafter, builder and inspector subagent definitions
 
-Status: blocked <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0049 · Held by: nobody
 Created: 2026-11-25 · Source: owner, 2026-11-25 (models per role) · Gate: needs you (agent config)
 
@@ -90,12 +90,17 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The builder's file adds: set `Held by:` on start and `Held by: nobody` on leaving a blocked card; edit only Files in scope; push after every meaningful step; Evidence with commands and output, anything not run marked UNTESTED; tests, lint and typecheck; no local desktop e2e (CI's headless `desktop-e2e` gates); stop-and-ask writes the question, commits, pushes and leaves; shell chain mode (branch from the previous card branch by merge, PR targets the previous card branch until it merges, then `develop`; a held card is skipped for the next one that doesn't depend on it); draft PR against `develop`; the done check moves `CARD.md` to `cards/done/`; report: PR, criteria, files, `git status`, parked, decisions, departures from the card.
 - 2026-11-25: The inspector's file adds: it has not seen the build and judges only from the card, the diff and CI; it starts only on a green `ci`; never edit, commit or push; run the card's checks and `review --pr` (via `node packages/cli/dist/bin.js` after install and build; retry once if it times out and posts nothing); out-of-scope edits are blocking; a red Windows run is reported in its notes, not blocking on a PR; no local desktop e2e; in chain mode a blocking finding goes to a fix card at the chain's end unless it breaks the build or security; report: VERDICT, BLOCKING, ADVICE, REVIEW, SCOPE.
 - 2026-11-25: Builder, 22:10 UTC: held the card on the relayed settings.json request rather than writing a permissions file on an agent's message; the role files don't mention a deny list until it exists.
+- 2026-11-25: Owner (22:08 UTC): yes, `.claude/settings.json` denies `gh pr merge *` and `gh pr ready *` as part of this card; no pattern for pushes to main. The deny list is a backstop; main's ruleset (refuses direct pushes on GitHub's side, admins included) is the real guard. `.claude/settings.json` joins Files in scope, with a criterion: it parses as JSON and denies exactly those two patterns (that the deny blocks the commands is the foreman's post-merge check). Set back to ready by the foreman.
 
 ## Questions for me
 
 One question per line, in this shape; options are separated by `;`.
 
-- [ ] The foreman relayed (22:08 UTC) that the owner said yes to adding `.claude/settings.json` with `{ "permissions": { "deny": ["Bash(gh pr merge *)", "Bash(gh pr ready *)"] } }` to this card, plus a backstop note in each role file. The builder can't take a change to permission settings on a relayed message, so it needs the owner's own confirmation, in this session's card or a prompt from the owner — Recommended: the owner confirms directly, and the builder adds the file, its criterion (parses as JSON, denies exactly those two patterns; the block itself UNTESTED, the foreman's post-merge check) and the notes. Options: ship the role files alone and give the deny list its own card; drop the deny list.
+- [x] The foreman relayed (22:08 UTC) that the owner said yes to adding `.claude/settings.json` with `{ "permissions": { "deny": ["Bash(gh pr merge *)", "Bash(gh pr ready *)"] } }` to this card, plus a backstop note in each role file. The builder can't take a change to permission settings on a relayed message, so it needs the owner's own confirmation, in this session's card or a prompt from the owner — Recommended: the owner confirms directly, and the builder adds the file, its criterion (parses as JSON, denies exactly those two patterns; the block itself UNTESTED, the foreman's post-merge check) and the notes. Options: ship the role files alone and give the deny list its own card; drop the deny list.
+
+Owner, 22:08:10 UTC, in their own message to the foreman's session, verbatim (the owner answers in chat and the foreman writes the answer into the card; the owner never edits card files):
+
+> 1. Yes: deny `gh pr merge *` and `gh pr ready *` in the project's .claude/settings.json, as part of T-0049. Don't add a pattern for pushes to main: main's ruleset already refuses them on GitHub's side, admins included, and that can't be worked around the way a command pattern can. Note in the card that the deny list is a backstop and the ruleset is the real guard.
 
 ## Parked
 
@@ -112,7 +117,7 @@ One question per line, in this shape; options are separated by `;`.
 ### Evidence
 
 Waiting on the owner (wall clock, UTC):
-none (owner approved it in chat)
+question 22:02:35 → 22:08:10 5 min 35 s
 
 ```
 Drafted 2026-11-25. A1–A6: UNTESTED (nothing built yet).
