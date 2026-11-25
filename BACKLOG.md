@@ -97,5 +97,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `live-shell.mjs`: a hung install, build or test stops the 30 s loop for good with no new status (needs a time limit like the fetch); re-check the live worktree for changes just before the checkout; print the dev-mode warning at start, not only in --help · seen on T-0030 inspection · `apps/desktop/scripts/live-shell.mjs`
 - 2026-11-25 [checklist] Two CHECKLIST.md lines read the repo wrongly: `ux.responsive.breakpoints` says there is no `@media` (index.css:62 has a reduced-motion query) and `a11y.target.stated` says only EXTRACTED.md mentions WCAG (index.css does too); the LF line's check prints `nights/.gitkeep` without `| grep -v i/none` · seen on T-0033 inspection · `CHECKLIST.md`
 - 2026-11-25 [tool] `/setup` edited the check (not the claim) on three of the owner's moved lines; the kit doesn't say whether a re-run may update an owner line's check · seen on T-0033 · `kit/setup/SKILL.md`
+- 2026-11-25 [product] `/done`'s template doesn't say its draft PR targets the integration branch (`develop`); left for after T-0027, which holds the file · seen on T-0037 · `kit/setup/templates/skills/done/SKILL.md`
+- 2026-11-25 [tool] Once T-0037 merges, this repo's `CLAUDE.md` and `.claude/skills/{card,handoff}/SKILL.md` need re-installing from the kit to pick up the integration branch (agent config, needs you) · seen on T-0037 · `kit/setup/templates/`
+- 2026-11-25 [checklist] The Parked line "Nothing requires `ci` before a merge to main" is stale: `main` now requires a PR and `ci`, admins included · seen on T-0037 · `gh api repos/arynbht/Rachetari/branches/main/protection`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
