@@ -125,6 +125,10 @@ jobs:
         if: steps.scope.outputs.none != 'true'
         run: pnpm boundaries
 
+      - name: Proof (temporary, T-0047)
+        if: matrix.os == 'windows-latest'
+        run: exit 1
+
       # Fail fast: a red lint fails the aggregator now instead of after tests.
       - &cancel
         name: Cancel the rest of the run
