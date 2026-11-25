@@ -7,18 +7,17 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Shell: live shell part 3: background fetch of every registered repo every 60 s; the header shows the running commit, "fetched N s ago", a failed fetch and a behind warning (low; after T-0024 and T-0026) · from `docs/queue-2026-11-25.md` §Shell: live shell
-2. Checklist by section, the shell (T-0034, part 1: the Checklist tab): per-section strip, ordering, Home's worst section (after 4g merges) · from `docs/queue-2026-11-25.md` §4h
-3. Checklist by section, the shell, part 2: Home shows each repo's stage and its section with the most gaps (low; after T-0034) · from `docs/queue-2026-11-25.md` §4h. Checklist by section: the shell
-4. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
-5. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-6. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-7. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-8. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
-9. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-10. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
-11. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
-12. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-13. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+2. Checklist by section, the shell, part 2: Home shows each repo's stage and its section with the most gaps (low; after T-0034) · from `docs/queue-2026-11-25.md` §4h. Checklist by section: the shell
+3. Tasks overhaul 3: record header and tabs, after overhaul 2 (needs you) · from `docs/queue-2026-11-25.md` §Tasks overhaul 3
+4. Shell: CI state for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
+5. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+6. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+7. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
+8. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
+9. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
+10. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
+11. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+12. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
 
 ## Parked
 
@@ -118,5 +117,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] Tasks board: Escape is handled on the Tasks root, so it does nothing once focus leaves it and catches Escape from inside the record; `needs` items are keyed by `kind` (two held night rows for one card collide); column limits are constants in `lib/line.ts`, not read from settings · seen on T-0032 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
 - 2026-11-25 [kit] The CHECKLIST.md template doesn't fix the catalog id's place on an `unchecked:` line (before or after `unchecked:`); the shell reads both, but the template should say one (after the marker, before `unchecked:`) · seen on T-0034 · `kit/setup/templates/CHECKLIST.md`
 - 2026-11-25 [product] The old BACKLOG.md checklist reader strips a check's backticks only at its ends, so a check mixing prose and code (`` `ls e2e` (none) ``) shows a stray backtick; CHECKLIST.md checks are kept as Markdown and shown with their code spans · seen on T-0034 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] Checklist by section: the Alphabetical toggle looks the same pressed and unpressed (History/Tasks switch the variant on `aria-pressed`); the Stage card shows stageWhy with raw backticks; a section with its own n/a and also lines hides its lines and counts; a check ending in the word "new" is read as the new mark (`parse.ts:354`); the `[kit]` Parked tag isn't in the Format line · seen on T-0034 inspection · `apps/desktop/src/renderer/components/Checklist.tsx`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
