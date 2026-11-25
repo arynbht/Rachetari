@@ -85,7 +85,8 @@ export function needsYouItems(snapshot: KitSnapshot): NeedsYouItem[] {
     }
     const status = card.status.toLowerCase();
     const base = { id: card.id, title: card.title, branch: live.branch, at };
-    if (status === "draft")
+    // Only a gated draft waits on the owner; a `low` one its drafter sets ready.
+    if (status === "draft" && card.gate !== null && card.gate !== "low")
       items.push({
         ...base,
         kind: "approve",
