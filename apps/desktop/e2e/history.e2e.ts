@@ -106,6 +106,11 @@ test("the Docs viewer shows each task-list item's tick as text", async () => {
   await expect(docs.getByText("not done", { exact: true })).toHaveCount(
     boxes.filter((b) => b === "☐").length,
   );
+
+  await expect(page.getByText("2 finished · 1 night report")).toBeVisible();
+  await docs
+    .getByRole("heading", { name: "Repo checklist" })
+    .scrollIntoViewIfNeeded();
   await shot("history-backlog");
 });
 
