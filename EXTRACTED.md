@@ -212,3 +212,18 @@ Tests dropped: `e2e/home.e2e.ts` (the source's: test 1 asserts runtime content; 
 | `apps/desktop/e2e/axe.e2e.ts`              | same path | `copyFixtureRepo` → `kitFixture()` (name kept `sample-repo`), `fx.remove()` in `afterEach`. The empty-state axe run → wait for the `Home` heading and the `sample-repo` article, axe labelled `home`. Posture tab, "Run audit" and the controls wait → the Tasks tab (`#panel-tasks` heading `Tasks` and its `Board` region, axe `tasks`) and the Checklist tab (`#panel-checklist`'s `Stage` region showing `Building`, axe `checklist`). Project tab → the History tab (`#panel-history` heading `Backlog`, axe `history`). Map's "No map for this repository yet." → `#panel-map webview` with `src` ending `floorplan/index.html`. Repo click, Now wait and run, Settings unchanged |
 
 Still shelved (S-17): `e2e/shell-defaults.e2e.ts`, `e2e/history-scroll.e2e.ts`, honest-basics test 4, `src/main/store/settings.test.ts`, the CI tests in `now-health.test.ts`, `docs.test.ts`.
+
+## T-0023 · code-simplification
+
+Not from Rivetari: `skills/code-simplification/SKILL.md` from addyosmani/agent-skills at
+`301b02b12bff98e4688e6984af6556802322bbde` (the other addyosmani skills' pin), fetched with
+`gh api` and copied unchanged to `skills/quality/code-simplification/SKILL.md` in one
+commit. One file, blob `c4f794aa3fc63ea041989b30be7a3887c79c53ed`, 13,719 bytes, MIT. It
+isn't in Rivetari's manifest, so there is no manifest hash to match: Rivetari's
+`hashSkillDir` (`packages/registry/src/hash.ts` at `32f4b88`) over a `git archive HEAD`
+copy of the folder gives
+`sha256:f4104cecf31ebce5d879adda3b6ae7a3afaa8f687824863c165dcc972c042030`, the same as
+over the fetched pin.
+
+New, not copied: `skills/quality/deslop/SKILL.md`, `kit/setup/templates/CONSTRAINTS-slop.md`,
+`kit/slop-lines.test.ts`.
