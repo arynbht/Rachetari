@@ -17,20 +17,18 @@ Ordered. The top line becomes the next `CARD.md`.
 9. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
 10. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 11. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-12. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
-13. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
-14. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-15. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-16. Shrink Tasks.tsx under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-17. Shrink TaskRecord (Tasks.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-18. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-19. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-20. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-21. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-22. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-23. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-24. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-25. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+13. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+14. Shrink Tasks.tsx under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+15. Shrink TaskRecord (Tasks.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+16. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+17. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+18. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+19. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+20. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+21. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+22. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+23. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -138,5 +136,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [kit] CHECKLIST.md Stage line (line 3) still names "Complexity and file-length limits are set" among the failing foundation lines; T-0043 ticks it · seen on T-0043 · `CHECKLIST.md`
 - 2026-11-25 [tool] A temporary `.ts` file under `packages/*/src` (T-0043's A3 check) is compiled into `dist/` by any `tsc --build` running meanwhile and stays there after the file is deleted; such checks should sit outside a tsconfig include, or clean `dist/` after · seen on T-0043 · `tsconfig.json`
 - 2026-11-25 [product] The Tasks record shows raw backticks in Files in scope and Skills (from the existing `List`), and pinned questions too; render inline code as on Now; the tasks.e2e.ts:303 comment still says "Evidence is collapsed" · seen on T-0035 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
+- 2026-11-25 [product] `SCOPE.md` still says small questions are "held rather than guessed" (line ~126) and "Night mode has one level: hold when unsure" (~206), which now contradicts the owner's decide-and-log rule at night; `docs/army-mode.md` (~91, ~98) still quotes the old two-session cap and rebase as current; and `SCOPE.md` is prettier-ignored, so its prettier check checks nothing · seen on T-0042 inspection · `SCOPE.md`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
