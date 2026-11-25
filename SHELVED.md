@@ -160,6 +160,7 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a) for `registered-repos.e2e.ts` and `axe.e2e.ts` at least: they check the fence and accessibility across views, which the new per-view tests cover only in part.
 - **Placeholder:** None in the code: the new e2e tests stand on their own. The dropped tests are listed in EXTRACTED.md under each card.
 - **Issue:** [#22](https://github.com/arynbht/Rachetari/issues/22)
+- **Partly settled:** 2026-11-25 by T-0021, with the owner's (a) for two of the eight: `e2e/registered-repos.e2e.ts` and `e2e/axe.e2e.ts` are salvaged (copied verbatim, then edited; every edit is in EXTRACTED.md under T-0021). The other six stay shelved, so #22 stays open.
 
 ## S-18 · T-0011 · Docs viewer renders task-list checkboxes with no label (axe: critical)
 
