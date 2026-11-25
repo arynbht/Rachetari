@@ -162,6 +162,10 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Checks, decided for the owner: one local headless `/setup` trial on the kit-trial scratch repo, run twice (about $0.50 a run, going by the kit trial). The deliverable is prose, so only a run shows it works. Alternative: reading checks only.
 - 2026-11-25: Base, on the foreman's word: `develop` replaces `day/2026-11-25`. The card merges `origin/develop`, and its PR targets `develop`.
 - 2026-11-25: Owner (19:47:11): mapping confirmed; per-line stage tags are owner-editable and kept by /setup on a re-run (make sure the rewritten steps say so); part 2 runs straight after this card, before 4h; reinstalling the kit for part 2 approved. Set ready by the foreman.
+- 2026-11-25: Depends on, on the foreman's word: T-0023 merged into `develop` (it changed step 3 and added its own `EXTRACTED.md` section) and was merged in here at `8616735`, no rebase. This card edits steps 4 to 6 and adds its own section, so nothing it relies on moved: satisfied. T-0025 and T-0027 are paused, so their lines don't apply.
+- 2026-11-25: Detect types, decided for the owner: a type repeated at one level is written once, so an `any-of` reads `any-of(file-matches, file-exists)` rather than every nested entry, and `ci.workflow-permissions` lists `file-yaml-path` once. A1's check compares sets, so both pass. Alternative: every entry in order, repeats kept.
+- 2026-11-25: Depends on, on the foreman's word: T-0023 merged into develop (step 3 and its own EXTRACTED section), merged in here at 8616735 with no rebase; this card edits steps 4 to 6 and adds its own section, so nothing it relies on moved. T-0025 and T-0027 are paused, so their lines don't apply.
+- 2026-11-25: Detect types, decided for the owner: a type repeated at one level is written once (`any-of(file-matches, file-exists)`, not every nested entry; one control, `ci.workflow-permissions`, repeats a top-level type). The A1 check compares sets, so both pass. Alternative: every entry in order, repeats kept.
 
 ## Questions for me
 
