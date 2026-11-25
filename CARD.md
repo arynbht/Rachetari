@@ -92,3 +92,58 @@ None.
 Waiting on the owner (wall clock, UTC):
   none (low card)
 ```
+
+**A2: the cause, tested.** Scratch repro (scratchpad `repro/repro.js`, not committed): one side
+spawns 200 × `node -e "process.exit(3)"` and 200 × `git log -1`, one after another, with
+`stdio: ["ignore","pipe","pipe"]` as `git()` does, and times each child's `exit` → `close`. The
+other side keeps up to 40 `node -e "setTimeout(()=>{},5000)"` children alive, a new one every
+25 ms. Windows 11, node 22.23.2.
+
+```
+$ node repro.js threads 200     # one process, two worker threads
+threads: node spawns 200, gaps > 1 s: 53, median 0.0 ms, p99 5037.4 ms, max 5039.2 ms
+threads: git  spawns 200, gaps > 1 s: 41, median 0.0 ms, p99 5034.5 ms, max 5056.8 ms
+threads: long-lived children spawned beside them: 3917
+real 8m15s
+
+$ node repro.js procs 200       # the same two sides in two processes
+procs: node spawns 200, gaps > 1 s: 0, median 0.0 ms, p99 0.0 ms, max 0.1 ms
+procs: git  spawns 200, gaps > 1 s: 0, median 0.0 ms, p99 0.0 ms, max 0.1 ms
+procs: long-lived children spawned beside them: 200
+real 0m24s
+```
+
+94 of 400 short children (23.5 %) in the shared process waited about 5 s, one long child's
+whole life, after they had exited; none did across processes. The hypothesis holds: a child
+spawned from another thread of the same process inherits the pipes, and `close` waits for it.
+
+**CI times before the change** (from the logs; vitest prints a test's time only over 300 ms):
+
+```
+develop 3505100, run 45710634775, build-test (windows-latest), green, job 22:08:37–22:11:03 (2m26s)
+  kit/source.test.ts 12410ms (never changes the repo 3586, after a fetch 2040, reads finished cards 1031,
+      recent events 893, live cards 781, unparsable card 768, backlog 326)
+  kit/display-branch.test.ts 51985ms (9 tests 4647–8884 each)
+  kit/source-timeout.test.ts 13244ms (read hangs 7690, fetch hangs 5551)
+  ai/call-limit.test.ts 2215ms (tree 843, past its limit 482, budget 421; stderr under 300)
+  files: checklist-file 10660, branch-states 16173, now 4016, tasks 6514, tasks-questions 5685,
+      checklist 3833, tasks-needs 3848, history 5227 · whole suite Duration 63.70s
+
+PR #56, run 45704718735 attempt 2, test (windows-latest, n/3): 1/3 84s, 2/3 73s, 3/3 75s (job wall clock)
+  3/3 (red): call-limit 7839ms (× budget 6077 "the child never wrote its pid"; past its limit 548;
+      tree 740) · source.test 20665ms (× never changes the repo 12040 "git log timed out after 10 s";
+      after a fetch 1122) · display-branch 28618ms (2075–5598 each) · tasks-needs 2272
+  2/3: checklist 4732, tasks 5416, branch-states 11562
+  1/3: now 4594, history 3130, source-timeout 13364 (read hangs 8939, fetch hangs 4423)
+
+Today's fresh one, PR #60 run 45710215889 attempt 1, test (windows-latest, 1/3), job 139542444446:
+  × source-timeout › a git read that hangs fails at the read limit… 17384ms
+    "expected 0 to be greater than 0" at connectionsClosed (line 44)
+  beside it in the same shard: now 12059ms, history 14401ms (3× their usual), fetch hangs 9633ms
+  green on attempt 2.
+```
+
+PR #60's failure is the same load, seen from the other side: the read hit its 2 s limit (line
+113–116 passed) before git's lazy fetch had connected to the silent remote, so `connections` was 0.
+The test's clone before `started` took most of the 17 s. No pipe was waited on there; the
+fork move takes the desktop real-git files off the threads that loaded the shard.
