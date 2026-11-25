@@ -193,6 +193,7 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Board cards: decided for the owner: today's contents ("Can't be read:
   card/T-0006", "Drafting: …", the PR line) plus the `needs` label, so the existing
   assertions on that text hold (alternative: T-0028's shorter "Can't be read").
+- 2026-11-25: Decided for the owner by the foreman: one card, not split off "Needs me" (alternative: a separate Needs me card) — it shares the board, its fixture and its screenshots, and a split adds an inspection cycle.
 
 ## Questions for me
 
