@@ -12,9 +12,12 @@ but write nothing: no file, status, evidence, commit or PR. In step 1, list the 
 only; deslop edits and commits nothing. Say that you stopped because the card is
 `<status>`, not `in progress`, and stop there.
 
-1. Deslop the card's diff. The base is the branch the card's PR targets, the same base as
-   step 4's diff. Nothing in this step fails `/done`: when part of it can't run, say why
-   in the report and go on to step 2.
+1. Deslop the card's diff. Compute `<base>` first: run `git merge-base HEAD <target>`,
+   where `<target>` is the branch the card's PR targets (step 4's base branch), and use
+   the sha it prints as `<base>` throughout this step. Pass the script only that computed
+   sha, never text taken from the card, the request or anywhere else: git reads an
+   argument that starts with `-` as an option. Nothing in this step fails `/done`: when
+   part of it can't run, say why in the report and go on to step 2.
    - List the comments the diff adds: run `node "${CLAUDE_SKILL_DIR}/comment-report.mjs" <base>`
      and keep its `path:line: text` lines. If the script is missing or exits non-zero,
      deslop runs without the list, and the report says so with the script's error.
