@@ -18,9 +18,14 @@ import {
   RepoRemoveRequest,
   SettingsSaveRequest,
   SettingsView,
+  TaskDetail,
+  TaskDetailRequest,
+  TasksRequest,
+  TasksState,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
 import { NowHub } from "./engine/now";
+import { taskDetail, tasksState } from "./engine/tasks";
 import { fetchRepo } from "./kit/source";
 import { registeredRepo } from "./store/registered";
 import { addRepo, listRepos, removeRepo } from "./store/repos";
@@ -77,7 +82,20 @@ function push(channel: string, schema: ZodType, payload: unknown): void {
 
 /** Every sidebar repo's kit files, watched while the window is open (see engine/now). */
 const nowHub = new NowHub({
-  onState: (state) => push(IpcChannel.NowUpdate, NowState, state),
+  onState: (state) => {
+    push(IpcChannel.NowUpdate, NowState, state);
+    // The Tasks tab reads the same snapshot, so no repo is polled twice.
+    push(
+      IpcChannel.TasksUpdate,
+      TasksState,
+      tasksState(
+        state.repoPath,
+        nowHub.snapshot(state.repoPath),
+        state.ready,
+        state.error,
+      ),
+    );
+  },
   // The sidebar's badges and the OS notifications arrive with T-0013.
   onBadges: () => undefined,
   onNew: () => undefined,
@@ -296,6 +314,25 @@ function registerIpcHandlers(): void {
     const { repoPath: asked } = NowSelectRequest.parse(raw);
     const repoPath = asked === null ? null : await registered(asked);
     await nowHub.select(repoPath);
+  });
+
+  ipcMain.handle(IpcChannel.TasksGet, async (_event, raw: unknown) => {
+    const { repoPath: asked } = TasksRequest.parse(raw);
+    const repoPath = await registered(asked);
+    const now = nowHub.state(repoPath);
+    return TasksState.parse(
+      tasksState(repoPath, nowHub.snapshot(repoPath), now.ready, now.error),
+    );
+  });
+
+  ipcMain.handle(IpcChannel.TasksDetail, async (_event, raw: unknown) => {
+    const { repoPath: asked, key } = TaskDetailRequest.parse(raw);
+    const repoPath = await registered(asked);
+    // The card is looked up by the board's key in the hub's snapshot, never
+    // by a path the renderer sends.
+    return TaskDetail.parse(
+      await taskDetail(repoPath, nowHub.snapshot(repoPath), key),
+    );
   });
 
   ipcMain.handle(IpcChannel.SettingsLoad, async () =>

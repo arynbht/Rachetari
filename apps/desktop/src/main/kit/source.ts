@@ -322,3 +322,51 @@ async function remoteRef(repo: string, branch: string): Promise<string | null> {
 export async function fetchRepo(repo: string): Promise<void> {
   await git(repo, ["fetch", "--all", "--prune", "--quiet"]);
 }
+
+/**
+ * The commits on a card's branch that aren't on the default branch, newest
+ * first; for a card read from cards/done/, the commits that touched its file.
+ */
+export async function readCardCommits(
+  repo: string,
+  at: { ref: string } | { path: string },
+  limit = 50,
+): Promise<RepoEvent[]> {
+  const base = await defaultBranch(repo);
+  const format = "--format=%H%x09%cI%x09%an%x09%s";
+  const args =
+    "ref" in at
+      ? ["log", `-n${limit}`, format, at.ref, `^${base}`]
+      : ["log", `-n${limit}`, format, base, "--", at.path];
+  const out = await git(repo, args).catch(() => "");
+  return out
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const [sha = "", when = "", author = "", subject = ""] = line.split("\t");
+      return {
+        sha,
+        at: when,
+        author,
+        subject,
+        cardId: /\bT-\d{4,}\b/.exec(subject)?.[0] ?? null,
+      };
+    });
+}
+
+/** A finished card's file on the default branch, parsed; null when it isn't a card. */
+export async function readDoneCard(
+  repo: string,
+  path: string,
+): Promise<Card | null> {
+  const text = await show(repo, await defaultBranch(repo), path);
+  return text === null ? null : parseCard(text);
+}
+
+/** The ref a live card's branch is read from: the local branch, or its remote-tracking copy. */
+export async function cardRef(
+  repo: string,
+  card: Pick<LiveCard, "branch" | "where">,
+): Promise<string | null> {
+  return card.where === "remote" ? remoteRef(repo, card.branch) : card.branch;
+}

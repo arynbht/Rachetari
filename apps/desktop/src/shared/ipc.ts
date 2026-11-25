@@ -19,6 +19,10 @@ export const IpcChannel = {
   NowSelect: "now:select",
   /** Push channel (main → renderer): one repo's Now state after a change. */
   NowUpdate: "now:update",
+  TasksGet: "tasks:get",
+  TasksDetail: "tasks:detail",
+  /** Push channel (main → renderer): one repo's cards after a change. */
+  TasksUpdate: "tasks:update",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -158,3 +162,87 @@ export const NowBadges = z.array(
   z.object({ repoPath: z.string(), count: z.number().int() }),
 );
 export type NowBadges = z.infer<typeof NowBadges>;
+
+// Tasks — every card where it stands (a board by status, or a list), and one
+// card in full. Read from the same watcher as Now; nothing here writes.
+export const TaskColumn = z.enum([
+  "next",
+  "draft",
+  "ready",
+  "progress",
+  "blocked",
+  "pr",
+  "done",
+]);
+export type TaskColumn = z.infer<typeof TaskColumn>;
+
+export const TaskItem = z.object({
+  /** Stable across reads: the branch, the done file, or the Next up line. */
+  key: z.string(),
+  /** T-NNNN, or "Next up 1" for a backlog line that isn't a card yet. */
+  id: z.string(),
+  title: z.string(),
+  column: TaskColumn,
+  /** The card's Status as written, "unreadable", or "next up". */
+  status: z.string(),
+  heldBy: z.string().nullable(),
+  branch: z.string().nullable(),
+  /** The branch's last commit, or when the done card landed (ISO), or null. */
+  updated: z.string().nullable(),
+  pr: z.number().nullable(),
+  unreadable: z.boolean(),
+  /** Where it was read: a card branch, cards/done/, or "Next up" in BACKLOG.md. */
+  source: z.enum(["card", "done", "next-up"]),
+});
+export type TaskItem = z.infer<typeof TaskItem>;
+
+export const TasksState = z.object({
+  repoPath: z.string(),
+  ready: z.boolean(),
+  error: z.string().nullable(),
+  items: z.array(TaskItem),
+});
+export type TasksState = z.infer<typeof TasksState>;
+
+export const TasksRequest = z.object({ repoPath: z.string().min(1) });
+export const TaskDetailRequest = z.object({
+  repoPath: z.string().min(1),
+  key: z.string().min(1),
+});
+
+export const TaskCard = z.object({
+  id: z.string(),
+  title: z.string(),
+  status: z.string(),
+  heldBy: z.string().nullable(),
+  created: z.string().nullable(),
+  source: z.string().nullable(),
+  why: z.string(),
+  criteria: z.array(
+    z.object({
+      id: z.string(),
+      text: z.string(),
+      check: z.string().nullable(),
+      state: z.enum(["ticked", "unticked", "untested"]),
+    }),
+  ),
+  filesInScope: z.array(z.string()),
+  outOfScope: z.array(z.string()),
+  constraints: z.array(z.string()),
+  skills: z.array(z.string()),
+  nextStep: z.string(),
+  decisions: z.array(z.string()),
+  questions: z.array(z.object({ text: z.string(), open: z.boolean() })),
+  evidence: z.string(),
+  pr: z.number().nullable(),
+});
+export type TaskCard = z.infer<typeof TaskCard>;
+
+export const TaskDetail = z.object({
+  item: TaskItem,
+  /** The card, or null when it can't be read (see `error`) or isn't a card yet. */
+  card: TaskCard.nullable(),
+  error: z.string().nullable(),
+  commits: z.array(RecentEvent),
+});
+export type TaskDetail = z.infer<typeof TaskDetail>;

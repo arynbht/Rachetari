@@ -1,206 +1,73 @@
 import { CircleAlert, GitPullRequest } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useState } from "react";
 
-import { PrPart, TaskRecord } from "@/components/TaskRecord";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { errorMessage } from "@/lib/errors";
-import { span, useNow, when } from "@/lib/time";
+import { when } from "@/lib/time";
 
 import type {
-  TaskAnswerResult,
-  TaskEntry,
-  TaskNeedsYou,
-  TaskProgress,
+  TaskCard,
+  TaskColumn,
+  TaskDetail as TaskDetailView,
+  TaskItem,
   TasksState,
-  TaskSummary,
 } from "../../shared/ipc";
 
-// The tab shows where each task stands and what it waits on, as a board by
-// beat or as a list, and one task in full: its card and criteria, route,
-// plan, proof, judge rounds, PR and ledger. Two things can be done from it,
-// both by the main process through the runtime: answer a stop (allow or deny,
-// with a note) and open the task's PR. Running, approving and closing stay
-// with the `rivetari task` commands. What an action changes shows up here from
-// the watcher, not from the action's reply.
-
-const NEEDS_LABEL: Record<TaskNeedsYou["kind"], string> = {
-  record: "Record fails verification",
-  stop: "Stop-and-ask",
-  judge: "Judge escalated",
-  intake: "Card to confirm",
-  route: "Route to approve",
-};
-
-function leaseText(task: TaskSummary): string {
-  if (!task.lease) return "—";
-  return Date.parse(task.lease.expires) > Date.now()
-    ? task.lease.holder
-    : `— (${task.lease.holder}'s lease ended)`;
-}
-
-/** The ledger is the repo's text: only an https link is made clickable. */
-export function isHttps(url: string): boolean {
-  try {
-    return new URL(url).protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-const inputClass =
-  "w-full rounded-md border border-border bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
-/** A stop the person can answer: the build's question, or the judge's. */
-const answerable = (task: TaskSummary) =>
-  task.needsYou?.kind === "stop" || task.needsYou?.kind === "judge";
-
-const cost = (task: TaskSummary) => `$${task.costUsd.toFixed(2)}`;
-const beat = (task: TaskSummary) => (task.done ? "closed" : task.beat);
-
-/** A running beat this long without an event, a step or a ledger entry looks stuck. */
-export const QUIET_MS = 5 * 60_000;
-
-/**
- * "Running: build · 12 min · turn 18 · last activity 20 s ago", or, once the
- * beat has been quiet for five minutes, the same with "No activity for N min"
- * in amber. Not a live region: it changes every second.
- */
-function RunningLine({
-  progress,
-  now,
-}: {
-  progress: TaskProgress;
-  now: number;
-}) {
-  const quiet = now - Date.parse(progress.lastActivityAt);
-  const parts = [
-    progress.beat,
-    span(now - Date.parse(progress.startedAt)),
-    ...(progress.turns === undefined ? [] : [`turn ${progress.turns}`]),
-  ];
-  return quiet >= QUIET_MS ? (
-    <span className="text-amber-400">
-      Running: {parts.join(" · ")} · No activity for{" "}
-      {Math.floor(quiet / 60_000)} min
-    </span>
-  ) : (
-    <span className="text-sky-400">
-      Running: {parts.join(" · ")} · last activity {span(quiet)} ago
-    </span>
-  );
-}
-
-function NeedsYou({
-  tasks,
-  onSelect,
-}: {
-  tasks: TaskSummary[];
-  onSelect: (id: string) => void;
-}) {
-  const waiting = tasks.filter((t) => t.needsYou);
-  return (
-    <section aria-labelledby="tasks-needs-you" className="space-y-2">
-      <h3 id="tasks-needs-you" className="text-sm font-semibold">
-        Needs you
-      </h3>
-      {waiting.length === 0 ? (
-        <p className="text-xs text-muted-foreground">
-          No task is waiting on a person.
-        </p>
-      ) : (
-        <Card className="border-amber-500/40">
-          <ul>
-            {waiting.map((t, i) => (
-              <li
-                key={t.id}
-                className={i > 0 ? "border-t border-border/60" : undefined}
-              >
-                <button
-                  type="button"
-                  onClick={() => onSelect(t.id)}
-                  className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <CircleAlert
-                    className="mt-0.5 h-4 w-4 shrink-0 text-amber-400"
-                    aria-hidden
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                        {t.id}
-                      </span>
-                      <span className="truncate text-sm font-medium">
-                        {t.title}
-                      </span>
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {t.needsYou?.why}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-xs text-amber-400">
-                    {t.needsYou ? NEEDS_LABEL[t.needsYou.kind] : ""}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-    </section>
-  );
-}
+// The tab shows where each card stands, as a board by status or as a list,
+// and one card in full: what it is for, its criteria, what it may touch, its
+// skills, decisions, questions, evidence and the commits on its branch. All of
+// it is read from the repo's cards (on every card/* branch, this machine's and
+// the remote's), the backlog's "Next up" and cards/done/. Nothing here writes.
 
 function TaskTable({
-  tasks,
+  items,
   selected,
   onSelect,
-  now,
 }: {
-  tasks: TaskSummary[];
+  items: TaskItem[];
   selected: string | null;
-  onSelect: (id: string) => void;
-  now: number;
+  onSelect: (key: string) => void;
 }) {
   return (
     <section aria-labelledby="tasks-all" className="space-y-2">
       <h3 id="tasks-all" className="text-sm font-semibold">
-        All tasks
+        All cards
       </h3>
       <Card className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-sm">
           <thead className="text-xs text-muted-foreground">
             <tr>
-              <th scope="col" className="w-[44%] px-4 py-2 font-medium">
+              <th scope="col" className="w-[40%] px-4 py-2 font-medium">
                 Task
               </th>
-              <th scope="col" className="w-[10%] px-2 py-2 font-medium">
-                Beat
+              <th scope="col" className="w-[13%] px-2 py-2 font-medium">
+                Status
               </th>
-              <th scope="col" className="w-[22%] px-2 py-2 font-medium">
-                Lease
+              <th scope="col" className="w-[12%] px-2 py-2 font-medium">
+                Held by
               </th>
-              <th scope="col" className="w-[15%] px-2 py-2 font-medium">
-                Rounds
+              <th scope="col" className="w-[18%] px-2 py-2 font-medium">
+                Branch
               </th>
               <th scope="col" className="px-4 py-2 text-right font-medium">
-                Cost
+                Updated
               </th>
             </tr>
           </thead>
           <tbody>
-            {tasks.map((t) => (
+            {items.map((t) => (
               <tr
-                key={t.id}
-                aria-current={t.id === selected ? "true" : undefined}
+                key={t.key}
+                aria-current={t.key === selected ? "true" : undefined}
                 className={`border-t border-border/60 ${
-                  t.id === selected ? "bg-accent/60" : "hover:bg-accent/30"
+                  t.key === selected ? "bg-accent/60" : "hover:bg-accent/30"
                 }`}
               >
                 <td className="px-4 py-2">
                   <button
                     type="button"
-                    onClick={() => onSelect(t.id)}
+                    onClick={() => onSelect(t.key)}
                     className="flex w-full min-w-0 items-center gap-2 rounded text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span className="shrink-0 font-mono text-xs text-muted-foreground">
@@ -208,26 +75,23 @@ function TaskTable({
                     </span>
                     <span className="truncate">{t.title}</span>
                   </button>
-                  {t.progress && (
-                    <p className="mt-0.5 truncate text-xs">
-                      <RunningLine progress={t.progress} now={now} />
-                    </p>
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-xs">
-                  {beat(t)}
                 </td>
                 <td
-                  className="truncate px-2 py-2 text-xs text-muted-foreground"
-                  title={leaseText(t)}
+                  className={`whitespace-nowrap px-2 py-2 text-xs ${t.unreadable ? "text-rose-300" : ""}`}
                 >
-                  {leaseText(t)}
+                  {t.status}
                 </td>
-                <td className="whitespace-nowrap px-2 py-2 text-xs tabular-nums text-muted-foreground">
-                  build {t.buildRounds} · judge {t.judgeRounds}
+                <td className="truncate px-2 py-2 text-xs text-muted-foreground">
+                  {t.heldBy ?? "—"}
                 </td>
-                <td className="whitespace-nowrap px-4 py-2 text-right text-xs tabular-nums">
-                  {cost(t)}
+                <td
+                  className="truncate px-2 py-2 font-mono text-xs text-muted-foreground"
+                  title={t.branch ?? undefined}
+                >
+                  {t.branch ?? "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-right text-xs tabular-nums text-muted-foreground">
+                  {t.updated ? when(t.updated) : "—"}
                 </td>
               </tr>
             ))}
@@ -238,57 +102,39 @@ function TaskTable({
   );
 }
 
-/** The board's columns, in the order a task moves through them. */
-const COLUMNS = [
-  "intake",
-  "route",
-  "build",
-  "prove",
-  "judge",
-  "ship",
-  "close",
-] as const;
-type Column = (typeof COLUMNS)[number];
-
-/** A closed task sits under close; isolating is the build's first step. */
-export function columnOf(task: Pick<TaskSummary, "beat" | "done">): Column {
-  if (task.done) return "close";
-  if (task.beat === "isolate") return "build";
-  return (COLUMNS as readonly string[]).includes(task.beat)
-    ? (task.beat as Column)
-    : "build";
-}
-
-const WAITING_LABEL: Record<NonNullable<TaskSummary["waiting"]>, string> = {
-  ...NEEDS_LABEL,
-  merge: "PR waiting to merge",
-};
+/** The board's columns, in the order a card moves through them. */
+const COLUMNS: { id: TaskColumn; label: string }[] = [
+  { id: "next", label: "Next up" },
+  { id: "draft", label: "Draft" },
+  { id: "ready", label: "Ready" },
+  { id: "progress", label: "In progress" },
+  { id: "blocked", label: "Blocked" },
+  { id: "pr", label: "PR open" },
+  { id: "done", label: "Done" },
+];
 
 /**
- * One task on the board. What it waits on decides how it looks: amber when a
- * person must act on the record, sky when its PR waits to be merged, so a task
- * shipped and one stuck at route can't be mistaken for each other.
+ * One card on the board. What it waits on decides how it looks: rose when it
+ * can't be read, sky when its PR waits to be merged.
  */
 function BoardCard({
-  task,
+  item,
   selected,
   onSelect,
 }: {
-  task: TaskSummary;
+  item: TaskItem;
   selected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (key: string) => void;
 }) {
-  const waiting = task.waiting;
-  const border =
-    waiting === "merge"
+  const border = item.unreadable
+    ? "border-rose-500/70"
+    : item.column === "pr"
       ? "border-sky-500/70"
-      : waiting
-        ? "border-amber-500/70"
-        : "border-border";
+      : "border-border";
   return (
     <button
       type="button"
-      onClick={() => onSelect(task.id)}
+      onClick={() => onSelect(item.key)}
       aria-current={selected ? "true" : undefined}
       className={`flex w-full flex-col gap-1 rounded-md border bg-card p-2 text-left text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${border} ${
         selected ? "ring-2 ring-ring" : ""
@@ -296,42 +142,38 @@ function BoardCard({
     >
       <span className="flex flex-wrap items-center justify-between gap-x-2">
         <span className="whitespace-nowrap font-mono text-muted-foreground">
-          {task.id}
+          {item.id}
         </span>
-        <span className="whitespace-nowrap text-muted-foreground">
-          {task.risk} risk
+        {item.heldBy && (
+          <span className="whitespace-nowrap text-muted-foreground">
+            {item.heldBy}
+          </span>
+        )}
+      </span>
+      <span className="line-clamp-2 text-sm font-medium">{item.title}</span>
+      {item.unreadable ? (
+        <span className="flex items-center gap-1 font-medium text-rose-300">
+          <CircleAlert className="h-3.5 w-3.5" aria-hidden />
+          Can&apos;t be read: {item.branch}
         </span>
-      </span>
-      <span className="line-clamp-2 text-sm font-medium">{task.title}</span>
-      <span className="tabular-nums text-muted-foreground">
-        {cost(task)} · build {task.buildRounds} · judge {task.judgeRounds}
-      </span>
-      {waiting === "merge" && task.pr ? (
+      ) : item.column === "pr" && item.pr ? (
         <span className="flex items-center gap-1 text-sky-300">
           <GitPullRequest className="h-3.5 w-3.5" aria-hidden />
-          PR #{task.pr.number} waiting to merge
-        </span>
-      ) : waiting ? (
-        <span className="flex items-center gap-1 font-medium text-amber-300">
-          <CircleAlert className="h-3.5 w-3.5" aria-hidden />
-          Needs you: {WAITING_LABEL[waiting]}
+          PR #{item.pr} waiting to merge
         </span>
       ) : null}
-      {task.progress && (
-        <span className="text-sky-300">Running: {task.progress.beat}</span>
-      )}
     </button>
   );
 }
 
 function Board({
-  tasks,
+  items,
   selected,
   onSelect,
 }: {
-  tasks: TaskSummary[];
+  items: TaskItem[];
   selected: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (key: string) => void;
 }) {
   return (
     <section aria-labelledby="tasks-board" className="space-y-2">
@@ -341,19 +183,19 @@ function Board({
       <div className="overflow-x-auto pb-1">
         <div className="grid min-w-[1080px] grid-cols-7 gap-2">
           {COLUMNS.map((column) => {
-            const here = tasks.filter((t) => columnOf(t) === column);
-            const headingId = `tasks-board-${column}`;
+            const here = items.filter((t) => t.column === column.id);
+            const headingId = `tasks-board-${column.id}`;
             return (
               <section
-                key={column}
+                key={column.id}
                 aria-labelledby={headingId}
                 className="min-w-0 space-y-2 rounded-lg border border-border/60 bg-background/40 p-2"
               >
                 <h4
                   id={headingId}
-                  className="flex items-baseline justify-between text-xs font-semibold capitalize"
+                  className="flex items-baseline justify-between text-xs font-semibold"
                 >
-                  {column}
+                  {column.label}
                   <span className="font-normal text-muted-foreground">
                     {here.length}
                   </span>
@@ -361,10 +203,10 @@ function Board({
                 {here.length > 0 ? (
                   <ul className="space-y-2">
                     {here.map((t) => (
-                      <li key={t.id}>
+                      <li key={t.key}>
                         <BoardCard
-                          task={t}
-                          selected={t.id === selected}
+                          item={t}
+                          selected={t.key === selected}
                           onSelect={onSelect}
                         />
                       </li>
@@ -427,288 +269,261 @@ function ViewToggle({
   );
 }
 
-type Outcome =
-  | { kind: "answered"; result: TaskAnswerResult }
-  | { kind: "opened"; url: string }
-  | { kind: "error"; message: string };
-
-function OutcomeLine({ outcome }: { outcome: Outcome | null }) {
-  if (!outcome) return null;
-  if (outcome.kind === "error")
-    return (
-      <p className="text-xs text-rose-300" role="alert">
-        {outcome.message}
-      </p>
-    );
-  if (outcome.kind === "opened")
-    return (
-      <p className="text-xs" role="status">
-        Opened {outcome.url} in your browser.
-      </p>
-    );
-  const { result } = outcome;
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="space-y-1 text-xs" role="status">
-      <p>
-        {result.id} {result.answer} by {result.by}. Next: {result.next}
-      </p>
-      {result.warning && <p className="text-amber-400">{result.warning}</p>}
+    <div className="flex gap-3 text-xs">
+      <dt className="w-28 shrink-0 text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 flex-1 break-words">{children}</dd>
     </div>
   );
 }
 
-/** Allow or deny a stop with a note; the Now view's queue uses it too. */
-export function AnswerForm({
-  why,
-  busy,
-  onAnswer,
+/** A titled part of the detail, a region of its own. */
+function Part({
+  title,
+  aside,
+  children,
 }: {
-  why: string;
-  busy: boolean;
-  onAnswer: (allow: boolean, note: string) => void;
+  title: string;
+  aside?: ReactNode;
+  children: ReactNode;
 }) {
-  const [note, setNote] = useState("");
-  const noteId = useId();
-  const headingId = useId();
+  const id = useId();
   return (
-    <form
-      aria-labelledby={headingId}
-      className="space-y-2 border-t border-border/60 pt-3"
-      onSubmit={(e) => e.preventDefault()}
-    >
-      <h4 id={headingId} className="text-xs font-semibold text-amber-400">
-        Answer the stop
-      </h4>
-      <p className="text-xs">{why}</p>
-      <label htmlFor={noteId} className="block text-xs text-muted-foreground">
-        Note (recorded with the answer; a denied build round is told it)
-      </label>
-      <textarea
-        id={noteId}
-        rows={2}
-        className={inputClass}
-        value={note}
-        maxLength={2000}
-        disabled={busy}
-        onChange={(e) => setNote(e.target.value)}
-      />
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          size="sm"
-          disabled={busy}
-          onClick={() => onAnswer(true, note)}
-        >
-          Allow
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={busy}
-          onClick={() => onAnswer(false, note)}
-        >
-          Deny
-        </Button>
-        {busy && (
-          <span className="self-center text-xs text-muted-foreground">
-            Recording…
+    <section aria-labelledby={id} className="space-y-2">
+      <h4 id={id} className="flex items-baseline gap-2 text-sm font-semibold">
+        {title}
+        {aside && (
+          <span className="text-xs font-normal text-muted-foreground">
+            {aside}
           </span>
         )}
-      </div>
-    </form>
+      </h4>
+      {children}
+    </section>
   );
 }
 
-function TaskDetail({
-  task,
-  repoPath,
-  now,
-}: {
-  task: TaskSummary;
-  repoPath: string;
-  now: number;
-}) {
-  const [busy, setBusy] = useState(false);
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
-  // The list carries no ledgers; the open task's is fetched, and again each
-  // time its last entry moves.
-  const [entries, setEntries] = useState<TaskEntry[]>([]);
-  const [ledgerError, setLedgerError] = useState<string | null>(null);
+const STATE_LABEL: Record<TaskCard["criteria"][number]["state"], string> = {
+  ticked: "ticked",
+  unticked: "unticked",
+  untested: "UNTESTED",
+};
+
+const STATE_CLASS: Record<TaskCard["criteria"][number]["state"], string> = {
+  ticked: "border-emerald-500/50 text-emerald-300",
+  unticked: "border-border text-muted-foreground",
+  untested: "border-amber-500/50 text-amber-300",
+};
+
+function List({ items, none }: { items: string[]; none: string }) {
+  return items.length > 0 ? (
+    <ul className="list-disc space-y-0.5 pl-5 text-xs">
+      {items.map((s) => (
+        <li key={s} className="break-words">
+          {s}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-xs text-muted-foreground">{none}</p>
+  );
+}
+
+/** One card in full, read again whenever the board's copy of it changes. */
+function TaskRecord({ repoPath, item }: { repoPath: string; item: TaskItem }) {
+  const [detail, setDetail] = useState<TaskDetailView | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const version = `${item.key}#${item.status}#${item.updated ?? ""}`;
+
   useEffect(() => {
     let live = true;
-    window.rivetari.tasks.ledger(repoPath, task.id).then(
+    window.rivetari.tasks.detail(repoPath, item.key).then(
       (next) => {
         if (!live) return;
-        setEntries(next);
-        setLedgerError(null);
+        setDetail(next);
+        setError(null);
       },
-      (err: unknown) => live && setLedgerError(errorMessage(err)),
+      (err: unknown) => live && setError(errorMessage(err)),
     );
     return () => {
       live = false;
     };
-  }, [repoPath, task.id, task.ledgerSeq]);
-  // State lands after the click, so a second click in the same tick would get
-  // past `busy`; the ref closes that gap.
-  const inFlight = useRef(false);
+  }, [repoPath, item.key, version]);
 
-  const act = (run: () => Promise<Outcome>) => {
-    if (inFlight.current) return;
-    inFlight.current = true;
-    setBusy(true);
-    setOutcome(null);
-    void run()
-      .catch((err: unknown): Outcome => ({
-        kind: "error",
-        message: errorMessage(err),
-      }))
-      .then((next) => {
-        inFlight.current = false;
-        setBusy(false);
-        setOutcome(next);
-      });
-  };
-
-  const answer = (allow: boolean, note: string) =>
-    act(async () => ({
-      kind: "answered",
-      result: await window.rivetari.tasks.answer(
-        repoPath,
-        task.id,
-        allow,
-        note,
-      ),
-    }));
-
-  const openPr = () =>
-    act(async () => ({
-      kind: "opened",
-      url: (await window.rivetari.tasks.openPr(repoPath, task.id)).url,
-    }));
-
+  const card = detail?.card ?? null;
   return (
-    <section aria-labelledby="task-detail" className="space-y-3">
-      <Card className="space-y-3 p-4">
-        <div className="space-y-1">
-          <h3 id="task-detail" className="text-sm font-semibold">
-            <span className="font-mono text-muted-foreground">{task.id}</span>{" "}
-            {task.title}
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            {task.type} · {task.risk} risk · {task.owner} · {beat(task)} ·{" "}
-            {task.tokens.toLocaleString()} tokens · {cost(task)} · from the{" "}
-            {task.source === "branch" ? "tasks branch" : "copy on this machine"}
-          </p>
-        </div>
-        {task.progress ? (
-          <div className="space-y-0.5 text-sm">
-            <p>
-              <RunningLine progress={task.progress} now={now} />
-            </p>
-            {(task.progress.lastTool !== undefined ||
-              task.progress.tokens !== undefined) && (
+    <Card
+      className="space-y-5 p-4"
+      role="region"
+      aria-label={`${item.id} record`}
+    >
+      <div className="space-y-1">
+        <h3 className="text-base font-semibold">
+          <span className="font-mono text-sm text-muted-foreground">
+            {item.id}
+          </span>{" "}
+          {item.title}
+        </h3>
+        <dl className="space-y-1">
+          <Field label="Status">{item.status}</Field>
+          <Field label="Branch">
+            {item.branch ?? (item.source === "done" ? "cards/done/" : "—")}
+          </Field>
+          <Field label="Held by">{item.heldBy ?? "nobody"}</Field>
+          {card?.nextStep && <Field label="Next step">{card.nextStep}</Field>}
+        </dl>
+      </div>
+
+      {error && (
+        <p className="text-sm text-rose-300" role="alert">
+          {error}
+        </p>
+      )}
+      {detail?.error && (
+        <p className="text-sm text-rose-300" role="alert">
+          {detail.error}
+        </p>
+      )}
+      {item.source === "next-up" && (
+        <p className="text-xs text-muted-foreground">
+          A line in the backlog&apos;s &quot;Next up&quot;, not a card yet.
+          Start it with <code>/card</code> in Claude Code.
+        </p>
+      )}
+
+      {card && (
+        <>
+          <Part title="Card">
+            <dl className="space-y-1">
+              <Field label="Why">{card.why || "—"}</Field>
+              <Field label="Source">{card.source ?? "—"}</Field>
+            </dl>
+            <ul className="space-y-1.5">
+              {card.criteria.map((c) => (
+                <li key={c.id} className="flex items-start gap-2 text-xs">
+                  <span
+                    className={`shrink-0 rounded border px-1.5 py-0.5 text-[11px] ${STATE_CLASS[c.state]}`}
+                  >
+                    {STATE_LABEL[c.state]}
+                  </span>
+                  <span className="min-w-0 flex-1 break-words">
+                    <span className="font-mono text-muted-foreground">
+                      {c.id}
+                    </span>{" "}
+                    {c.text}
+                    {c.check && (
+                      <span className="block text-muted-foreground">
+                        check: <code>{c.check}</code>
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <p className="text-xs font-medium">Files in scope</p>
+                <List items={card.filesInScope} none="None listed." />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-medium">Out of scope</p>
+                <List items={card.outOfScope} none="None listed." />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-medium">Constraints</p>
+                <List items={card.constraints} none="None listed." />
+              </div>
+            </div>
+          </Part>
+
+          <Part title="Skills">
+            <List items={card.skills} none="No skills named." />
+          </Part>
+
+          <Part title="Decisions">
+            <List items={card.decisions} none="No decisions yet." />
+          </Part>
+
+          <Part
+            title="Questions"
+            aside={
+              card.questions.some((q) => q.open)
+                ? `${card.questions.filter((q) => q.open).length} open`
+                : undefined
+            }
+          >
+            {card.questions.length > 0 ? (
+              <ul className="space-y-1 text-xs">
+                {card.questions.map((q) => (
+                  <li
+                    key={q.text}
+                    className={
+                      q.open ? "text-amber-300" : "text-muted-foreground"
+                    }
+                  >
+                    {q.open ? "Open: " : "Answered: "}
+                    {q.text}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-muted-foreground">No questions.</p>
+            )}
+          </Part>
+
+          <Part title="Evidence">
+            {card.evidence ? (
+              <details>
+                <summary className="cursor-pointer text-xs text-muted-foreground">
+                  Show the evidence
+                </summary>
+                <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap rounded-md bg-background/60 p-3 text-xs">
+                  {card.evidence}
+                </pre>
+              </details>
+            ) : (
               <p className="text-xs text-muted-foreground">
-                {[
-                  task.progress.lastTool &&
-                    `last tool ${task.progress.lastTool}`,
-                  task.progress.tokens !== undefined &&
-                    `${task.progress.tokens.toLocaleString()} tokens this call`,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
+                No evidence written yet.
               </p>
             )}
-          </div>
-        ) : (
-          <p className="text-sm">
-            <span className="text-muted-foreground">Next: </span>
-            {task.next}
-          </p>
-        )}
-        {task.problems.length > 0 && (
-          <ul
-            className="list-inside list-disc text-xs text-rose-300"
-            aria-label="Record problems"
-          >
-            {task.problems.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
-        )}
-        {answerable(task) && (
-          <AnswerForm
-            why={task.needsYou?.why ?? ""}
-            busy={busy}
-            onAnswer={answer}
-          />
-        )}
-        <OutcomeLine outcome={outcome} />
-      </Card>
+          </Part>
+        </>
+      )}
 
-      <Card className="space-y-5 p-4">
-        <TaskRecord repoPath={repoPath} task={task} />
-        <PrPart
-          repoPath={repoPath}
-          task={task}
-          link={
-            task.pr &&
-            (isHttps(task.pr.url) ? (
-              <a
-                href={task.pr.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-400 underline"
-                aria-disabled={busy || undefined}
-                onClick={(e) => {
-                  // The main process opens the URL the ledger records.
-                  e.preventDefault();
-                  openPr();
-                }}
-              >
-                PR #{task.pr.number}
-              </a>
-            ) : (
-              <span>
-                PR #{task.pr.number} ({task.pr.url})
-              </span>
-            ))
+      {item.source !== "next-up" && (
+        <Part
+          title="Commits"
+          aside={
+            item.source === "done"
+              ? "that touched its file"
+              : "on its branch, not on the default branch"
           }
-        />
-      </Card>
-
-      <div className="space-y-2">
-        <h4 className="text-xs font-medium text-muted-foreground">Ledger</h4>
-        {ledgerError && (
-          <p className="text-xs text-rose-300" role="alert">
-            {ledgerError}
-          </p>
-        )}
-        <ol
-          aria-label={`${task.id} ledger`}
-          aria-live="polite"
-          className="space-y-1.5"
         >
-          {entries.map((e) => (
-            <li key={e.seq} className="flex gap-3 text-xs">
-              <span className="w-28 shrink-0 tabular-nums text-muted-foreground">
-                {when(e.at)}
-              </span>
-              <span className="w-14 shrink-0 text-muted-foreground">
-                {e.beat}
-              </span>
-              <span className="min-w-0 flex-1 break-words">
-                {e.section !== "timeline" && (
-                  <span className="mr-1 text-amber-400">[{e.section}]</span>
-                )}
-                {e.text}
-                <span className="ml-1 text-muted-foreground">({e.by})</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
+          {detail && detail.commits.length > 0 ? (
+            <ol className="space-y-1 text-xs">
+              {detail.commits.map((c) => (
+                <li key={c.sha} className="flex gap-3">
+                  <span className="w-28 shrink-0 tabular-nums text-muted-foreground">
+                    {when(c.at)}
+                  </span>
+                  <span className="min-w-0 flex-1 break-words">
+                    {c.subject}
+                    <span className="ml-1 text-muted-foreground">
+                      ({c.author})
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {detail ? "No commits yet." : "Reading…"}
+            </p>
+          )}
+        </Part>
+      )}
+    </Card>
   );
 }
 
@@ -717,12 +532,12 @@ export function Tasks({
   focus,
 }: {
   repoPath: string;
-  /** A task to open, from elsewhere (the Now view's feed); `seq` reopens it. */
+  /** A card to open, from elsewhere (the Now view); `seq` reopens it. */
   focus?: { id: string; seq: number } | null;
 }) {
   const [state, setState] = useState<TasksState | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(focus?.id ?? null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [view, setView] = useState<View>(savedView);
 
   const pickView = (next: View) => {
@@ -735,16 +550,12 @@ export function Tasks({
   };
 
   useEffect(() => {
-    if (focus) setSelected(focus.id);
-  }, [focus]);
-
-  useEffect(() => {
     let active = true;
     const unsubscribe = window.rivetari.tasks.onUpdate((next) => {
       if (active && next.repoPath === repoPath) setState(next);
     });
-    // The watch's reply can land after a push that's newer than it.
-    window.rivetari.tasks.watch(repoPath).then(
+    // The first read's reply can land after a push that's newer than it.
+    window.rivetari.tasks.get(repoPath).then(
       (first) =>
         active &&
         setState((current) =>
@@ -755,13 +566,25 @@ export function Tasks({
     return () => {
       active = false;
       unsubscribe();
-      void window.rivetari.tasks.unwatch();
     };
   }, [repoPath]);
 
-  const tasks = state?.tasks ?? [];
-  const current = tasks.find((t) => t.id === selected) ?? null;
-  const now = useNow(tasks.some((t) => t.progress));
+  const items = useMemo(() => state?.items ?? [], [state]);
+
+  // A card asked for from elsewhere opens once the board has it.
+  const [openedFocus, setOpenedFocus] = useState(0);
+  useEffect(() => {
+    if (!focus || focus.seq === openedFocus) return;
+    const match = items.find(
+      (t) => t.id === focus.id && t.source !== "next-up",
+    );
+    if (!match) return;
+    setSelected(match.key);
+    setOpenedFocus(focus.seq);
+  }, [focus, items, openedFocus]);
+
+  const current = items.find((t) => t.key === selected) ?? null;
+  const cards = items.filter((t) => t.source !== "next-up");
 
   return (
     <div className="space-y-5">
@@ -769,10 +592,9 @@ export function Tasks({
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold">Tasks</h2>
           <p className="text-xs text-muted-foreground">
-            What each task is doing and what it waits on, as{" "}
-            <code>rivetari task status</code> shows it. Pick a task to see its
-            record in full, answer its stop or open its PR; anything else is a{" "}
-            <code>rivetari task</code> command.
+            Every card where it stands, on this machine&apos;s branches and the
+            remote&apos;s, with the backlog&apos;s &quot;Next up&quot;. Pick one
+            to read it in full; this view only reads.
           </p>
         </div>
         <ViewToggle view={view} onChange={pickView} />
@@ -787,34 +609,27 @@ export function Tasks({
         </p>
       )}
 
-      {state === null && !error ? (
-        <p className="text-sm text-muted-foreground">Reading tasks…</p>
-      ) : tasks.length === 0 ? (
+      {(state === null || !state.ready) && !error ? (
+        <p className="text-sm text-muted-foreground">Reading cards…</p>
+      ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No tasks in this repository yet. Start one with <code>/rivetari</code>{" "}
-          in Claude Code or <code>rivetari task new</code>.
+          No cards in this repository yet. Run <code>/setup</code> once, then
+          start one with <code>/card</code> in Claude Code.
         </p>
       ) : (
         <>
-          <NeedsYou tasks={tasks} onSelect={setSelected} />
           {view === "board" ? (
-            <Board tasks={tasks} selected={selected} onSelect={setSelected} />
+            <Board items={items} selected={selected} onSelect={setSelected} />
           ) : (
             <TaskTable
-              tasks={tasks}
+              items={cards}
               selected={selected}
               onSelect={setSelected}
-              now={now}
             />
           )}
           {current && (
-            // key keeps one task's answer and outcome off another's detail.
-            <TaskDetail
-              key={current.id}
-              task={current}
-              repoPath={repoPath}
-              now={now}
-            />
+            // key keeps one card's record off another's.
+            <TaskRecord key={current.key} repoPath={repoPath} item={current} />
           )}
         </>
       )}
