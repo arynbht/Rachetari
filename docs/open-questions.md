@@ -2,7 +2,7 @@
 
 ## T-0018 · fix(shell): tell done, drafting and broken card branches apart
 
-1. PRs #35 (T-0018) and #34 (T-0017) passed inspection with `ci` green, but this session's permission mode refused `gh pr merge` into the day branch twice. How do cards that pass get merged into `day/2026-11-25`? — Recommended: allow it (add a permission rule for `gh pr merge` in this repo), used only for day-branch merges of cards that passed inspection. Other options: you merge each one when told "merge #N"; something else.
+1. PRs #35 (T-0018), #34 (T-0017) and #36 (T-0020) passed inspection with `ci` green, but this session's permission mode refused `gh pr merge` into the day branch twice. How do cards that pass get merged into `day/2026-11-25`? — Recommended: allow it (add a permission rule for `gh pr merge` in this repo), used only for day-branch merges of cards that passed inspection. Other options: you merge each one when told "merge #N"; something else.
 
 Answer:
 
