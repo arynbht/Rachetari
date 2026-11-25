@@ -7,6 +7,7 @@
 // passed in.
 import { resolve } from "node:path";
 
+import { questionParts } from "../kit/parse";
 import {
   EMPTY_SNAPSHOT,
   type KitSnapshot,
@@ -18,6 +19,7 @@ import type {
   NeedsYouItem,
   NowBadges,
   NowHealth,
+  NowQuestionGroup,
   NowRunning,
   NowState,
   RecentEvent,
@@ -141,6 +143,35 @@ export function needsYouItems(snapshot: KitSnapshot): NeedsYouItem[] {
   );
 }
 
+/**
+ * Each readable live card's open questions, split into their parts, in
+ * card-id order. A branch being drafted and an unreadable card add none, as
+ * in Needs you; the card's gate doesn't matter.
+ */
+export function questionGroups(snapshot: KitSnapshot): NowQuestionGroup[] {
+  return snapshot.cards
+    .flatMap((live) => {
+      const card = live.drafting ? null : live.card;
+      const open = card?.questions.filter((q) => q.open) ?? [];
+      return card && open.length > 0
+        ? [
+            {
+              id: card.id,
+              title: card.title,
+              branch: live.branch,
+              questions: open.map((q, i) => ({
+                n: i + 1,
+                ...questionParts(q.text),
+              })),
+            },
+          ]
+        : [];
+    })
+    .sort(
+      (a, b) => a.id.localeCompare(b.id) || a.branch.localeCompare(b.branch),
+    );
+}
+
 /** The cards in progress, whoever holds them. */
 export function runningCards(snapshot: KitSnapshot): NowRunning[] {
   return snapshot.cards.flatMap((live) =>
@@ -194,6 +225,7 @@ export function nowState(
     ),
     health: nowHealth(snapshot),
     needsYou: needsYouItems(snapshot),
+    questions: questionGroups(snapshot),
     running: runningCards(snapshot),
     recent: recentEvents(snapshot),
   };
