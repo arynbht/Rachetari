@@ -77,7 +77,13 @@ function TaskTable({
                   </button>
                 </td>
                 <td
-                  className={`whitespace-nowrap px-2 py-2 text-xs ${t.unreadable ? "text-rose-300" : ""}`}
+                  className={`whitespace-nowrap px-2 py-2 text-xs ${
+                    t.unreadable
+                      ? "text-rose-300"
+                      : t.status === "drafting"
+                        ? "text-muted-foreground"
+                        : ""
+                  }`}
                 >
                   {t.status}
                 </td>
@@ -115,7 +121,8 @@ const COLUMNS: { id: TaskColumn; label: string }[] = [
 
 /**
  * One card on the board. What it waits on decides how it looks: rose when it
- * can't be read, sky when its PR waits to be merged.
+ * can't be read, sky when its PR waits to be merged, greyed while its branch
+ * is still being drafted.
  */
 function BoardCard({
   item,
@@ -126,6 +133,7 @@ function BoardCard({
   selected: boolean;
   onSelect: (key: string) => void;
 }) {
+  const drafting = item.status === "drafting";
   const border = item.unreadable
     ? "border-rose-500/70"
     : item.column === "pr"
@@ -138,7 +146,7 @@ function BoardCard({
       aria-current={selected ? "true" : undefined}
       className={`flex w-full flex-col gap-1 rounded-md border bg-card p-2 text-left text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${border} ${
         selected ? "ring-2 ring-ring" : ""
-      }`}
+      } ${drafting ? "text-muted-foreground" : ""}`}
     >
       <span className="flex flex-wrap items-center justify-between gap-x-2">
         <span className="whitespace-nowrap font-mono text-muted-foreground">
@@ -156,6 +164,8 @@ function BoardCard({
           <CircleAlert className="h-3.5 w-3.5" aria-hidden />
           Can&apos;t be read: {item.branch}
         </span>
+      ) : drafting ? (
+        <span className="text-muted-foreground">Drafting: {item.branch}</span>
       ) : item.column === "pr" && item.pr ? (
         <span className="flex items-center gap-1 text-sky-300">
           <GitPullRequest className="h-3.5 w-3.5" aria-hidden />
@@ -383,6 +393,12 @@ function TaskRecord({ repoPath, item }: { repoPath: string; item: TaskItem }) {
       {detail?.error && (
         <p className="text-sm text-rose-300" role="alert">
           {detail.error}
+        </p>
+      )}
+      {item.status === "drafting" && (
+        <p className="text-xs text-muted-foreground">
+          Being drafted: no <code>CARD.md</code> has been committed on{" "}
+          {item.branch} yet.
         </p>
       )}
       {item.source === "next-up" && (

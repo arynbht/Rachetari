@@ -73,14 +73,91 @@ export interface LiveCard {
   /** Where it was read: the working tree, a local branch, or only the remote. */
   where: "checked-out" | "local" | "remote";
   card: Card | null;
-  /** Set when the card can't be read, e.g. "unreadable: no card header". */
+  /** Set when no CARD.md has ever been committed on the branch: it is being drafted. */
+  drafting?: true;
+  /** Set when the card can't be read, e.g. "unreadable: CARD.md doesn't parse …". */
   error?: string;
   /** When the branch last had a commit (ISO time), or null. */
   lastCommitAt: string | null;
 }
 
-/** Every live card: CARD.md in the working tree and on each card/* branch. */
-export async function readLiveCards(repo: string): Promise<LiveCard[]> {
+/** A local day/* or card/* branch, or a remote-tracking one: the name after the remote. */
+function branchOf(
+  ref: string,
+  prefix: "card" | "day",
+): { name: string; local: boolean } | null {
+  const local = new RegExp(`^refs/heads/(${prefix}/.+)$`).exec(ref)?.[1];
+  const remote = new RegExp(`^refs/remotes/[^/]+/(${prefix}/.+)$`).exec(
+    ref,
+  )?.[1];
+  const name = local ?? remote;
+  return name ? { name, local: local !== undefined } : null;
+}
+
+/**
+ * The day branch: the newest day/* branch by name (day/YYYY-MM-DD sorts by
+ * date), local or remote-tracking, the local one winning; null when there's none.
+ */
+function newestDay(refs: string[]): string | null {
+  let best: { name: string; local: boolean; ref: string } | null = null;
+  for (const ref of refs) {
+    const day = branchOf(ref, "day");
+    if (!day) continue;
+    if (
+      !best ||
+      day.name > best.name ||
+      (day.name === best.name && day.local && !best.local)
+    )
+      best = { ...day, ref };
+  }
+  return best?.ref ?? null;
+}
+
+/** The day branch's ref, or null when the repo has no day/* branch. */
+async function dayBranch(repo: string): Promise<string | null> {
+  const out = await git(repo, [
+    "for-each-ref",
+    "--format=%(refname)",
+    "refs/heads/day/",
+    "refs/remotes/",
+  ]).catch(() => "");
+  return newestDay(out.split("\n"));
+}
+
+/** The file names in cards/done/ at a ref; none when it has no such folder. */
+async function doneNames(repo: string, ref: string): Promise<string[]> {
+  return (
+    await git(repo, ["ls-tree", "--name-only", `${ref}:cards/done`]).catch(
+      () => "",
+    )
+  )
+    .split("\n")
+    .filter((n) => n.endsWith(".md"));
+}
+
+/** The refs cards/done/ is read from: the default branch first, then the day branch. */
+async function doneRefs(
+  repo: string,
+  day: string | null | Promise<string | null>,
+): Promise<string[]> {
+  const [base, dayRef] = await Promise.all([defaultBranch(repo), day]);
+  return dayRef ? [base, dayRef] : [base];
+}
+
+/** A card/* branch as listed, with its CARD.md's text and the card it parses to. */
+interface CardBranch {
+  branch: string;
+  ref: string;
+  at: string;
+  where: LiveCard["where"];
+  text: string | null;
+  card: Card | null;
+}
+
+/** Every card/* branch and its CARD.md (from the working tree when checked out). */
+async function readCardBranches(
+  repo: string,
+): Promise<{ branches: CardBranch[]; day: string | null }> {
   const current = (
     await git(repo, ["rev-parse", "--abbrev-ref", "HEAD"])
   ).trim();
@@ -89,6 +166,7 @@ export async function readLiveCards(repo: string): Promise<LiveCard[]> {
       "for-each-ref",
       "--format=%(refname)%09%(committerdate:iso-strict)",
       "refs/heads/card/",
+      "refs/heads/day/",
       "refs/remotes/",
     ])
   )
@@ -104,14 +182,16 @@ export async function readLiveCards(repo: string): Promise<LiveCard[]> {
     { ref: string; at: string; where: LiveCard["where"] }
   >();
   for (const { ref, at } of refs) {
-    const local = /^refs\/heads\/(card\/.+)$/.exec(ref)?.[1];
-    const remote = /^refs\/remotes\/[^/]+\/(card\/.+)$/.exec(ref)?.[1];
-    const branch = local ?? remote;
-    if (!branch) continue;
-    const seen = byBranch.get(branch);
+    const card = branchOf(ref, "card");
+    if (!card) continue;
+    const seen = byBranch.get(card.name);
     // A local branch wins over its remote-tracking copy.
-    if (!seen || (local && seen.where === "remote"))
-      byBranch.set(branch, { ref, at, where: local ? "local" : "remote" });
+    if (!seen || (card.local && seen.where === "remote"))
+      byBranch.set(card.name, {
+        ref,
+        at,
+        where: card.local ? "local" : "remote",
+      });
   }
   if (current.startsWith("card/") && !byBranch.has(current))
     byBranch.set(current, {
@@ -120,27 +200,70 @@ export async function readLiveCards(repo: string): Promise<LiveCard[]> {
       where: "local",
     });
 
-  const cards: LiveCard[] = [];
+  const branches: CardBranch[] = [];
   for (const [branch, { ref, at, where }] of byBranch) {
     const checkedOut = branch === current;
     const text = checkedOut
       ? await readFile(join(repo, "CARD.md"), "utf8").catch(() => null)
       : await show(repo, ref, "CARD.md");
-    const card = text === null ? null : parseCard(text);
-    cards.push({
+    branches.push({
       branch,
+      ref,
+      at,
       where: checkedOut ? "checked-out" : where,
-      card,
-      ...(card
-        ? {}
-        : {
+      text,
+      card: text === null ? null : parseCard(text),
+    });
+  }
+  return { branches, day: newestDay(refs.map((r) => r.ref)) };
+}
+
+/**
+ * Every live card: CARD.md in the working tree and on each card/* branch. A
+ * branch with no readable CARD.md is, in this order: done (its id is in
+ * cards/done/ on the default or day branch), and then not a live card at all;
+ * drafting (no CARD.md has ever been committed on it); or broken.
+ */
+export async function readLiveCards(repo: string): Promise<LiveCard[]> {
+  const { branches, day } = await readCardBranches(repo);
+
+  // The done ids are read once per read, and only when a branch needs them.
+  let doneIds: Promise<Set<string>> | null = null;
+  const isDone = async (branch: string): Promise<boolean> => {
+    const id = /T-\d{4,}/.exec(branch)?.[0];
+    if (!id) return false;
+    doneIds ??= doneRefs(repo, day)
+      .then((refs) => Promise.all(refs.map((r) => doneNames(repo, r))))
+      .then(
+        (names) => new Set(names.flat().map((n) => n.replace(/\.md$/, ""))),
+      );
+    return (await doneIds).has(id);
+  };
+
+  const cards: LiveCard[] = [];
+  for (const { branch, ref, at, where, text, card } of branches) {
+    const live = { branch, where, card, lastCommitAt: at || null };
+    if (card) {
+      cards.push(live);
+      continue;
+    }
+    if (await isDone(branch)) continue;
+    const committed = (
+      await git(repo, ["log", "-1", "--format=%H", ref, "--", "CARD.md"]).catch(
+        () => "",
+      )
+    ).trim();
+    cards.push(
+      committed
+        ? {
+            ...live,
             error:
               text === null
-                ? "unreadable: there is no CARD.md on this branch"
-                : "unreadable: CARD.md has no `# T-NNNN · title` and `Status:` line",
-          }),
-      lastCommitAt: at || null,
-    });
+                ? "unreadable: CARD.md was removed from this branch, but the card isn't in cards/done/"
+                : "unreadable: CARD.md doesn't parse: it has no `# T-NNNN · title` and `Status:` line",
+          }
+        : { ...live, drafting: true },
+    );
   }
   return cards.sort((a, b) => a.branch.localeCompare(b.branch));
 }
@@ -156,41 +279,40 @@ export interface DoneCard {
   title: string;
   status: string;
   pr: number | null;
-  /** When the file landed on the default branch (ISO time), or null. */
+  /** When the file landed on the branch it was read from (ISO time), or null. */
   closedAt: string | null;
   path: string;
 }
 
-/** The finished cards in cards/done/ on the default branch, newest first. */
+/**
+ * The finished cards in cards/done/ on the default branch and the day branch,
+ * newest first. A file on both is read from the default branch.
+ */
 export async function readDoneCards(repo: string): Promise<DoneCard[]> {
-  const ref = await defaultBranch(repo);
-  const names = (
-    await git(repo, ["ls-tree", "--name-only", `${ref}:cards/done`]).catch(
-      () => "",
-    )
-  )
-    .split("\n")
-    .filter((n) => n.endsWith(".md"));
+  const seen = new Set<string>();
   const done: DoneCard[] = [];
-  for (const name of names) {
-    const path = `cards/done/${name}`;
-    const text = await show(repo, ref, path);
-    const card = text === null ? null : parseCard(text);
-    const closedAt =
-      (
-        await git(repo, ["log", "-1", "--format=%cI", ref, "--", path]).catch(
-          () => "",
-        )
-      ).trim() || null;
-    done.push({
-      id: card?.id ?? name.replace(/\.md$/, ""),
-      title: card?.title ?? "(unreadable)",
-      status: card?.status ?? "unreadable",
-      pr: card?.pr ?? null,
-      closedAt,
-      path,
-    });
-  }
+  for (const ref of await doneRefs(repo, dayBranch(repo)))
+    for (const name of await doneNames(repo, ref)) {
+      const path = `cards/done/${name}`;
+      if (seen.has(path)) continue;
+      seen.add(path);
+      const text = await show(repo, ref, path);
+      const card = text === null ? null : parseCard(text);
+      const closedAt =
+        (
+          await git(repo, ["log", "-1", "--format=%cI", ref, "--", path]).catch(
+            () => "",
+          )
+        ).trim() || null;
+      done.push({
+        id: card?.id ?? name.replace(/\.md$/, ""),
+        title: card?.title ?? "(unreadable)",
+        status: card?.status ?? "unreadable",
+        pr: card?.pr ?? null,
+        closedAt,
+        path,
+      });
+    }
   return done.sort((a, b) => b.id.localeCompare(a.id));
 }
 
@@ -277,8 +399,9 @@ export async function readEvents(
   ]).catch(() => "");
   for (const e of parse(onDefault, null)) events.set(e.sha, e);
 
-  const cards = await readLiveCards(repo);
-  for (const c of cards) {
+  // Every card branch, done or not: a done branch's commits are still events.
+  const { branches } = await readCardBranches(repo);
+  for (const c of branches) {
     const branchRef =
       c.where === "remote" ? await remoteRef(repo, c.branch) : c.branch;
     if (!branchRef) continue;
@@ -325,7 +448,8 @@ export async function fetchRepo(repo: string): Promise<void> {
 
 /**
  * The commits on a card's branch that aren't on the default branch, newest
- * first; for a card read from cards/done/, the commits that touched its file.
+ * first; for a card read from cards/done/, the commits that touched its file
+ * (on the day branch when the default branch has none).
  */
 export async function readCardCommits(
   repo: string,
@@ -334,11 +458,26 @@ export async function readCardCommits(
 ): Promise<RepoEvent[]> {
   const base = await defaultBranch(repo);
   const format = "--format=%H%x09%cI%x09%an%x09%s";
-  const args =
+  const touching = (ref: string) =>
+    "path" in at
+      ? git(repo, ["log", `-n${limit}`, format, ref, "--", at.path]).catch(
+          () => "",
+        )
+      : "";
+  let out =
     "ref" in at
-      ? ["log", `-n${limit}`, format, at.ref, `^${base}`]
-      : ["log", `-n${limit}`, format, base, "--", at.path];
-  const out = await git(repo, args).catch(() => "");
+      ? await git(repo, [
+          "log",
+          `-n${limit}`,
+          format,
+          at.ref,
+          `^${base}`,
+        ]).catch(() => "")
+      : await touching(base);
+  if ("path" in at && !out.trim()) {
+    const day = await dayBranch(repo);
+    if (day) out = await touching(day);
+  }
   return out
     .split("\n")
     .filter(Boolean)
@@ -354,12 +493,19 @@ export async function readCardCommits(
     });
 }
 
-/** A finished card's file on the default branch, parsed; null when it isn't a card. */
+/**
+ * A finished card's file on the default branch, else on the day branch,
+ * parsed; null when it isn't a card.
+ */
 export async function readDoneCard(
   repo: string,
   path: string,
 ): Promise<Card | null> {
-  const text = await show(repo, await defaultBranch(repo), path);
+  let text = await show(repo, await defaultBranch(repo), path);
+  if (text === null) {
+    const day = await dayBranch(repo);
+    if (day) text = await show(repo, day, path);
+  }
   return text === null ? null : parseCard(text);
 }
 
