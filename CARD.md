@@ -1,7 +1,7 @@
 # T-0059 · test(shell): the fixture cleanup waits for its children and retries EBUSY on Windows
 
-Status: ready
-Branch: card/T-0059 · Held by: nobody
+Status: in progress
+Branch: card/T-0059 · Held by: builder session (T-0059)
 Created: 2026-11-25 · Source: owner's answer to T-0045's question (docs/open-questions.md) · Gate: needs you (shared test helper `kit-fixture.ts`), approved by the owner
 
 ## Why
