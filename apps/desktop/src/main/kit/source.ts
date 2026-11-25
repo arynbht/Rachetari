@@ -54,7 +54,7 @@ function orNone<T>(fallback: T): (err: unknown) => T {
  * outlive git itself and hold its remote connection (and, on Linux, any pipe
  * git inherited, so the shell can't exit) until the remote closes it.
  */
-function killTree(child: ChildProcess): void {
+export function killTree(child: ChildProcess): void {
   const { pid } = child;
   if (pid === undefined) return;
   if (process.platform === "win32") {
