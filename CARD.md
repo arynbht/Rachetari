@@ -1,7 +1,7 @@
 # T-0030 · feat(shell): a live shell that follows develop
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0030 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0030 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Shell: live shell (part 1 of 3) · Gate: low
 
 ## Why
