@@ -157,3 +157,22 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
 - **Chose:** (a). The source showed every repo error in that box; staying quiet would
   hide why the other machine's cards are missing.
 - **Reverse:** drop the `.catch` message in `App.tsx`'s `handleSelect`.
+
+## D-14 · T-0008 · Unreadable cards in Needs you
+
+- **Question:** §6.2 lists four needs-you kinds; §6.1 says a card that doesn't parse is
+  shown as unreadable, never skipped. Where does Now show one?
+- **Options:** (a) a fifth kind, "Card can't be read", that says to fix CARD.md on its
+  branch; (b) only in Tasks (T-0009).
+- **Chose:** (a), and Tasks lists it too. A broken card does need the owner, and Now is
+  where they look first.
+- **Reverse:** drop the `unreadable` branch in `needsYouItems` (`engine/now.ts`).
+
+## D-15 · T-0008 · What happens to "Open in Tasks" before Tasks is built
+
+- **Question:** Now's items and recent events open a card in Tasks, which arrives with
+  T-0009.
+- **Options:** (a) the button switches to the Tasks tab (still the "not built yet"
+  placeholder until T-0009); (b) hide the buttons until then.
+- **Chose:** (a): it keeps the source's behaviour, and T-0009 makes it open the card.
+- **Reverse:** n/a; T-0009 completes it.

@@ -56,13 +56,15 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy `now.ts` and `Now.tsx` verbatim, then cut.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: Unreadable cards are listed in Needs you as a fifth kind (D-14); "Open in Tasks" switches tabs until T-0009 (D-15)
+- 2026-11-25: The frame e2e test (new in T-0006) now checks the Now heading instead of its placeholder
 
 ## Questions for me
 
