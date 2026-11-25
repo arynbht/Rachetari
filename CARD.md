@@ -1,6 +1,6 @@
 # T-0026 · feat(shell): a read-only Questions panel on Now, with Copy all
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0026 · Held by: nobody
 Created: 2026-11-25 · Gate: needs you · Source: `docs/queue-2026-11-25.md` §Questions panel on Now (part 1 of 2)
 
@@ -87,13 +87,21 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: decided for the owner: the clipboard is written by `navigator.clipboard.writeText` in the renderer (alternative: a clipboard IPC channel through main's `clipboard`). Sandboxed preloads no longer get `clipboard`, and this keeps the card free of new channels.
 - 2026-11-25: Split: this card is the read-only half (template, parser, `NowState.questions`, panel, Copy all); answering from the panel is the next card. Pending the owner's answer to question 1.
 - 2026-11-25: Overlaps checked against the in-flight cards: only T-0019 shares files (`parse.ts`, `now.ts`). T-0023 and T-0025 edit `kit/setup/**` but not `kit/setup/templates/CARD.md`. T-0024's `App.tsx` and T-0021's two new e2e files aren't touched here.
+- 2026-11-25: Owner's answers (19:27): split in two; required `NowState.questions` and the `home.test.ts` edit approved; both templates identical, and the parser still reads free-form questions in existing cards as one question with no recommendation (not unreadable) — a criterion the builder must cover; the write path is settled for the next card. Set ready by the foreman.
 
 ## Questions for me
 
-- [ ] Split the spec in two: this read-only card (template shape, parser, `NowState.questions`, the panel, Copy all), then "answer from the panel" (accept recommended, accept all for a card, free-text answer, each a previewed commit)? — Recommended: yes. Options: one card for all of it; three cards (template and parser; panel and Copy all; the writes).
-- [ ] May `NowState` (`shared/ipc.ts`, a contract) gain a required `questions` array (per card: id, title, branch, and each open question's `n`, `ask`, `recommended`, `options`), with the existing `home.test.ts` gaining `questions: []` in its `NowState` literal? — Recommended: yes. Options: make `questions` optional so no existing test is edited; a separate `now:questions` channel.
-- [ ] The kit's own template (`kit/setup/templates/CARD.md`, copied into every repo by `/setup`) gets the fixed shape too, not only this repo's `cards/TEMPLATE.md`? — Recommended: yes, both, identical. Options: this repo's template only, and park the kit's.
-- [ ] How should the next card write (the shell's first write, shared with §Shell action: mark ready)? — Recommended: one main-process write path for both. It changes only `CARD.md` on `card/T-NNNN` through git plumbing (temporary index, `commit-tree`, `update-ref` against the previewed commit), so no checkout, and HEAD and the working tree are untouched. It shows the `CARD.md` diff with Commit and Cancel, and commits `docs(card): T-NNNN answer question N` (body `Card: T-NNNN`). It refuses when the branch is checked out in any worktree, or is behind or diverged from origin. Then it pushes that branch alone, fast-forward only, never force. It never writes any other ref or file. Options: commit without pushing; commit in a temporary worktree of the branch; build mark ready first and let it own the path.
+- [x] Split the spec in two: this read-only card (template shape, parser, `NowState.questions`, the panel, Copy all), then "answer from the panel" (accept recommended, accept all for a card, free-text answer, each a previewed commit)? — Recommended: yes. Options: one card for all of it; three cards (template and parser; panel and Copy all; the writes).
+- [x] May `NowState` (`shared/ipc.ts`, a contract) gain a required `questions` array (per card: id, title, branch, and each open question's `n`, `ask`, `recommended`, `options`), with the existing `home.test.ts` gaining `questions: []` in its `NowState` literal? — Recommended: yes. Options: make `questions` optional so no existing test is edited; a separate `now:questions` channel.
+- [x] The kit's own template (`kit/setup/templates/CARD.md`, copied into every repo by `/setup`) gets the fixed shape too, not only this repo's `cards/TEMPLATE.md`? — Recommended: yes, both, identical. Options: this repo's template only, and park the kit's.
+- [x] How should the next card write (the shell's first write, shared with §Shell action: mark ready)? — Recommended: one main-process write path for both. It changes only `CARD.md` on `card/T-NNNN` through git plumbing (temporary index, `commit-tree`, `update-ref` against the previewed commit), so no checkout, and HEAD and the working tree are untouched. It shows the `CARD.md` diff with Commit and Cancel, and commits `docs(card): T-NNNN answer question N` (body `Card: T-NNNN`). It refuses when the branch is checked out in any worktree, or is behind or diverged from origin. Then it pushes that branch alone, fast-forward only, never force. It never writes any other ref or file. Options: commit without pushing; commit in a temporary worktree of the branch; build mark ready first and let it own the path.
+
+Owner, 19:27:
+
+1. Yes, split in two as recommended.
+2. Yes, a required field, and editing home.test.ts is approved.
+3. Yes, both templates identical. The parser must still read the free-form questions already in existing cards: show each as one question with no recommendation, rather than as unreadable.
+4. One shared write path, as recommended, with one change (for the next card or "mark ready", whichever runs first): refuse if "Held by" names anyone, saying who holds it; if the branch is checked out in a clean worktree, commit there; if that worktree has uncommitted changes, refuse and name it; never move a branch ref underneath a worktree; otherwise commit without a checkout. Diff shown first, push fast-forward only, refuse if behind origin.
 
 ## Done
 
@@ -106,6 +114,7 @@ Appended by the session, one line each, newest last.
 ### Evidence
 
 Waiting on the owner (wall clock, UTC):
+draft → ready 19:22:54 → 19:27:30 4 min 36 s
 draft 19:25 → ready (pending)
 
 ```
