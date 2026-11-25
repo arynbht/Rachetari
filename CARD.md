@@ -1,6 +1,6 @@
 # T-0028 · docs(shell): a static prototype of the Tasks overhaul
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0028 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 1: design only · Gate: needs you
 
@@ -17,6 +17,9 @@ Each one is checked by something that can be run or looked at. No criterion with
 - [ ] A3: A "Needs me" filter keeps only the cards waiting on the owner: T-0004 (a draft gated `needs you`), T-0005 (an open question) and T-0006 (can't be read) · check: the script turns it on, exits non-zero unless exactly those three are shown, and writes `5-needs-me.png`
 - [ ] A4: `index.html?done=20` shows the board with 20 done cards in all: the Done rail reads 20, five are listed, and the board is no taller than in `1-board.png` · check: the script writes `4-done-20.png` and exits non-zero unless the rail lists exactly five
 - [ ] A5: One alternative layout, `index.html?layout=list`: the grouped list always on the left with load headers, and the record (or "Pick a card") on the right, so selecting a card never reflows the page. The real Tasks view, the engine and the IPC don't change, and the PR is docs only · check: the script writes `6-alt-board.png` and `7-alt-selected.png`; `git diff --stat origin/day/2026-11-25...HEAD` lists only the files in scope; `node scripts/ci-scope.mjs origin/day/2026-11-25` prints `nothing to check: the diff is docs only`, so `ci` runs only `changes` and `secret-scan` and must be green (`gh pr checks`). The screenshots are made locally by the builder and committed; CI doesn't make them. Local: `pnpm exec eslint docs/prototypes/T-0028` and `pnpm exec prettier --check docs/prototypes/T-0028 CARD.md BACKLOG.md` pass
+- [ ] A6: The prototype uses the shell's own stylesheet and theme tokens (the built renderer CSS, not hand-written CSS) at the shell's window size, 1140×780, so the screenshots look like the real app · check: `shoot.mjs` loads the shell's CSS (path named in Evidence) and sets the 1140×780 viewport; compare a screenshot with the real Tasks view's
+- [ ] A7: The seven screenshots include: the full board with 20 done cards; a card selected; a blocked card with two open questions; the "needs me" filter on; and both layouts showing the same card, for a direct comparison · check: the seven PNGs under `docs/screenshots/T-0028/`, each named for what it shows
+- [ ] A8: Once the screenshots are pushed, a link to the folder sits at the top of `docs/open-questions.md` on `develop` with one question: which layout, and what to change (the foreman writes it; the builder reports the folder link) · check: the file on `develop`
 
 ## Files in scope
 
@@ -76,10 +79,12 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Keys: decided for the owner: on the board, Left and Right move between columns, Up and Down within one, Enter opens; in the collapsed list, Up and Down open each card in turn; Escape returns to the board with focus on the card that was open (alternative: Up and Down only move focus in the list, and Enter opens).
 - 2026-11-25: Rails: decided for the owner: the Next up rail shows its count and expands in place on click; the Done rail always lists the latest five, one line each, with its count and the History link (alternative: each rail opens its own view, Backlog or History).
 - 2026-11-25: The alternative layout: decided for the owner: an always-two-pane grouped list with the record, `?layout=list`. At 1140 px, five columns and two rails leave each card about 180 px, titles wrap to three lines, and the page reflows on every selection; the list keeps titles on one line and never reflows (alternative: lanes, one row per status).
+- 2026-11-25: Owner (19:40:30): approved with three additions (A6–A8). The base branch is now `develop`, not `day/2026-11-25`. Set ready by the foreman.
 
 ## Questions for me
 
-None.
+- [x] Approve the card as drafted? — Owner, 19:40:30: yes, with three additions: the shell's own stylesheet and theme tokens at 1140×780; the seven screenshots include the full board with 20 done cards, a card selected, a blocked card with two open questions, the "needs me" filter on, and both layouts showing the same card; once pushed, a link to the folder at the top of docs/open-questions.md with one question: which layout, and what to change. (A6–A8 added; the drafter's "CSS written by hand" decision is replaced by A6.)
+      None.
 
 ## Done
 
@@ -93,5 +98,6 @@ None.
 
 ```
 Waiting on the owner (wall clock, UTC):
+  approval         19:36:09 → 19:40:30   4 min 21 s
   draft 19:31:25 →
 ```
