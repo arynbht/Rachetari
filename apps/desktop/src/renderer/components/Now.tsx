@@ -14,6 +14,7 @@ import type {
   NowState,
 } from "../../shared/ipc";
 import { openQuestionsText } from "../../shared/open-questions";
+import { DisplayBranchLine } from "./DisplayBranch";
 
 // The repo as it stands now: what's in progress, everything that waits on the
 // owner, what just happened, and the repo's health. All of it is the main
@@ -365,6 +366,7 @@ export function Now({
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold">Now</h2>
+        <DisplayBranchLine display={state?.display} />
         <p className="text-xs text-muted-foreground">
           What&apos;s in progress, what waits on you and what just happened,
           read from the repo&apos;s cards and backlog. Each item says what to

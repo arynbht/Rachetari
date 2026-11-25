@@ -92,6 +92,20 @@ export type SettingsSaveRequest = z.infer<typeof SettingsSaveRequest>;
 // health of the repo, what waits on the owner, the cards in progress, and
 // what just happened. The watcher pushes a new state on every change.
 export const NowRepoRequest = z.object({ repoPath: z.string().min(1) });
+
+/**
+ * The branch the shell shows a repo's kit files from: `develop`, from the
+ * newer of local `develop` and `origin/develop`, else the default branch.
+ */
+export const DisplayBranch = z.object({
+  /** What the header names: "develop", or the default branch, e.g. "main". */
+  name: z.string(),
+  /** The ref it was read from, e.g. refs/heads/develop. */
+  ref: z.string(),
+  /** Local develop and origin/develop have diverged: local is shown. */
+  diverged: z.boolean(),
+});
+export type DisplayBranch = z.infer<typeof DisplayBranch>;
 export const NowSelectRequest = z.object({
   repoPath: z.string().min(1).nullable(),
 });
@@ -203,6 +217,12 @@ export const NowState = z.object({
   questions: z.array(NowQuestionGroup),
   running: z.array(NowRunning),
   recent: z.array(RecentEvent),
+  /**
+   * The branch it was read from, null before the first read. Optional in the
+   * type only, so a NowState built by hand without it still checks; the
+   * engine always sets it.
+   */
+  display: DisplayBranch.nullable().optional(),
 });
 export type NowState = z.infer<typeof NowState>;
 
@@ -265,6 +285,8 @@ export const TasksState = z.object({
   ready: z.boolean(),
   error: z.string().nullable(),
   items: z.array(TaskItem),
+  /** The branch it was read from, null before the first read. */
+  display: DisplayBranch.nullable(),
 });
 export type TasksState = z.infer<typeof TasksState>;
 
@@ -311,7 +333,7 @@ export const TaskDetail = z.object({
 });
 export type TaskDetail = z.infer<typeof TaskDetail>;
 
-// Checklist — the repo checklist in BACKLOG.md on the default branch: the
+// Checklist — the repo checklist in BACKLOG.md on the display branch: the
 // stage and what decides it, and each line with its status and its check, as
 // /setup last recorded them. Read on demand; nothing here runs a check.
 export const ChecklistStatus = z.enum(["pass", "fail", "unchecked", "n/a"]);
@@ -319,7 +341,7 @@ export type ChecklistStatus = z.infer<typeof ChecklistStatus>;
 
 export const ChecklistView = z.object({
   repoPath: z.string(),
-  /** Whether the default branch has a BACKLOG.md at all. */
+  /** Whether the display branch has a BACKLOG.md at all. */
   hasBacklog: z.boolean(),
   stage: z.string().nullable(),
   stageWhy: z.string().nullable(),
@@ -337,6 +359,8 @@ export const ChecklistView = z.object({
       ),
     }),
   ),
+  /** The branch it was read from, null before the first read. */
+  display: DisplayBranch.nullable(),
 });
 export type ChecklistView = z.infer<typeof ChecklistView>;
 

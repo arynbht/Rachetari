@@ -228,6 +228,7 @@ export function nowState(
     questions: questionGroups(snapshot),
     running: runningCards(snapshot),
     recent: recentEvents(snapshot),
+    display: snapshot.display,
   };
 }
 

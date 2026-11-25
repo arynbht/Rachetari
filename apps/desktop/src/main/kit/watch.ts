@@ -1,7 +1,9 @@
 // A repo's kit files, read whole on each tick: the watcher the Now hub polls
 // with. It only reads (through the file source) and never fetches; it tells
 // its listener when what it read changed, or when a read failed.
+import type { DisplayBranch } from "../../shared/ipc";
 import {
+  displayBranch,
   type DoneCard,
   hasMap,
   type LiveCard,
@@ -19,8 +21,10 @@ import type { Backlog, SkillRow } from "./parse";
 /** Everything the shell's views show about one repo, as last read. */
 export interface KitSnapshot {
   cards: LiveCard[];
+  /** The branch the kit files were read from; null before the first read. */
+  display: DisplayBranch | null;
   backlog: Backlog | null;
-  /** The finished cards in cards/done/ on the default branch. */
+  /** The finished cards in cards/done/ on the display and default branches. */
   done: DoneCard[];
   nights: Night[];
   skills: SkillRow[];
@@ -30,6 +34,7 @@ export interface KitSnapshot {
 
 export const EMPTY_SNAPSHOT: KitSnapshot = {
   cards: [],
+  display: null,
   backlog: null,
   done: [],
   nights: [],
@@ -38,20 +43,21 @@ export const EMPTY_SNAPSHOT: KitSnapshot = {
   map: false,
 };
 
-/** Read a repo's kit files once. */
+/** Read a repo's kit files once, from the display branch read once first. */
 export async function readKit(repo: string): Promise<KitSnapshot> {
+  const display = await displayBranch(repo);
   const [cards, backlog, done, nights, skills, events, map] = await Promise.all(
     [
-      readLiveCards(repo),
-      readBacklog(repo),
-      readDoneCards(repo),
-      readNights(repo),
-      readSkills(repo),
-      readEvents(repo),
+      readLiveCards(repo, display),
+      readBacklog(repo, display),
+      readDoneCards(repo, display),
+      readNights(repo, display),
+      readSkills(repo, display),
+      readEvents(repo, 50, display),
       hasMap(repo),
     ],
   );
-  return { cards, backlog, done, nights, skills, events, map };
+  return { cards, display, backlog, done, nights, skills, events, map };
 }
 
 export type KitEvent =

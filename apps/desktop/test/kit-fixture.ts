@@ -17,6 +17,12 @@ export interface KitFixture {
   pushToOrigin(id: string, card: string): void;
   /** Commit a file to the origin's main (seen after a fetch). */
   commitOnOrigin(path: string, text: string): void;
+  /**
+   * Commit a file to `develop`: the clone's local branch (made from
+   * origin/develop when there is one, else from main, and left checked out as
+   * it was) or the origin's (made from main; seen after a fetch).
+   */
+  commitOnDevelop(where: "local" | "origin", path: string, text: string): void;
   remove(): void;
 }
 
@@ -302,6 +308,34 @@ export function kitFixture(): KitFixture {
     commitOnOrigin(path, text) {
       write(origin, path, text);
       commitAll(origin, `docs: update ${path}`);
+    },
+    commitOnDevelop(where, path, text) {
+      const cwd = where === "local" ? repo : origin;
+      const back = git(cwd, "rev-parse", "--abbrev-ref", "HEAD").trim();
+      const has = (ref: string) => {
+        try {
+          git(cwd, "rev-parse", "--verify", "--quiet", ref);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      if (has("refs/heads/develop")) git(cwd, "checkout", "-q", "develop");
+      else
+        git(
+          cwd,
+          "checkout",
+          "-q",
+          "--no-track",
+          "-b",
+          "develop",
+          where === "local" && has("refs/remotes/origin/develop")
+            ? "origin/develop"
+            : "main",
+        );
+      write(cwd, path, text);
+      commitAll(cwd, `docs: update ${path} on develop`);
+      git(cwd, "checkout", "-q", back);
     },
     remove() {
       rmSync(root, { recursive: true, force: true });
