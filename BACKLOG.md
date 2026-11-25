@@ -20,13 +20,12 @@ Ordered. The top line becomes the next `CARD.md`.
 12. Questions panel on Now (T-0026, read-only half): one row per question with its recommendation, Copy all, Accept recommended (per question and per card) and a free-text answer, each a previewed plain commit; the template and parser get a fixed question shape (needs you) · from `docs/queue-2026-11-25.md` §Questions panel on Now
 13. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 14. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-15. (paused) Clean code 1a: take `code-simplification`, write the `deslop` skill and the Slop defaults `/setup` drafts, with a test that the twelve lines never differ (T-0023) · from `docs/queue-2026-11-25.md` §4e. Clean code, part 1: guidance
-16. (paused) Clean code 2 (T-0025): the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
-17. (paused) Clean code 1b (T-0027): `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
-18. (paused) Kit and scope: `SCOPE.md` and the kit's CLAUDE.md section describe `develop` · from `docs/queue-2026-11-25.md` §Kit and scope: describe develop
-19. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
-20. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-21. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
+15. (paused) Clean code 2 (T-0025): the comment-slop check, report first, then bring it over if it's ~150 lines or fewer · from `docs/queue-2026-11-25.md` §4f
+16. (paused) Clean code 1b (T-0027): `/done` deslops the card's diff first and commits it on its own, with 4f's comment report; `/setup` always copies `quality/deslop`; `/done` skips deslop when it's missing (needs you; after T-0023 and 4f) · from `docs/queue-2026-11-25.md` §4e-2. Clean code, part 1b: /done deslops first
+17. (paused) Kit and scope: `SCOPE.md` and the kit's CLAUDE.md section describe `develop` · from `docs/queue-2026-11-25.md` §Kit and scope: describe develop
+18. (paused) Clean code 1c: the five starter checklist lines, each with a check that runs, then `/setup` re-run on this repo (after 4g) · from `docs/queue-2026-11-25.md` §4e-3. Clean code, part 1c: the starter checklist lines
+19. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
+20. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
 
 ## Parked
 
