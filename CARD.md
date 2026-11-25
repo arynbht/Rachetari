@@ -33,12 +33,13 @@ check below runs locally, and `ci` is the only check on the PR.
       a subagent's own worktree branches from the default branch
       · check: `grep -nE 'ready|held by nobody|files in scope|depend|20|default branch' docs/army-mode.md`
       shows each term at least once; read the two sections
-- [x] A4: "From today's line" names what worked (chain mode, shared first, the `ci` queue,
-      approvals in chat, `docs/open-questions.md`, `develop`) and what stalled (merge
+- [x] A4: "From today's line" names what worked (chain mode, the `ci` queue, approvals in
+      chat, `docs/open-questions.md`, `develop`), what was adopted but not yet tried
+      (shared first: chain mode replaced it for the shell chain), and what stalled (merge
       permission refusals, union merge on Next up, the drafter as bottleneck, dependency
       chains on shared files, Windows test hangs), each with what army mode does about it
       · check: the term loop under Evidence prints `terms checked` and no `missing:`
-- [ ] A5: "Decisions for the owner" lists changing `SCOPE.md`'s two-session cap (rule 3
+- [x] A5: "Decisions for the owner" lists changing `SCOPE.md`'s two-session cap (rule 3
       under "Rules for changing this file", and the "Parallel night cards" row under
       "Later") with a recommendation. The PR changes no code and not `SCOPE.md`; the doc
       and `CARD.md` pass prettier; `ci` is green
@@ -102,9 +103,9 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Done; draft PR open against `develop`. The foreman checks `ci` (A5's last check) and
-merges. The owner decides on `SCOPE.md`'s two-session cap from the doc's "Decisions for
-the owner"; this card changes no rule.
+Done again after the inspection hold; draft PR #51 updated. The foreman re-checks `ci` on
+the new push and merges. `SCOPE.md`'s day cap changes in its own card, T-0042; this card
+changes no rule.
 
 ## Decisions
 
@@ -134,6 +135,20 @@ Appended by the session, one line each, newest last.
   the foreman" where a claim needed it (alternative: leave them out).
 - 2026-11-25: decided for the owner: the lead runs the checks one card at a time, because
   of the Windows hangs under load (alternative: checks in parallel, one re-run each).
+- 2026-11-25: Hold fix: "Shared first" now says the rule was adopted (4b20af6) but not yet
+  tried, because chain mode replaced it for the shell chain a minute later (3496249);
+  T-0031 was one 15-file card and T-0032, T-0034, T-0035 ran stacked in one chain. A4 no
+  longer counts shared first as something that worked.
+- 2026-11-25: Hold fix: "Decisions for the owner" keeps each recommendation and adds the
+  owner's decision: (1) daytime cap changed now in T-0042, nights stay one card at a time
+  until a six-card night meets "Parallel night cards"; (2) merge, never rebase; (3) decide
+  and log small questions at night too, under the day rule.
+- 2026-11-25: Hold fix: "Usage limits" cites the real drop (about 21:07 UTC, drafter and
+  kit inspector stopped, two builders kept, noted by the foreman) instead of implying it.
+- 2026-11-25: Hold fix: rule 4 says every subagent counts toward the 20 cap: builders,
+  reviewers and drafters together.
+- 2026-11-25: Hold fix: trimmed wording across sections to stay at 900 words or fewer
+  (dropped "the slot stays empty", the per-card-loop line and "nothing touches `main`").
 
 ## Questions for me
 
@@ -147,13 +162,45 @@ One question per line, in this shape; options are separated by `;`.
 
 ## Done
 
-- [ ] Every criterion ticked, with the command run and its result pasted below (A1–A4 ticked; A5's local half passed, its `ci` half UNTESTED until the PR's `ci` runs)
+- [x] Every criterion ticked, with the command run and its result pasted below (A5's `ci` was green before the hold fix; `ci` on the fix push is UNTESTED here)
 - [x] Tests, lint and typecheck run; output below (docs-only: CI skips them; run them locally or mark each UNTESTED)
 - [x] No edits outside "Files in scope" (`git diff --stat` below)
 - [x] Anything not run is marked UNTESTED, never "verified"
 - [x] Draft PR opened: #51
 
 ### Evidence
+
+After the inspection hold (AB_Rouge, 2026-11-25, `origin/develop` f166329 merged in):
+
+```
+$ wc -w < docs/army-mode.md
+895
+$ grep -E '^## ' docs/army-mode.md     → the same nine headings, in order
+$ grep -nE 'ready|held by nobody|files in scope|depend|20|default branch' docs/army-mode.md
+16:1. Its status is `ready` and it is held by nobody.
+17:2. None of its files in scope overlap a running card's. If unsure, assume overlap.
+18:3. It doesn't depend on a card that hasn't merged into `night/<date>`.
+19:4. Width is never above 20, Claude Code's limit on concurrent subagents. Every subagent
+28:branch from the default branch, not `develop` (noted by the foreman, 2026-11-25). The
+$ (A4 term loop)
+terms checked
+$ sed -n '/^## Decisions for the owner/,$p' docs/army-mode.md | grep -n 'SCOPE.md'
+3:1. **The two-session cap in `SCOPE.md`.** Rule 3 under "Rules for changing this file"
+11:2. **Merge or rebase onto the night branch.** `SCOPE.md` says rebase; the line never
+13:3. **Small questions at night.** `SCOPE.md` holds them; the line decides and logs them.
+$ pnpm exec prettier --check docs/army-mode.md CARD.md
+All matched files use Prettier code style!
+$ gh pr checks 51        (before the fix was pushed)
+ci          pass
+secret-scan pass
+changes     pass
+build-test, desktop-e2e, lint, test, typecheck: skipping (docs-only path filter)
+```
+
+`gh pr checks 51` after the fix push: UNTESTED here (not waited for). Tests, lint and
+typecheck were not re-run for this docs-only fix: UNTESTED (CI skips them too).
+
+Before the hold:
 
 Run on AB_Rouge (Windows 11), 2026-11-25, on `card/T-0038` after `origin/develop`
 (594c04a) was merged in.
