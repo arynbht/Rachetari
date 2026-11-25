@@ -9,7 +9,7 @@ import type { CiState } from "../../shared/ipc";
 // the only one.
 
 /** The CI state main last told, kept current by its pushes. */
-function useCiState(): CiState {
+export function useCiState(): CiState {
   const [state, setState] = useState<CiState>(null);
   useEffect(() => {
     let mounted = true;

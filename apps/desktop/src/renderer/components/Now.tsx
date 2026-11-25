@@ -14,6 +14,8 @@ import type {
   NowState,
 } from "../../shared/ipc";
 import { openQuestionsText } from "../../shared/open-questions";
+import { CiBadge } from "./CiBadge";
+import { useCiState } from "./CiLine";
 import { DisplayBranchLine } from "./DisplayBranch";
 
 // The repo as it stands now: what's in progress, everything that waits on the
@@ -223,6 +225,7 @@ function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
 }
 
 function RunningRow({ card, now }: { card: NowRunning; now: number }) {
+  const ci = useCiState();
   const parts = [
     card.heldBy ? `held by ${card.heldBy}` : "held by nobody",
     card.lastCommitAt
@@ -236,6 +239,9 @@ function RunningRow({ card, now }: { card: NowRunning; now: number }) {
           {card.id}
         </span>
         <span className="truncate">{card.title}</span>
+        <span className="ml-auto shrink-0">
+          <CiBadge branch={card.branch} state={ci} />
+        </span>
       </p>
       <p className="text-xs text-sky-400">{parts.join(" · ")}</p>
       {card.nextStep && (
