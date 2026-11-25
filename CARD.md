@@ -74,6 +74,8 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: T-0018's `needsYouItems` skips a drafting branch before any card is read, so it never reaches the gate check; `NowHub` now withholds only `merge` from `onNew`, so an `approve` still notifies and A3 stands as written. Neither changes A1-A5 or the file list.
 - 2026-11-25: decided for the owner: T-0018's `branch-states.test.ts` and `branch-states.e2e.ts` join the untouched tests under Constraints; its relative badge counts hold because the fixture's T-0004 keeps asking with `Gate: needs you` (alternative: leave them covered only by A5's "every other existing test").
 - 2026-11-25: Pre-build re-check against day/2026-11-25 at 4aae976: still ready; T-0018's `now.ts` change leaves the criteria and Files in scope as they were, one constraint widened.
+- 2026-11-25: decided for the owner: "exactly `low`" is case-sensitive, so `Low` or `LOW` asks like any other present gate, failing toward asking as the owner chose for typos (alternative: compare case-insensitively so `Low` is quiet too).
+- 2026-11-25: The gate is read by running the existing `field` helper over the first `Created:` line only, so a `Gate:` in the Why, a decision or any other line can't set it.
 
 ## Questions for me
 
