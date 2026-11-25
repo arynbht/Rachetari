@@ -94,15 +94,16 @@ test("the board has five columns with the line's loads, and Next up and Done as 
   ).toBeVisible();
 });
 
-/** Commit `count` done cards to main, each a day after the one before. */
-function commitDoneCards(repo: string, count: number): void {
-  const wt = join(repo, "..", "done-cards");
-  execFileSync("git", ["-C", repo, "worktree", "add", "-q", wt, "main"]);
+/**
+ * Commit `count` done cards to the origin's main, each a day after the one
+ * before, and fetch them: with no develop, Tasks shows origin/main.
+ */
+function commitDoneCards(count: number): void {
   // After the fixture's own done cards, which landed just now.
   const start = Date.now() + 86_400_000;
   for (let i = 0; i < count; i++) {
     const id = `T-${String(10 + i).padStart(4, "0")}`;
-    const path = join(wt, "cards", "done", `${id}.md`);
+    const path = join(fx.origin, "cards", "done", `${id}.md`);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(
       path,
@@ -114,19 +115,19 @@ function commitDoneCards(repo: string, count: number): void {
       }),
     );
     const at = new Date(start + i * 86_400_000).toISOString();
-    execFileSync("git", ["-C", wt, "add", "-A"]);
+    execFileSync("git", ["-C", fx.origin, "add", "-A"]);
     execFileSync(
       "git",
-      ["-C", wt, "commit", "-q", "-m", `chore(card): ${id} done`],
+      ["-C", fx.origin, "commit", "-q", "-m", `chore(card): ${id} done`],
       { env: { ...process.env, GIT_AUTHOR_DATE: at, GIT_COMMITTER_DATE: at } },
     );
   }
-  execFileSync("git", ["-C", repo, "worktree", "remove", "--force", wt]);
+  execFileSync("git", ["-C", fx.repo, "fetch", "-q", "origin"]);
 }
 
 test("Done lists the latest five of 20, and History opens the History tab", async () => {
   const { page } = launched;
-  commitDoneCards(fx.repo, 18);
+  commitDoneCards(18);
   await atWindowSize(page);
   await page.getByRole("tab", { name: "Tasks" }).click();
   const done = page
@@ -276,8 +277,8 @@ test("Needs me shows only the waiting cards, each with what to do", async () => 
   );
   await expect(rows.nth(2)).toContainText("Fix CARD.md on card/T-0006");
   // The columns, Next up and Done are hidden while it's on.
-  await expect(page.getByRole("region", { name: "Board" })).toHaveCount(0);
-  await expect(page.getByText("Export the report as CSV")).toHaveCount(0);
+  for (const name of ["Board", /^Next up/, /^Done/])
+    await expect(page.getByRole("region", { name })).toHaveCount(0);
   expect(await mainScrolls(page)).toEqual({ down: false, sideways: false });
   await shot("5-needs-me");
   expect(await runAxe(page)).toEqual([]);

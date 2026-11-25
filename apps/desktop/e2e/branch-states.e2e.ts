@@ -67,7 +67,7 @@ test("Tasks greys a drafting branch and shows a done branch under Done", async (
   await page.getByRole("tab", { name: "Tasks" }).click();
   const board = page.getByRole("region", { name: "Board" });
   await expect(board.locator("h4")).toHaveText([
-    /^Next up 2/,
+    /^Next up 2\b/,
     "Draft + Ready 2/6",
     "In progress 1/3",
     "Blocked 2",
