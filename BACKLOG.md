@@ -84,6 +84,11 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] An installed personal `~/.claude/skills/setup` shadows a repo's own `.claude/skills/setup`, so headless `/setup` in the kit-trial scratch repo ran the old installed copy ($0.98 spent); the trial reran the new one renamed `setup-trial` · seen on T-0029 · `claude -p "/setup"`
 - 2026-11-25 [tool] `scripts/kit-trial.mjs` makes its first scratch commit with `--no-verify` (the scratch repo has no hooks, so it does nothing, but the line rules forbid the flag) · seen on T-0029 · `scripts/kit-trial.mjs:70`
 - 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- questions.e2e.ts` runs the whole e2e suite, not the one file: pnpm passes the `--` on to `playwright test` as an argument; `pnpm --filter … exec playwright test questions.e2e.ts` (after a build) runs one · seen on T-0026 · `apps/desktop/package.json`
+- 2026-11-25 [checklist] `DESIGN.md` still says there is no UI and `apps/desktop` is empty, though the shell has landed; a `/setup` re-run would draft its tokens and components · seen on T-0028 · `DESIGN.md`
+- 2026-11-25 [tool] §The line gives two inspection caps: "Waiting for inspection at most 2" under Limits and "the inspection cap is 3" under Inspection · seen on T-0028 · `docs/queue-2026-11-25.md`
+- 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
+- 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
+- 2026-11-25 [tool] `ci-scope.mjs`'s `isDocs` (and `ci.yml`'s `code` filter) count only root `*.md` as docs, so a docs-only card PR that `/done` moves to `cards/done/<id>.md` is scoped to every package · seen on T-0028 · `scripts/ci-scope.mjs:16`
 
 ## Repo checklist
 
