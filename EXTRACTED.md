@@ -203,3 +203,18 @@ Tests dropped: `src/main/engine/map.test.ts` (asserts `floorplanOn` and the gene
 New, not copied: `apps/desktop/src/main/engine/home.test.ts`, `apps/desktop/e2e/home.e2e.ts`.
 
 Tests dropped: `e2e/home.e2e.ts` (the source's: test 1 asserts runtime content; test 2 alone would mean editing the file), `src/main/engine/home.test.ts` (the source's; runtime types, spend, phase, autonomy).
+
+## T-0023 · code-simplification
+
+Not from Rivetari: `skills/code-simplification/SKILL.md` from addyosmani/agent-skills at
+`301b02b12bff98e4688e6984af6556802322bbde` (the other addyosmani skills' pin), fetched with
+`gh api` and copied unchanged to `skills/quality/code-simplification/SKILL.md` in one
+commit. One file, blob `c4f794aa3fc63ea041989b30be7a3887c79c53ed`, 13,719 bytes, MIT. It
+isn't in Rivetari's manifest, so there is no manifest hash to match: Rivetari's
+`hashSkillDir` (`packages/registry/src/hash.ts` at `32f4b88`) over a `git archive HEAD`
+copy of the folder gives
+`sha256:f4104cecf31ebce5d879adda3b6ae7a3afaa8f687824863c165dcc972c042030`, the same as
+over the fetched pin.
+
+New, not copied: `skills/quality/deslop/SKILL.md`, `kit/setup/templates/CONSTRAINTS-slop.md`,
+`kit/slop-lines.test.ts`.
