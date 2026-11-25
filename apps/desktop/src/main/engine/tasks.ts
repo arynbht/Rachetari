@@ -64,7 +64,7 @@ export function taskItems(snapshot: KitSnapshot): TaskItem[] {
         ? {
             key: `branch:${c.branch}`,
             id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
-            title: "Being drafted: no CARD.md committed yet",
+            title: "No CARD.md yet",
             column: "draft",
             status: "drafting",
             heldBy: null,

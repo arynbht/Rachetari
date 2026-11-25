@@ -178,7 +178,7 @@ export function nowState(
       c.drafting
         ? {
             id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
-            title: "Being drafted: no CARD.md committed yet",
+            title: "No CARD.md yet",
             status: "drafting",
             heldBy: null,
             branch: c.branch,
