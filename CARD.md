@@ -54,13 +54,14 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy `Posture.tsx` and `lib/status.ts` verbatim, then cut.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: Checklist reads BACKLOG.md fresh on each load (Reload), not from the watcher, as Posture read its record on demand
 
 ## Questions for me
 
