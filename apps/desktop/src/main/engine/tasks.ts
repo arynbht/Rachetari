@@ -4,9 +4,12 @@
 // so a record can only be read from the repo's own cards. Nothing here writes.
 import type { KitSnapshot } from "../kit/watch";
 import { needsYouItems } from "./now";
+import { questionParts } from "../kit/parse";
 import { cardRef, readCardCommits, readDoneCard } from "../kit/source";
 import type {
   NeedsYouItem,
+  NowQuestion,
+  TaskCard,
   TaskColumn,
   TaskDetail,
   TaskItem,
@@ -161,6 +164,13 @@ export function tasksState(
   };
 }
 
+/** A card's open questions in parts, numbered from 1; none without a card. */
+function openQuestionsOf(card: TaskCard | null): NowQuestion[] {
+  return (card?.questions ?? [])
+    .filter((q) => q.open)
+    .map((q, i) => ({ n: i + 1, ...questionParts(q.text) }));
+}
+
 /** One card in full: the card, and the commits on its branch (or to its done file). */
 export async function taskDetail(
   repoPath: string,
@@ -176,6 +186,7 @@ export async function taskDetail(
       card: null,
       error: null,
       commits: [],
+      openQuestions: [],
     };
 
   if (item.source === "done") {
@@ -186,6 +197,7 @@ export async function taskDetail(
       card,
       error: card ? null : `unreadable: ${path} isn't a card`,
       commits: await readCardCommits(repoPath, { path }, 50, snapshot.display),
+      openQuestions: openQuestionsOf(card),
     };
   }
 
@@ -195,6 +207,7 @@ export async function taskDetail(
   return {
     item,
     card: live.card,
+    openQuestions: openQuestionsOf(live.drafting ? null : live.card),
     error: live.card || live.drafting ? null : (live.error ?? "unreadable"),
     commits: ref
       ? await readCardCommits(repoPath, { ref }, 50, snapshot.display)

@@ -105,6 +105,7 @@ test("Tasks greys a drafting branch and shows a done branch under Done", async (
   // The card closed on develop opens.
   await done.getByRole("button", { name: /T-0007/ }).click();
   const record = page.getByRole("region", { name: "T-0007 record" });
+  await record.getByRole("tab", { name: "Commits" }).click();
   await expect(record.getByText("add cards/done/T-0007.md")).toBeVisible();
 
   expect(await runAxe(page)).toEqual([]);

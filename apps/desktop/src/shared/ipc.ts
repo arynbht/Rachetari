@@ -343,6 +343,11 @@ export const TaskDetail = z.object({
   card: TaskCard.nullable(),
   error: z.string().nullable(),
   commits: z.array(RecentEvent),
+  /**
+   * The card's open questions, split as Now's Questions panel shows them;
+   * empty for a Next up line, a branch being drafted and an unreadable card.
+   */
+  openQuestions: z.array(NowQuestion),
 });
 export type TaskDetail = z.infer<typeof TaskDetail>;
 
