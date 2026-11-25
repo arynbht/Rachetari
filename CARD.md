@@ -180,6 +180,8 @@ Lines noticed while drafting, not this card's work.
   to `develop` too.
 - `docs/queue-2026-11-25.md` §Branches says "`ci` runs on every push to `develop`"; the
   `ci` job is PR-only, and a push runs `build-test` (the run, not `ci`, is what goes red).
+- `desktop-e2e` is not in the `ci` job's `needs`, so a red `desktop-e2e` doesn't turn
+  `ci` red; left unchanged here (out of scope; the foreman parked it on `develop`).
 
 ## Done
 
