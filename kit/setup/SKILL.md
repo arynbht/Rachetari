@@ -23,8 +23,8 @@ Notes from me: $ARGUMENTS
 - Missing file: write it. Identical file: leave it.
 - Different file: keep theirs and write the kit's version beside it as `name.kit.md`.
   For `CLAUDE.md`, propose the section as a diff and wait for my yes.
-- Add the line `BACKLOG.md merge=union` to `.gitattributes`, so lines parked on two
-  machines merge without conflict.
+- Add the line `BACKLOG.md merge=union` to `.gitattributes`, so the lines the merger
+  appends from each card's "Parked" merge without conflict.
 - Sources: everything comes from this skill's own templates folder,
   `${CLAUDE_SKILL_DIR}/templates/`. The `templates/...` paths below are inside it. Do not
   write the kit files from memory.
@@ -99,8 +99,8 @@ which also shows the line format. Then fill it:
   lines into `CHECKLIST.md` as they are, each under the closest section, adding
   `· stage:` before its check, from the group it sat in. Then replace that section, heading included, with
   the one line `The checklist is in [CHECKLIST.md](CHECKLIST.md).`
-- **Proposals.** A `[checklist]` line under "Parked" in `BACKLOG.md` stays there as a
-  proposal for me. Don't move it into `CHECKLIST.md`.
+- **Proposals.** A `[checklist]` line parked in a card arrives in `BACKLOG.md` via the
+  merger, from the card's "Parked", and stays there as a proposal for me. Don't move it into `CHECKLIST.md`.
 
 End this step by printing a table of the pass, fail, unchecked and n/a counts for each
 section.

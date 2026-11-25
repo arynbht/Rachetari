@@ -18,7 +18,8 @@ Note from me: $ARGUMENTS
    handoff has not happened.
 5. Parked lines travel in this card's `CARD.md` under "Parked". Whoever merges the PR
    appends them to `BACKLOG.md` on the integration branch (`develop` or its like; the
-   default branch when there is none). Do not push to the integration branch or the default branch.
+   default branch when there is none). Do not push to the integration branch or the
+   default branch.
 6. Tell me the branch name and the "Next step" line. On the other machine:
    `git fetch`, check out the branch, start a session.
 

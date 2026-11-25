@@ -45,7 +45,7 @@ only; deslop edits and commits nothing. Say that you stopped because the card is
    without the cleanup. If they still fail, the cleanup wasn't the cause: run
    `git revert --abort` and report the failures. Either way, don't try to fix the cleanup.
 4. Run `git diff --stat` against the base branch. List any file not in "Files in scope".
-   `CARD.md`, `cards/done/` and `BACKLOG.md` are always allowed.
+   `CARD.md` and `cards/done/` are always allowed.
 5. Report three lists: passed, failed, untested or out of scope. Then the Deslop list.
 6. If everything passed and nothing is out of scope: open a draft PR whose body is the
    card's criteria and evidence, set the status to `done`, and move the card to
