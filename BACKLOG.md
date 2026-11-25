@@ -68,6 +68,8 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] `BACKLOG.md merge=union` suits the append-only Parked list but stacks an ordered, renumbered list like Next up; Next up may need its own file · seen on T-0017 · `.gitattributes`
 - 2026-11-25 [product] Needs you runs several questions for one card together on one line; each question should be its own row · seen on the line · `apps/desktop/src/main/engine/now.ts`
 - 2026-11-25 [product] The Docs viewer's ☑ draws as a colour emoji on Windows (Segoe UI Emoji picks it up), while ☐ stays a plain text glyph, so ticked and unticked boxes differ in size and colour; a U+FE0E text selector or a font choice would even them · seen on T-0020 · `apps/desktop/src/renderer/lib/markdown.ts`
+- 2026-11-25 [product] `playwright-cli` suggests an unpinned global install, `npm install -g @playwright/cli@latest`, when the CLI is missing; a pinned version installed ahead of time would keep runs reproducible · seen on T-0022 · `skills/testing/playwright-cli/SKILL.md:415`
+- 2026-11-25 [product] `playwright-cli` bootstraps a missing Playwright install with the unpinned scaffolder `npm init playwright@latest` · seen on T-0022 · `skills/testing/playwright-cli/references/test-generation.md:159`
 
 ## Repo checklist
 
