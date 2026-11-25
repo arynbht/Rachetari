@@ -24,17 +24,6 @@ files:
   - out/**
   - package.json
 
-# The catalog resolves controls/gates/templates/prompts/skill via
-# fileURLToPath(new URL("../controls", import.meta.url)) and then reads those
-# directories with fs. Those reads fail inside app.asar (it's a virtual archive),
-# so the catalog's data dirs must be unpacked to app.asar.unpacked on disk.
-asarUnpack:
-  - "**/node_modules/@arynbht/rivetari-catalog/controls/**"
-  - "**/node_modules/@arynbht/rivetari-catalog/gates/**"
-  - "**/node_modules/@arynbht/rivetari-catalog/templates/**"
-  - "**/node_modules/@arynbht/rivetari-catalog/prompts/**"
-  - "**/node_modules/@arynbht/rivetari-catalog/skill/**"
-
 # Harden the packaged Electron binary via fuses flipped at package time.
 # runAsNode off + onlyLoadAppFromAsar + no NODE_OPTIONS / --inspect close the
 # usual "run arbitrary code through our signed binary" holes; cookie encryption

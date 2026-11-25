@@ -1,28 +1,18 @@
 import { FolderPlus, House, Settings as SettingsIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { AuthControls } from "@/components/AuthControls";
-import { History } from "@/components/History";
-import { Home } from "@/components/Home";
-import { Now } from "@/components/Now";
-import { Posture } from "@/components/Posture";
-import { Project } from "@/components/Project";
-import { RepoMap } from "@/components/RepoMap";
 import { Settings } from "@/components/Settings";
-import { Tasks } from "@/components/Tasks";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/errors";
 import { applyTheme } from "@/lib/theme";
 
-type View = "now" | "tasks" | "posture" | "project" | "history" | "map";
+type View = "now" | "tasks" | "checklist" | "history" | "map";
 
-// Now opens first when a repo is picked, and Tasks, with its board by beat,
-// sits beside it: those two are where a person reads and answers the agents.
+// Now opens first when a repo is picked, and Tasks sits beside it.
 const TABS: { id: View; label: string }[] = [
   { id: "now", label: "Now" },
   { id: "tasks", label: "Tasks" },
-  { id: "posture", label: "Posture" },
-  { id: "project", label: "Project" },
+  { id: "checklist", label: "Checklist" },
   { id: "history", label: "History" },
   { id: "map", label: "Map" },
 ];
@@ -30,13 +20,7 @@ const TABS: { id: View; label: string }[] = [
 /** The view a repo opens on. */
 const DEFAULT_VIEW: View = "now";
 
-import type {
-  NowBadges,
-  NowFocus,
-  RepoEntry,
-  Theme,
-  UpdateInfo,
-} from "../shared/ipc";
+import type { RepoEntry, Theme } from "../shared/ipc";
 
 /** The screen tab bar as an ARIA tablist: roving tabindex + arrow-key nav. */
 function TabBar({
@@ -96,14 +80,15 @@ function TabBar({
   );
 }
 
-/** How many items wait on a person in a repo, beside its name in the sidebar. */
-function NeedsYouBadge({ count }: { count: number }) {
-  if (count === 0) return null;
+/**
+ * A view that isn't built yet. It says so, and which card brings it, so it
+ * can never be mistaken for a view with nothing to show.
+ */
+function NotBuiltYet({ what, card }: { what: string; card: string }) {
   return (
-    <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 text-xs font-medium tabular-nums text-amber-300">
-      {count}
-      <span className="sr-only"> waiting on you</span>
-    </span>
+    <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
+      {what} isn&apos;t built yet. It arrives with card {card}.
+    </p>
   );
 }
 
@@ -118,34 +103,12 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   // The applied theme setting; drives the OS-preference listener below.
   const [theme, setTheme] = useState<Theme>("dark");
-  // Set by the opt-in launch update check when a newer release is available.
-  const [updateBanner, setUpdateBanner] = useState<UpdateInfo | null>(null);
   // Views the user has opened for the current repo. A view stays mounted once
   // opened (just hidden), so switching tabs doesn't reset its state (a picked
   // task, a draft in progress, the map's place). Reset when the repo changes.
   const [opened, setOpened] = useState<Set<View>>(
     () => new Set<View>([DEFAULT_VIEW]),
   );
-  // How many items wait on a person in each repo, from main's watchers.
-  const [badges, setBadges] = useState<NowBadges>([]);
-  // A Needs-you item to bring into view, and a task to open in the Tasks tab;
-  // `seq` makes asking for the same one twice count.
-  const [nowFocus, setNowFocus] = useState<{ id: string; seq: number } | null>(
-    null,
-  );
-  const [tasksFocus, setTasksFocus] = useState<{
-    id: string;
-    seq: number;
-  } | null>(null);
-  const focusSeq = useRef(0);
-  // What a clicked notification does, renewed each render so the listener,
-  // which outlives renders, acts on the repo selected now.
-  const onFocusRef = useRef<(focus: NowFocus) => void>(() => undefined);
-  onFocusRef.current = ({ repoPath, id }) => {
-    if (selected !== repoPath) handleSelect(repoPath);
-    showView("now");
-    setNowFocus({ id, seq: ++focusSeq.current });
-  };
 
   function showView(next: View): void {
     setView(next);
@@ -162,49 +125,11 @@ export function App() {
       (s) => {
         setTheme(s.theme);
         applyTheme(s.theme);
-        // Opt-in launch update check; show a banner only if one is available.
-        if (s.autoCheckUpdates) {
-          window.rivetari.update.check().then(
-            (info) => info.updateAvailable && setUpdateBanner(info),
-            () => {
-              // A failed launch check is silent; the user can retry in Settings.
-            },
-          );
-        }
       },
       () => {
         // Settings unreadable — keep the default dark theme.
       },
     );
-  }, [bridgeReady]);
-
-  // Main reads the repo on show more often than the rest of the sidebar's.
-  useEffect(() => {
-    if (!bridgeReady) return;
-    window.rivetari.now.select(selected).catch((err: unknown) => {
-      setError(errorMessage(err));
-    });
-  }, [bridgeReady, selected]);
-
-  // The sidebar's badges, and a clicked notification bringing its item up.
-  useEffect(() => {
-    if (!bridgeReady) return;
-    let active = true;
-    const offBadges = window.rivetari.now.onBadges(
-      (next) => active && setBadges(next),
-    );
-    window.rivetari.now.badges().then(
-      (next) => active && setBadges(next),
-      (err: unknown) => active && setError(errorMessage(err)),
-    );
-    const offFocus = window.rivetari.now.onFocus((focus) =>
-      onFocusRef.current(focus),
-    );
-    return () => {
-      active = false;
-      offBadges();
-      offFocus();
-    };
   }, [bridgeReady]);
 
   // Re-apply "system" theme when the OS preference changes while the app is open.
@@ -242,8 +167,6 @@ export function App() {
     setError(null);
     setView(DEFAULT_VIEW);
     setOpened(new Set<View>([DEFAULT_VIEW])); // fresh state for the new repo
-    setNowFocus(null);
-    setTasksFocus(null);
   }
 
   const selectedRepo = repos.find((r) => r.path === selected) ?? null;
@@ -313,12 +236,6 @@ export function App() {
                     >
                       <span className="flex items-center gap-2">
                         <span className="truncate text-sm">{repo.name}</span>
-                        <NeedsYouBadge
-                          count={
-                            badges.find((b) => b.repoPath === repo.path)
-                              ?.count ?? 0
-                          }
-                        />
                       </span>
                       <span className="block truncate text-xs text-muted-foreground">
                         {repo.path}
@@ -350,39 +267,15 @@ export function App() {
             Settings
           </Button>
         </div>
-        <AuthControls />
+        <p className="px-4 pb-3 text-xs text-muted-foreground">
+          GitHub sign-in isn&apos;t built: it&apos;s shelved (see SHELVED.md).
+        </p>
       </aside>
 
       {/* relative makes main the containing block for anything absolutely
           placed inside it, like the sr-only table captions: otherwise they sit
           outside its scroll, stretch the window and give it a second scrollbar. */}
       <main className="relative flex-1 overflow-y-auto">
-        {updateBanner && (
-          <div className="flex items-center justify-between gap-3 border-b border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm text-sky-300">
-            <span>
-              Update available: v{updateBanner.latestVersion?.replace(/^v/, "")}
-              .{" "}
-              {updateBanner.url && (
-                <a
-                  href={updateBanner.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                >
-                  Download
-                </a>
-              )}
-            </span>
-            <button
-              type="button"
-              onClick={() => setUpdateBanner(null)}
-              aria-label="Dismiss update notice"
-              className="shrink-0 rounded p-1 hover:bg-background/40"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        )}
         {settingsOpen ? (
           <Settings onThemeChange={setTheme} />
         ) : selectedRepo ? (
@@ -422,16 +315,7 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "now"}
               >
-                {/* key starts the newly selected repo's view afresh. */}
-                <Now
-                  key={selectedRepo.path}
-                  repoPath={selectedRepo.path}
-                  focus={nowFocus}
-                  onOpenTask={(id) => {
-                    setTasksFocus({ id, seq: ++focusSeq.current });
-                    showView("tasks");
-                  }}
-                />
+                <NotBuiltYet what="The Now view" card="T-0008" />
               </div>
             )}
 
@@ -443,52 +327,19 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "tasks"}
               >
-                {/* key starts a fresh watch (and selection) when the repo changes. */}
-                <Tasks
-                  key={selectedRepo.path}
-                  repoPath={selectedRepo.path}
-                  focus={tasksFocus}
-                />
+                <NotBuiltYet what="The Tasks view" card="T-0009" />
               </div>
             )}
 
-            {opened.has("posture") && (
+            {opened.has("checklist") && (
               <div
-                id="panel-posture"
+                id="panel-checklist"
                 role="tabpanel"
-                aria-labelledby="tab-posture"
+                aria-labelledby="tab-checklist"
                 tabIndex={0}
-                hidden={view !== "posture"}
+                hidden={view !== "checklist"}
               >
-                {/* key reads the newly selected repo's record afresh. */}
-                <Posture
-                  key={selectedRepo.path}
-                  repoPath={selectedRepo.path}
-                  onOpenTask={(id) => {
-                    setTasksFocus({ id, seq: ++focusSeq.current });
-                    showView("tasks");
-                  }}
-                />
-              </div>
-            )}
-
-            {opened.has("project") && (
-              <div
-                id="panel-project"
-                role="tabpanel"
-                aria-labelledby="tab-project"
-                tabIndex={0}
-                hidden={view !== "project"}
-              >
-                {/* key checks the newly selected repo afresh. */}
-                <Project
-                  key={selectedRepo.path}
-                  repoPath={selectedRepo.path}
-                  onOpenTask={(id) => {
-                    setTasksFocus({ id, seq: ++focusSeq.current });
-                    showView("tasks");
-                  }}
-                />
+                <NotBuiltYet what="The Checklist view" card="T-0010" />
               </div>
             )}
 
@@ -500,15 +351,7 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "history"}
               >
-                {/* key reads the newly selected repo's history afresh. */}
-                <History
-                  key={selectedRepo.path}
-                  repoPath={selectedRepo.path}
-                  onOpenTask={(id) => {
-                    setTasksFocus({ id, seq: ++focusSeq.current });
-                    showView("tasks");
-                  }}
-                />
+                <NotBuiltYet what="The History view" card="T-0011" />
               </div>
             )}
 
@@ -520,14 +363,12 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "map"}
               >
-                {/* key loads the newly selected repo's map (and fences to it). */}
-                <RepoMap key={selectedRepo.path} repoPath={selectedRepo.path} />
+                <NotBuiltYet what="The Map" card="T-0012" />
               </div>
             )}
           </div>
         ) : (
-          // A repo opens on Now, as picking it from the sidebar does.
-          <Home repos={repos} onOpenRepo={handleSelect} />
+          <NotBuiltYet what="Home" card="T-0013" />
         )}
       </main>
     </div>
