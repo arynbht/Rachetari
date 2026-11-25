@@ -24,11 +24,10 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # What changed, read from the API (no checkout). Draft PRs stop here: every
-  # job below needs it.
+  # What changed, read from the API (no checkout). Every job below needs it.
+  # Draft PRs run too: every PR here is opened as a draft.
   changes:
     name: changes
-    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -261,9 +260,7 @@ jobs:
   # The one check a PR needs.
   # It always runs, so a job skipped by its path filter never leaves a PR
   # waiting, and it treats skipped as fine but anything else that isn't a pass
-  # as a failure (GitHub counts a skipped required check as passing). It runs
-  # on drafts too: there `changes` is skipped, so it fails until the PR is ready
-  # for review, instead of being skipped (which GitHub would count as passing).
+  # as a failure (GitHub counts a skipped required check as passing).
   ci:
     name: ci
     if: always() && github.event_name == 'pull_request'

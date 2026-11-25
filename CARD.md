@@ -59,6 +59,8 @@ Copy the verbatim set, commit it, then make the cuts.
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: The owner accepted the phase 0 recommendations, including dropping the "main is red" job (D6) — recorded in inventory/PHASE-0.md §8
+- 2026-11-25: CI runs on draft PRs (owner) — every PR here is a draft, and the source skipped drafts, so CI would never run
+- 2026-11-25: Coverage thresholds cut and `--passWithNoTests` added — the skeleton has no code or tests; a floor is parked for after T-0004
 
 ## Questions for me
 
