@@ -25,6 +25,33 @@ import type {
   RecentEvent,
 } from "../../shared/ipc";
 
+type Checklist = NonNullable<KitSnapshot["backlog"]>["checklist"];
+
+/**
+ * The section of a CHECKLIST.md checklist with the most gaps (fail +
+ * unchecked lines); ties go to more fails, then A to Z, as the Checklist tab
+ * orders them. Null for BACKLOG.md's checklist, which has no sections.
+ */
+function checklistSections(
+  checklist: Checklist | undefined,
+): NonNullable<NowHealth["sections"]> | null {
+  if (checklist?.source !== "CHECKLIST.md") return null;
+  const gaps = checklist.groups
+    .map((g) => ({
+      name: g.name,
+      fail: g.lines.filter((l) => l.status === "fail").length,
+      unchecked: g.lines.filter((l) => l.status === "unchecked").length,
+    }))
+    .filter((s) => s.fail + s.unchecked > 0)
+    .sort(
+      (a, b) =>
+        b.fail + b.unchecked - (a.fail + a.unchecked) ||
+        b.fail - a.fail ||
+        a.name.localeCompare(b.name),
+    );
+  return { worst: gaps[0] ?? null };
+}
+
 /** What the repo's checklist, skills and last night say. */
 export function nowHealth(snapshot: KitSnapshot): NowHealth {
   const lines = (snapshot.backlog?.checklist.groups ?? []).flatMap(
@@ -62,6 +89,7 @@ export function nowHealth(snapshot: KitSnapshot): NowHealth {
           blocked: night.blocked,
         }
       : null,
+    sections: checklistSections(snapshot.backlog?.checklist),
   };
 }
 
