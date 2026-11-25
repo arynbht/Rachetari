@@ -43,6 +43,45 @@ export interface Card {
   pr: number | null;
 }
 
+/** A question line's parts, in the template's shape. */
+export interface QuestionParts {
+  ask: string;
+  /** What the card recommends, or null when it doesn't say. */
+  recommended: string | null;
+  /** The other options, as the line separates them with `;`. */
+  options: string[];
+}
+
+const RECOMMENDED = /^(.*?)\s+(?:[—–]\s+)?Recommended:\s*(.*)$/;
+const OPTIONS = /\.?\s+(?:Other options|Options):\s*/;
+const noStop = (s: string) => s.trim().replace(/\.$/, "").trim();
+
+/**
+ * Split a question line written in the template's shape,
+ * `<question> — Recommended: <answer>. Options: <other>; <other>.`, into its
+ * parts. `Other options:` reads like `Options:`, and a `Recommended:` without
+ * the `—` still splits. A line with no `Recommended:` is all question.
+ */
+export function questionParts(text: string): QuestionParts {
+  const m = RECOMMENDED.exec(text.trim());
+  if (!m?.[1] || m[2] === undefined)
+    return { ask: text.trim(), recommended: null, options: [] };
+  const at = OPTIONS.exec(m[2]);
+  const recommended = at ? m[2].slice(0, at.index) : m[2];
+  const options = at ? m[2].slice(at.index + at[0].length) : undefined;
+  return {
+    ask: m[1].trim(),
+    recommended: noStop(recommended) || null,
+    options:
+      options === undefined
+        ? []
+        : noStop(options)
+            .split(";")
+            .map((o) => o.trim())
+            .filter(Boolean),
+  };
+}
+
 const HEADER = /^# (T-\d{4,}) · (.+)$/;
 
 /** Split markdown into its `## ` sections, by heading. */
@@ -119,7 +158,9 @@ export function parseCard(text: string): Card | null {
     const m = /^- \[( |x|X)\] (.+)$/.exec(line);
     if (!m?.[2]) continue;
     const q = m[2].trim();
+    // The template's placeholders: `<…>` alone, or its shape with `<question>`.
     if (q === "(none)" || /^<.*>$/.test(q)) continue;
+    if (/^<[^>]*>$/.test(questionParts(q).ask)) continue;
     questions.push({ text: q, open: m[1] === " " });
   }
 
