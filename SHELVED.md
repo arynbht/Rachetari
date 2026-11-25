@@ -23,6 +23,7 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a). It was the most-used skill in the pilot and the flagged line is a mention.
 - **Placeholder:** A row in `skills/INDEX.md` marked shelved; no folder.
 - **Issue:** [#6](https://github.com/arynbht/Rachetari/issues/6)
+- **Taken:** T-0022 (PR #37), option (a)
 
 ## S-03 · T-0005 · Skill playwright-cli (scan needed an allowed line)
 
@@ -32,6 +33,7 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (b). The flagged line is "Never skip hooks or add sleeps as a fix", a rule against it; the unpinned install is worth a parked line.
 - **Placeholder:** A row in `skills/INDEX.md` marked shelved; no folder.
 - **Issue:** [#7](https://github.com/arynbht/Rachetari/issues/7)
+- **Taken:** T-0022 (PR #37), option (b)
 
 ## S-04 · T-0005 · Skill improve-animations (scan needed an allowed line)
 
