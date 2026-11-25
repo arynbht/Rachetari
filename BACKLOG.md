@@ -8,27 +8,23 @@ Ordered. The top line becomes the next `CARD.md`.
 
 1. Copy all in the Questions panel cuts questions off: make it produce exactly the text `docs/open-questions.md` would contain (low; front of the shell chain; T-0048) · from `docs/queue-2026-11-25.md` §Copy all cuts questions off
 2. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-3. Split `Tasks.tsx` into board, record and needs-me components, no behaviour change (low) · from `docs/queue-2026-11-25.md` §Split Tasks.tsx
-4. CI: Ubuntu required on PRs; Windows runs on every PR but isn't required; Windows stays required on develop (owner-approved CI change) · from `docs/queue-2026-11-25.md` §CI: Windows not required on PRs
-5. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
-6. Shell: live shell part 3: background fetch of every registered repo every 60 s; the header shows the running commit, "fetched N s ago", a failed fetch and a behind warning (low; after T-0024 and T-0026) · from `docs/queue-2026-11-25.md` §Shell: live shell
-7. Checklist by section, the shell, part 2: Home shows each repo's stage and its section with the most gaps (low; after T-0034) · from `docs/queue-2026-11-25.md` §4h. Checklist by section: the shell
-8. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-9. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
-10. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-11. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-12. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-13. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-14. Shrink Tasks.tsx under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-15. Shrink TaskRecord (Tasks.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-16. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-17. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-18. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-19. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-20. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-21. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-22. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-23. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+3. CI: Ubuntu required on PRs; Windows runs on every PR but isn't required; Windows stays required on develop (owner-approved CI change) · from `docs/queue-2026-11-25.md` §CI: Windows not required on PRs
+4. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
+5. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
+6. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
+7. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+8. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+9. Fix card (end of the shell chain): T-0041's `docs/screenshots/T-0041/home-sections.png`, never made because builders don't run the desktop e2e locally (inspector, PR #60); see docs/open-questions.md
+10. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+11. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+12. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+15. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+16. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+17. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+18. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+19. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -139,5 +135,19 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] `SCOPE.md` still says small questions are "held rather than guessed" (line ~126) and "Night mode has one level: hold when unsure" (~206), which now contradicts the owner's decide-and-log rule at night; `docs/army-mode.md` (~91, ~98) still quotes the old two-session cap and rebase as current; and `SCOPE.md` is prettier-ignored, so its prettier check checks nothing · seen on T-0042 inspection · `SCOPE.md`
 
 - [tool] `desktop-e2e` is not in the `ci` job's needs, so a red desktop e2e still gives a green `ci` on PRs (PR #60, run 45709065400); the line treats desktop-e2e as gating inspection by hand · foreman, 2026-11-25
+
+- 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
+- 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
+- 2026-11-25 [product] Keep the live status cleared after the shell stops and reopens (`index.ts:371`) · inspector, T-0036
+
+- 2026-11-25 [product] `Part`'s unused `aside` prop in `tasks/RecordTabs.tsx` (already there before T-0046) · inspector, T-0046
+
+- 2026-11-25 [tool] `tools` can't narrow Bash per command, so every role can still run `gh pr merge` or push to `develop`; only `permissions.deny` in `.claude/settings.json` can block those, and it applies to the foreman too: an owner decision (answer individually) · seen on T-0049 · `.claude/settings.json`
+- 2026-11-25 [tool] The `Bash(...)` deny rules don't cover the PowerShell tool (the docs say a Bash rule isn't a boundary around the program), so on Windows a session could still run `gh pr merge` through PowerShell; matching `PowerShell(gh pr merge *)` / `PowerShell(gh pr ready *)` denies would close it, an owner decision (answer individually) · seen on T-0049 · `.claude/settings.json`
+- 2026-11-25 [tool] Role files: inspector.md step 1 says `git pull --ff-only`, which fails in a detached worktree (fetch and check out the PR head instead); builder.md's `--base develop` needs "unless in shell chain mode"; builder.md holds the card for "this session" where CLAUDE.md says "this machine" · inspector, T-0049
+
+- 2026-11-25 [debt] The section order (most gaps, then more fails, then A to Z) is written twice: `byGaps` in `Checklist.tsx` and `checklistSections` in `now.ts`; one shared helper would keep them from drifting · seen on T-0041 · `apps/desktop/src/main/engine/now.ts`
+- 2026-11-25 [product] Now's Health strip could show the worst section too, and Home's "Most gaps" fact could open the Checklist tab on that section · seen on T-0041 · `apps/desktop/src/renderer/components/Home.tsx`
+- 2026-11-25 [tool] With local desktop e2e off, a card's screenshot can't be made: CI's desktop-e2e doesn't set `SCREENSHOT_DIR` or upload what it writes; an uploaded artifact would let a card link its shot · seen on T-0041 · `.github/workflows/ci.yml`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).

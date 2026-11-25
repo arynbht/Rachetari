@@ -38,6 +38,10 @@ export const IpcChannel = {
   MapGet: "map:get",
   /** Push channel (main → renderer): requests the map's session cancelled. */
   MapBlocked: "map:blocked",
+  /** The shell's own state for the header: the live shell and the repo's fetch. */
+  ShellStatus: "shell:status",
+  /** Push channel (main → renderer): the shell's status after a change. */
+  ShellStatusUpdate: "shell:statusUpdate",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -136,6 +140,20 @@ export const NowHealth = z.object({
       blocked: z.number(),
     })
     .nullable(),
+  /**
+   * The checklist's sections, from CHECKLIST.md: the one with the most gaps
+   * (fail + unchecked lines; ties: more fails, then A to Z), or null when no
+   * section has a gap. Null when the checklist is BACKLOG.md's, or there is
+   * none. Optional in the type only: the engine always sets it.
+   */
+  sections: z
+    .object({
+      worst: z
+        .object({ name: z.string(), fail: z.number(), unchecked: z.number() })
+        .nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 export type NowHealth = z.infer<typeof NowHealth>;
 
@@ -471,3 +489,29 @@ export const MapBlocked = z.object({
   urls: z.array(z.string()),
 });
 export type MapBlocked = z.infer<typeof MapBlocked>;
+
+// Shell status — what the header says about the shell itself: the commit the
+// live shell runs and whether it's behind develop (from RIVETARI_LIVE_STATUS),
+// and the background fetch of the repo on show.
+export const ShellStatus = z.object({
+  /** Only when the shell runs live (T-0030), else null. */
+  live: z
+    .object({
+      /** The running commit, short (7). */
+      running: z.string(),
+      /** Why the live shell is behind develop, or null when it isn't. */
+      behind: z.string().nullable(),
+    })
+    .nullable(),
+  /** The repo on show's background fetch, or null with no repo on show. */
+  fetch: z
+    .object({
+      repoPath: z.string(),
+      /** The last fetch that succeeded (ISO), or null before one has. */
+      fetchedAt: z.string().nullable(),
+      /** The last fetch's message when it failed; null once one succeeds. */
+      error: z.string().nullable(),
+    })
+    .nullable(),
+});
+export type ShellStatus = z.infer<typeof ShellStatus>;
