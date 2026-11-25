@@ -6,7 +6,6 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. Copy all in the Questions panel cuts questions off: make it produce exactly the text `docs/open-questions.md` would contain (low; front of the shell chain; T-0048) · from `docs/queue-2026-11-25.md` §Copy all cuts questions off
 2. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
 3. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
 4. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
@@ -155,3 +154,9 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [tool] `docs/queue-2026-11-25.md` §Branches says "`ci` runs on every push to `develop`", but the `ci` job is PR-only; a push runs `build-test` · seen on T-0047 · `docs/queue-2026-11-25.md`
 - 2026-11-25 [tool] `desktop-e2e` isn't in the `ci` job's `needs`, so a red `desktop-e2e` doesn't turn `ci` red · seen on T-0047 · `.github/workflows/ci.yml`
 - 2026-11-25 [tool] A Windows leg that ends `cancelled` rather than `failure` can still turn `ci` red on a PR · seen on T-0047 inspection · `.github/workflows/ci.yml`
+- 2026-11-25 [product] A question whose options are a nested list under it (T-0020's shape) still shows without them; folding nested lists edits `questions.test.ts`'s T-0020 case, so it needs the owner · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [tool] `docs/open-questions.md` paraphrases a card's question (T-0044's section at `16384b3` differs from the card), so the file and Copy all disagree; the foreman could paste Copy all's text instead · seen on T-0048 · `docs/open-questions.md`
+- 2026-11-25 [tool] A focused run (`pnpm exec vitest run <file> -t "<name>"`) exits 1 even when its test passes: coverage is on by default and the global thresholds apply to the one file; criteria that name such a command need `--coverage.enabled=false` · seen on T-0048 · `vitest.config.ts`
+- 2026-11-25 [product] Acceptance criteria are read first-line-only, as questions were: a criterion wrapped over several lines loses its `· check:` and its UNTESTED mark when they sit on a later line · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `questionsOf` folds any non-blank line after `- [ ] (none)` into it, so `(none)` followed by a comment line becomes a phantom open question · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `questionsOf` folds a following code fence or `>` line into a question, and wrapped prose starting like `2026. ` ends one early · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
