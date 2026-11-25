@@ -12,10 +12,12 @@ import { expect, type Page, test } from "@playwright/test";
 import { cardText, kitFixture, type KitFixture } from "../test/kit-fixture";
 import { closeApp, launchApp, runAxe, type LaunchedApp } from "./helpers";
 
+// Made-up commits, written to the test's own status file: never the
+// machine's own, so the header can only show them if it reads that file.
 const RUNNING = "d5e49a186c786d31cc2ee90994408780f049f139";
 const TARGET = "cb8b60c0a1b2c3d4e5f60718293a4b5c6d7e8f90";
-const BEHIND =
-  "Live shell is behind: the build of cb8b60c failed; still running d5e49a1.";
+const RUNNING_LINE = `running ${RUNNING.slice(0, 7)}`;
+const BEHIND = `Live shell is behind: the build of ${TARGET.slice(0, 7)} failed; still running ${RUNNING.slice(0, 7)}.`;
 
 let fx: KitFixture;
 let launched: LaunchedApp | null = null;
@@ -159,9 +161,7 @@ test("shows the running commit and the behind warning from the live status, and 
   for (const tab of ["Now", "Tasks", "Checklist"]) {
     await showTab(page, tab);
     const header = panel(page, tab);
-    await expect(
-      header.getByText("running d5e49a1", { exact: true }),
-    ).toBeVisible();
+    await expect(header.getByText(RUNNING_LINE, { exact: true })).toBeVisible();
     await expect(header.getByText(BEHIND, { exact: true })).toBeVisible();
     await expect(header.getByText(FETCHED)).toBeVisible();
     expect(await runAxe(page)).toEqual([]);
@@ -169,13 +169,17 @@ test("shows the running commit and the behind warning from the live status, and 
   await expect(page.getByRole("alert")).toHaveCount(0);
   await headerShot(page, "header.png");
 
-  // The build passes: the warning goes, the running commit stays.
-  writeStatus(statusFile, null);
+  // The build passes: the warning goes, the running commit stays. Shown on
+  // Now (the loop above ends on Checklist, and a hidden panel has no role).
+  await showTab(page, "Now");
   const now = panel(page, "Now");
+  await expect(now.getByText(BEHIND, { exact: true })).toBeVisible();
+  writeStatus(statusFile, null);
   await expect(now.getByText(BEHIND)).toHaveCount(0, { timeout: 10_000 });
-  await expect(now.getByText("running d5e49a1", { exact: true })).toBeVisible();
+  await expect(now.getByText(RUNNING_LINE, { exact: true })).toBeVisible();
 
   // The file goes: nothing is said about a live shell.
   rmSync(statusFile);
   await expect(now.getByText(/^running /)).toHaveCount(0, { timeout: 10_000 });
+  await expect(now.getByText("showing main", { exact: true })).toBeVisible();
 });
