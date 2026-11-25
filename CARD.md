@@ -1,6 +1,6 @@
 # T-0032 · feat(shell): the Tasks board, its columns and the selected-card list
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0032 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Tasks overhaul 2: layout and columns, §Tasks overhaul: the owner's pick (2026-11-25), §Tasks overhaul 1: design only · Gate: needs you
 
@@ -194,13 +194,16 @@ Appended by the session, one line each, newest last.
   card/T-0006", "Drafting: …", the PR line) plus the `needs` label, so the existing
   assertions on that text hold (alternative: T-0028's shorter "Can't be read").
 - 2026-11-25: Decided for the owner by the foreman: one card, not split off "Needs me" (alternative: a separate Needs me card) — it shares the board, its fixture and its screenshots, and a split adds an inspection cycle.
+- 2026-11-25: Owner (20:07:51): drop the Board/List toggle; the List test is rewritten against the selected-card list (every card reachable, each with its status and holder), not deleted; the edit is listed in the PR. Set ready by the foreman.
 
 ## Questions for me
 
-- [ ] Drop the Board/List toggle and its table, deleting the e2e test "the list shows
+- [x] Drop the Board/List toggle and its table, deleting the e2e test "the list shows
       status, holder, branch and update, and the choice is kept"? — Recommended: yes;
       the picked board has no toggle and the selected-card list replaces the table.
       Options: drop both; keep the toggle beside Needs me with its test unchanged.
+
+Owner, 20:07:51: yes, drop the toggle. Don't just delete the List test: rewrite it against the selected-card list, checking what it used to check (every card reachable, each with its status and holder). List the edit in the PR.
 
 ## Done
 
@@ -214,5 +217,6 @@ Appended by the session, one line each, newest last.
 
 ```
 Waiting on the owner (wall clock, UTC):
+  question         20:05:25 → 20:07:51   2 min 26 s
   draft 20:03:58 →
 ```
