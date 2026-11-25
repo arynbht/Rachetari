@@ -52,13 +52,15 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Copy `Home.tsx` and `engine/home.ts` verbatim, then cut.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: Home's data is each repo's Now state (NowState gains its live cards), so Home follows the same watcher pushes
+- 2026-11-25: Earlier e2e tests of mine (frame, now) updated for the built Home and the sidebar badge
 
 ## Questions for me
 
