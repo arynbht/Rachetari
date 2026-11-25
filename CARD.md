@@ -155,6 +155,7 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The header sits on T-0031's `DisplayBranch` line, and the fetch shown is the repo on show as `now:select` names it, so neither `App.tsx` (T-0032's) nor the three views change, decided for the owner (alternative: its own line under the repo's name in `App.tsx`, on every tab).
 - 2026-11-25: Behind means any `failure` in the status, `diverged` and `not-forward` included, decided for the owner (alternative: only a failed install, build or test). The live script's own `fetchError` isn't shown; the shell's own fetch is (alternative: show both).
 - 2026-11-25: A failed fetch in the header isn't `role="alert"`, so `fetch-timeout.e2e.ts`'s one alert stays unchanged, decided for the owner (alternative: an alert, which edits that test).
+- 2026-11-25: Decided for the owner by the foreman: one card, not the drafter's 3a/3b split (alternative: the fetch loop and header first, the live status second) — both feed the same header line, and a split adds an inspection cycle.
 
 ## Questions for me
 
