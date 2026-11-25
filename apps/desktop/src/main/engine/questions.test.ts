@@ -88,9 +88,11 @@ describe("questionParts", () => {
       recommended: "R",
       options: ["A", "B"],
     });
-    expect(questionParts("Q — Recommended: R. Other options: A; B.")).toEqual(
-      { ask: "Q", recommended: "R", options: ["A", "B"] },
-    );
+    expect(questionParts("Q — Recommended: R. Other options: A; B.")).toEqual({
+      ask: "Q",
+      recommended: "R",
+      options: ["A", "B"],
+    });
     expect(questionParts("Q? — Recommended: yes.")).toEqual({
       ask: "Q?",
       recommended: "yes",
@@ -156,7 +158,13 @@ describe("NowState.questions", () => {
       live(answered, "card/T-0003"),
       live(blockedNoQuestion, "card/T-0004"),
       live("this isn't a card\n", "card/T-0006"),
-      { branch: "card/T-0001", where: "remote", card: null, drafting: true, lastCommitAt: null },
+      {
+        branch: "card/T-0001",
+        where: "remote",
+        card: null,
+        drafting: true,
+        lastCommitAt: null,
+      },
     ]);
 
     const state = nowState("/repo", snap, true, null);
@@ -202,9 +210,9 @@ describe("NowState.questions", () => {
     const T0016 =
       "A1's CI half can't run here: this PR changes only Markdown, so CI skips the tests. Accept PR #30's re-run (961 ms, same test, Windows shard 3/3) as the CI number and close the card, or leave A1's CI half UNTESTED and close, or something else? — Owner, 17:54: accept it, recorded as \"961 ms, from PR #30's re-run, not measured on this PR\", and close.";
     const T0020 =
-      "A1's premise doesn't hold: the Docs viewer's task-list boxes are not checkboxes today. `renderMarkdown` passes `ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|#)/i`, and DOMPurify checks every attribute not in its URI-safe list against that regexp, so `type=\"checkbox\"` (no scheme) is stripped. The boxes render as `<input checked disabled>`: disabled empty text fields (aria tree: `textbox [disabled]`), the ticked state invisible. So \"it stays a disabled checkbox with its ticked state, with no visual change\" can't be met, and labelling in the hook alone (which only sees inputs after `type` is gone) can't make `getByRole(\"checkbox\")` find anything. Which way?";
+      'A1\'s premise doesn\'t hold: the Docs viewer\'s task-list boxes are not checkboxes today. `renderMarkdown` passes `ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|#)/i`, and DOMPurify checks every attribute not in its URI-safe list against that regexp, so `type="checkbox"` (no scheme) is stripped. The boxes render as `<input checked disabled>`: disabled empty text fields (aria tree: `textbox [disabled]`), the ticked state invisible. So "it stays a disabled checkbox with its ticked state, with no visual change" can\'t be met, and labelling in the hook alone (which only sees inputs after `type` is gone) can\'t make `getByRole("checkbox")` find anything. Which way?';
     const T0020_BELOW = [
-      "  1. Keep `type` through the sanitizer with `ADD_URI_SAFE_ATTR: [\"type\"]` in the `sanitize` config (one line in `markdown.ts`, outside the hook), and label `type=checkbox` inputs in the hook as planned.",
+      '  1. Keep `type` through the sanitizer with `ADD_URI_SAFE_ATTR: ["type"]` in the `sanitize` config (one line in `markdown.ts`, outside the hook), and label `type=checkbox` inputs in the hook as planned.',
       "  2. Leave the sanitizer alone and label every `INPUT` in the hook.",
       "  3. Something else (e.g. option (b) of S-18, text ☑/☐), which is out of this card's scope.",
       "",
