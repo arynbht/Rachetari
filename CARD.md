@@ -1,7 +1,7 @@
 # T-0055 · refactor(cli): shrink tier2.ts under the lint limits
 
-Status: ready
-Branch: card/T-0055 · Held by: nobody
+Status: in progress
+Branch: card/T-0055 · Held by: builder T-0055
 Created: 2026-11-25 · Source: BACKLOG Next up 12 and 13 (from T-0043) · Gate: needs you (removes lint overrides in `eslint.config.js`, which is lint config)
 
 ## Why
