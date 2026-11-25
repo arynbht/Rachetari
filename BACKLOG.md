@@ -121,6 +121,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] On a loaded Windows CI runner a test hit T-0024's 10 s read limit ("git log timed out after 10 s", PR #56 run 45704718735 attempt 2, test windows 3/3, with "the child never wrote its pid"); the read limit may be too tight for CI, or the test should set a longer one · seen on T-0042 · `apps/desktop/src/main/kit/source.ts`
 - 2026-11-25 [kit] CONSTRAINTS.md Style section lists the ESLint rule sets but not the size limits T-0043 set (`complexity` 20, `max-lines` 500, tests 800 and no complexity limit, named exceptions) · seen on T-0043 · `CONSTRAINTS.md`
 - 2026-11-25 [kit] CHECKLIST.md Stage line (line 3) still names "Complexity and file-length limits are set" among the failing foundation lines; T-0043 ticks it · seen on T-0043 · `CHECKLIST.md`
+- 2026-11-25 [tool] A temporary `.ts` file under `packages/*/src` (T-0043's A3 check) is compiled into `dist/` by any `tsc --build` running meanwhile and stays there after the file is deleted; such checks should sit outside a tsconfig include, or clean `dist/` after · seen on T-0043 · `tsconfig.json`
 - 2026-11-25 [product] The Tasks record shows raw backticks in Files in scope and Skills (from the existing `List`), and pinned questions too; render inline code as on Now; the tasks.e2e.ts:303 comment still says "Evidence is collapsed" · seen on T-0035 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
