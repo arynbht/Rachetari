@@ -7,21 +7,19 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-2. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
+2. The fixture cleanup's EBUSY on Windows (T-0059): `kit-fixture.ts` waits for every child process a test started before `remove()`, and `remove()` retries EBUSY and EPERM with a short backoff for up to about 5 s, then reports the path; 20 Windows runs of `gh.test.ts` and the real-git tests (owner-approved test-helper change, ready) · from T-0045's answer in docs/open-questions.md
 3. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-5. CI: `desktop-e2e` sets `SCREENSHOT_DIR` and uploads the screenshots as a run artifact, so builders commit shell cards' shots from there (owner-approved CI change, answer to T-0041's question)
-6. Fix card (end of the shell chain, after the CI screenshot card): commit T-0041's `docs/screenshots/T-0041/home-sections.png` (and T-0044's three shots) from the `desktop-e2e` artifact and mark T-0041's A3 met
-7. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-8. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-9. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-15. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-16. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+7. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -167,3 +165,12 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [product] Each RunningRow in Now calls `useCiState`, so every row adds its own listener and IPC read; one shared prop would do · seen on T-0051 inspection · `apps/desktop/src/renderer/components/Now.tsx:228`
 - 2026-11-25 [tool] T-0051's card record was filed unfinished: empty Evidence, "Draft PR opened: #" with no number, A1–A4 unticked though CI's desktop-e2e passed · seen on T-0051 inspection · `cards/done/T-0051.md`
 - 2026-11-25 [tool] An orphaned `grep -o` with `{0,1500}` repeats on both sides of `63`, run over the earlier foreman session's transcript (`~/.claude/projects/…/90384377-….jsonl`, started 17:14 local, parent gone), held 25.8 GB private and starved the machine; T-0045's run 2 stalled under it. Killed at the owner's word; the role files now forbid bare recursive grep, large repeat counts, and searching worktrees, node_modules, .scratch or transcripts · seen on the line · `.claude/agents/*.md`
+- 2026-11-25 [tool] `kit/**` is in `.prettierignore`, so a card's `prettier --check` on kit files passes whatever they hold; checks need `--ignore-path=` · seen on T-0052 inspection · `.prettierignore`
+- 2026-11-25 [product] Rule 3 in `CLAUDE-section.md` (line 13) and step 5 in `handoff/SKILL.md` (line 21) run past the wrap width the rest of each file keeps · seen on T-0052 inspection · `kit/setup/templates/`
+- 2026-11-25 [tool] Builders keep filing cards with the Done box "Draft PR opened: #" unticked and no number (T-0051, T-0052) · seen on T-0052 inspection · `cards/done/`
+- 2026-11-25 [tool] `SCREENSHOT_DIR` is set twice in the `desktop-e2e` job (ci.yml:256 and the e2e step); a job-level `env` would be tidier · seen on T-0056 inspection · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] T-0056's evidence says the artifact held 23 PNGs; the inspector's download of the same run held 22 · seen on T-0056 inspection · `cards/done/T-0056.md`
+- 2026-11-25 [tool] `cards/done/T-0041.md` still says its screenshot "needs one local run" (Next step) and lists A3 as UNTESTED (Done line), though T-0057 made the shot and ticked A3 · seen on T-0057 inspection · `cards/done/T-0041.md`
+- 2026-11-25 [tool] The review can't view PNGs, so a screenshot-only card gets "needs-human" from it; the inspector's hash and look are the check · seen on T-0057 inspection · `review --pr 71`
+- 2026-11-25 [product] `kit/setup/SKILL.md` lines 100–103 run past 90 columns (line 103 is 108 after T-0058); rewrap them · seen on T-0058 inspection · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] T-0058's Done box for tests, lint and typecheck is ticked though they were UNTESTED locally (CI ran them) · seen on T-0058 inspection · `cards/done/T-0058.md`
