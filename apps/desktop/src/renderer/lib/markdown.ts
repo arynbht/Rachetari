@@ -23,12 +23,40 @@ marked.use({
 // and (for anything targeting outside) _blank, so a doc link can't reach back into
 // the renderer's window via `opener`. External navigation itself is still gated by
 // the main process's will-navigate + openExternal allow-list.
+//
+// Task-list boxes become text: marked emits `<input disabled type=checkbox>` as
+// the first child of the item (or of its <p>), and the sanitizer strips `type`,
+// leaving an unlabelled, stateless text field. Each one is replaced by a visible
+// ☑/☐ (hidden from screen readers) and a visually hidden "done"/"not done".
+// The new nodes come after the iterator's position, so DOMPurify sanitizes them too.
 DOMPurify.addHook("afterSanitizeAttributes", (node) => {
   if (node.tagName === "A" && node.hasAttribute("href")) {
     node.setAttribute("rel", "noopener noreferrer");
     node.setAttribute("target", "_blank");
   }
+  if (isTaskListBox(node)) {
+    const checked = node.hasAttribute("checked");
+    const doc = node.ownerDocument;
+    const box = doc.createElement("span");
+    box.setAttribute("aria-hidden", "true");
+    box.textContent = checked ? "☑" : "☐";
+    const words = doc.createElement("span");
+    words.setAttribute("class", "sr-only");
+    words.textContent = checked ? "done" : "not done";
+    node.replaceWith(box, words);
+  }
 });
+
+function isTaskListBox(node: Element): boolean {
+  const parent = node.parentElement;
+  return (
+    node.tagName === "INPUT" &&
+    node.hasAttribute("disabled") &&
+    parent !== null &&
+    parent.firstChild === node &&
+    (parent.tagName === "LI" || parent.parentElement?.tagName === "LI")
+  );
+}
 
 /** Markdown → sanitized HTML (no remote content; CSP-safe). */
 export function renderMarkdown(md: string): string {
