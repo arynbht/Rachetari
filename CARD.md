@@ -52,13 +52,14 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Write the fixture builder and the source's tests, then the source.
+Push, open the draft PR, wait for CI, run the done check.
 
 ## Decisions
 
 Appended by the session, one line each, newest last.
 
 - 2026-11-25: Card written and set ready by the session (D-06)
+- 2026-11-25: Format choices the kit leaves open are logged as D-12; a failed fetch shows in the repo's error box (D-13)
 
 ## Questions for me
 
