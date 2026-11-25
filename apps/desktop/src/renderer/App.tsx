@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Now } from "@/components/Now";
 import { Settings } from "@/components/Settings";
+import { Tasks } from "@/components/Tasks";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/errors";
 import { applyTheme } from "@/lib/theme";
@@ -110,6 +111,12 @@ export function App() {
   const [opened, setOpened] = useState<Set<View>>(
     () => new Set<View>([DEFAULT_VIEW]),
   );
+  // A card to open in the Tasks tab; `seq` makes asking for the same one twice count.
+  const [tasksFocus, setTasksFocus] = useState<{
+    id: string;
+    seq: number;
+  } | null>(null);
+  const focusSeq = useRef(0);
 
   function showView(next: View): void {
     setView(next);
@@ -176,6 +183,7 @@ export function App() {
     setError(null);
     setView(DEFAULT_VIEW);
     setOpened(new Set<View>([DEFAULT_VIEW])); // fresh state for the new repo
+    setTasksFocus(null);
     // Opening a repo fetches it, so the other machine's card branches appear.
     window.rivetari.repos.fetch(path).catch((err: unknown) => {
       setError(`Couldn't fetch this repo: ${errorMessage(err)}`);
@@ -333,7 +341,10 @@ export function App() {
                   key={selectedRepo.path}
                   repoPath={selectedRepo.path}
                   focus={null}
-                  onOpenTask={() => showView("tasks")}
+                  onOpenTask={(id) => {
+                    setTasksFocus({ id, seq: ++focusSeq.current });
+                    showView("tasks");
+                  }}
                 />
               </div>
             )}
@@ -346,7 +357,12 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "tasks"}
               >
-                <NotBuiltYet what="The Tasks view" card="T-0009" />
+                {/* key starts a fresh read (and selection) when the repo changes. */}
+                <Tasks
+                  key={selectedRepo.path}
+                  repoPath={selectedRepo.path}
+                  focus={tasksFocus}
+                />
               </div>
             )}
 

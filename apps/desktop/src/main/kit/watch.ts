@@ -2,10 +2,12 @@
 // with. It only reads (through the file source) and never fetches; it tells
 // its listener when what it read changed, or when a read failed.
 import {
+  type DoneCard,
   hasMap,
   type LiveCard,
   type Night,
   readBacklog,
+  readDoneCards,
   readEvents,
   readLiveCards,
   readNights,
@@ -18,6 +20,8 @@ import type { Backlog, SkillRow } from "./parse";
 export interface KitSnapshot {
   cards: LiveCard[];
   backlog: Backlog | null;
+  /** The finished cards in cards/done/ on the default branch. */
+  done: DoneCard[];
   nights: Night[];
   skills: SkillRow[];
   events: RepoEvent[];
@@ -27,6 +31,7 @@ export interface KitSnapshot {
 export const EMPTY_SNAPSHOT: KitSnapshot = {
   cards: [],
   backlog: null,
+  done: [],
   nights: [],
   skills: [],
   events: [],
@@ -35,15 +40,18 @@ export const EMPTY_SNAPSHOT: KitSnapshot = {
 
 /** Read a repo's kit files once. */
 export async function readKit(repo: string): Promise<KitSnapshot> {
-  const [cards, backlog, nights, skills, events, map] = await Promise.all([
-    readLiveCards(repo),
-    readBacklog(repo),
-    readNights(repo),
-    readSkills(repo),
-    readEvents(repo),
-    hasMap(repo),
-  ]);
-  return { cards, backlog, nights, skills, events, map };
+  const [cards, backlog, done, nights, skills, events, map] = await Promise.all(
+    [
+      readLiveCards(repo),
+      readBacklog(repo),
+      readDoneCards(repo),
+      readNights(repo),
+      readSkills(repo),
+      readEvents(repo),
+      hasMap(repo),
+    ],
+  );
+  return { cards, backlog, done, nights, skills, events, map };
 }
 
 export type KitEvent =

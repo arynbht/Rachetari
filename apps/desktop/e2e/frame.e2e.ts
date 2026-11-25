@@ -58,7 +58,7 @@ test("the tab bar moves with the arrow keys, Home and End, and wraps", async () 
 
   await page.keyboard.press("ArrowRight");
   await expect(selected).toHaveText("Tasks");
-  await expect(page.getByText(/The Tasks view isn't built yet/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tasks" })).toBeVisible();
   await page.keyboard.press("End");
   await expect(selected).toHaveText("Map");
   await page.keyboard.press("ArrowRight");

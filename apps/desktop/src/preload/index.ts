@@ -16,6 +16,10 @@ import {
   RepoRemoveRequest,
   SettingsSaveRequest,
   SettingsView,
+  TaskDetail,
+  TaskDetailRequest,
+  TasksRequest,
+  TasksState,
 } from "../shared/ipc";
 
 const api = {
@@ -78,6 +82,36 @@ const api = {
       ipcRenderer.on(IpcChannel.NowUpdate, listener);
       return () => {
         ipcRenderer.removeListener(IpcChannel.NowUpdate, listener);
+      };
+    },
+  },
+
+  tasks: {
+    /** A repo's cards as main last read them; `onUpdate` hears every change. */
+    async get(repoPath: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.TasksGet,
+        TasksRequest.parse({ repoPath }),
+      );
+      return TasksState.parse(raw);
+    },
+    /** One card in full, by the key the board gave it. */
+    async detail(repoPath: string, key: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.TasksDetail,
+        TaskDetailRequest.parse({ repoPath, key }),
+      );
+      return TaskDetail.parse(raw);
+    },
+    onUpdate(callback: (state: TasksState) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = TasksState.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.TasksUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.TasksUpdate, listener);
       };
     },
   },
