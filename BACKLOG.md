@@ -7,19 +7,20 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-2. Kit: the rest of the kit says parked lines live in the card: `kit/setup/SKILL.md` (lines 26, 102), `templates/skills/done/SKILL.md` (line 48), `templates/CHECKLIST.md` (lines 9–10) (low; follows T-0052)
-3. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-7. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+2. The fixture cleanup's EBUSY on Windows (T-0059): `kit-fixture.ts` waits for every child process a test started before `remove()`, and `remove()` retries EBUSY and EPERM with a short backoff for up to about 5 s, then reports the path; 20 Windows runs of `gh.test.ts` and the real-git tests (owner-approved test-helper change, ready) · from T-0045's answer in docs/open-questions.md
+3. Kit: the rest of the kit says parked lines live in the card: `kit/setup/SKILL.md` (lines 26, 102), `templates/skills/done/SKILL.md` (line 48), `templates/CHECKLIST.md` (lines 9–10) (low; follows T-0052)
+4. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+5. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+6. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+7. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+8. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+15. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 

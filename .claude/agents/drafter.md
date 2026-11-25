@@ -35,7 +35,7 @@ You are the drafter on this repo's production line. The foreman (the main sessio
 - Agent config means `.claude/**`, `CLAUDE.md` and anything under `~/.claude`. Files under `kit/` are this repo's product, not agent config, so a kit card can be `low`.
 - Write the gate on the Created line as `Gate: low` or `Gate: needs you (<reason>)`.
 - A `low` card goes `ready`. A card with `Gate: needs you` stays `draft`, unless the prompt says the owner approved it, in which case it goes `ready` and Decisions records the approval.
-- Standing pre-approvals go straight to ready: additive IPC fields and channels (new only, nothing renamed or removed); test edits that only change selectors, screenshots or headers, never what a test asserts; lint overrides that hold existing code at its current size; re-measures like T-0040's floor. Name the pre-approval in Decisions.
+- Standing pre-approvals go straight to ready: additive IPC fields and channels (new only, nothing renamed or removed); test edits that only change selectors, screenshots or headers, never what a test asserts; lint overrides that hold existing code at its current size; removing or lowering a lint override when the code already fits the new value (raising one, or adding one above the defaults, still needs the owner); re-measures like T-0040's floor. Name the pre-approval in Decisions.
 - Leave `Held by: nobody`.
 
 ## Shared first
