@@ -1,36 +1,32 @@
-export interface Hunk {
-  removed: string[];
-  added: string[];
-}
-const CODE = /\.(?:[cm]?[jt]sx?|py|go|rs|java|kt|rb|sh|cs|swift|php)$/i;
-/** Files diff.no-new-comments reads: code, not data, config or prose. */
-export const isCodePath = (path: string) => CODE.test(path);
-const HASH_COMMENTS = /\.(?:py|rb|sh)$/i;
-const MARKDOWN = /\.mdx?$/i;
-const SKIPPED_TEST =
-  /\b(?:it|test|describe|suite|context)\.(?:skip|only)\s*\(|\b(?:xit|xtest|xdescribe|fit|fdescribe)\s*\(|@pytest\.mark\.skip|\bt\.Skip(?:Now|f)?\s*\(/;
+#!/usr/bin/env node
+// Lists each comment line a branch adds to code, for /done's deslop pass to
+// judge. A report, not a gate: it exits 0 whether or not it finds any.
+// Usage: node comment-report.mjs <base>   (reads `git diff -U0 <base>...HEAD`)
+import { spawnSync } from "node:child_process";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-export function isCommentLine(path: string, line: string): boolean {
+const CODE = /\.(?:[cm]?[jt]sx?|py|go|rs|java|kt|rb|sh|cs|swift|php)$/i;
+const HASH_COMMENTS = /\.(?:py|rb|sh)$/i;
+
+export function isCommentLine(path, line) {
   const t = line.trim();
   if (t.startsWith("//") || t.startsWith("/*") || /^\*(?:\s|\/|$)/.test(t))
     return true;
   return HASH_COMMENTS.test(path) && t.startsWith("#") && !t.startsWith("#!");
 }
 
-const asHunks = (added: ReadonlyMap<string, string[]>) =>
-  new Map([...added].map(([path, ls]) => [path, [{ removed: [], added: ls }]]));
-
 /** Runs of consecutive comment lines, each with its first line's indentation. */
-function commentBlocks(path: string, lines: readonly string[]) {
-  const blocks: { indent: string; lines: string[] }[] = [];
-  let open: { indent: string; lines: string[] } | null = null;
-  for (const line of lines) {
+function commentBlocks(path, lines) {
+  const blocks = [];
+  let open = null;
+  for (const [i, line] of lines.entries()) {
     if (!isCommentLine(path, line)) {
       open = null;
       continue;
     }
     if (!open) {
-      open = { indent: /^\s*/.exec(line)?.[0] ?? "", lines: [] };
+      open = { indent: /^\s*/.exec(line)?.[0] ?? "", at: i, lines: [] };
       blocks.push(open);
     }
     open.lines.push(line);
@@ -44,8 +40,8 @@ function commentBlocks(path: string, lines: readonly string[]) {
  * added line, so rewording a doc comment isn't a new one but swapping one
  * comment for an unrelated one elsewhere is.
  */
-function newComments(hunks: ReadonlyMap<string, readonly Hunk[]>) {
-  const found: { path: string; line: string }[] = [];
+export function newComments(hunks) {
+  const found = [];
   for (const [path, list] of hunks) {
     if (!CODE.test(path)) continue;
     for (const hunk of list) {
@@ -54,17 +50,23 @@ function newComments(hunks: ReadonlyMap<string, readonly Hunk[]>) {
         const at = removed.findIndex((r) => r.indent === block.indent);
         const covered = at >= 0 ? (removed[at]?.lines.length ?? 0) : 0;
         if (at >= 0) removed.splice(at, 1);
-        for (const line of block.lines.slice(covered))
-          found.push({ path, line });
+        block.lines.slice(covered).forEach((text, i) =>
+          found.push({
+            path,
+            line: hunk.start + block.at + covered + i,
+            text,
+          }),
+        );
       }
     }
   }
   return found;
 }
+
 /** Each file's hunks from a `git diff -U0`, with the lines each one swaps. */
-export function parseHunks(output: string): Map<string, Hunk[]> {
-  const hunks = new Map<string, Hunk[]>();
-  let current: Hunk[] | null = null;
+export function parseHunks(output) {
+  const hunks = new Map();
+  let current = null;
   let header = false;
   for (const line of output.split("\n")) {
     if (line.startsWith("diff --git ")) {
@@ -84,7 +86,8 @@ export function parseHunks(output: string): Map<string, Hunk[]> {
     }
     if (line.startsWith("@@")) {
       header = false;
-      current?.push({ removed: [], added: [] });
+      const start = Number(/^@@ -\S+ \+(\d+)/.exec(line)?.[1] ?? 0);
+      current?.push({ start, removed: [], added: [] });
       continue;
     }
     const hunk = header ? undefined : current?.at(-1);
@@ -94,3 +97,33 @@ export function parseHunks(output: string): Map<string, Hunk[]> {
   }
   return hunks;
 }
+
+function main(base) {
+  if (!base) {
+    process.stderr.write("usage: node comment-report.mjs <base>\n");
+    return 2;
+  }
+  const git = spawnSync(
+    "git",
+    ["diff", "-U0", "--no-color", "--no-ext-diff", `${base}...HEAD`],
+    {
+      encoding: "utf8",
+      maxBuffer: 1 << 30,
+      stdio: ["ignore", "pipe", "inherit"],
+    },
+  );
+  if (git.error) {
+    process.stderr.write(`${git.error.message}\n`);
+    return 1;
+  }
+  if (git.status !== 0) return git.status ?? 1;
+  for (const c of newComments(parseHunks(git.stdout)))
+    process.stdout.write(`${c.path}:${c.line}: ${c.text.trim()}\n`);
+  return 0;
+}
+
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+)
+  process.exitCode = main(process.argv[2]);
