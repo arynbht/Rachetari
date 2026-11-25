@@ -1,11 +1,9 @@
 # Open questions
 
-## T-0043 · build(lint): set complexity and file-length limits
+## T-0040 · test: set a coverage floor
 
-Measured on develop (e03bcc0, 137 files): complexity max 41, 95th percentile 13 (worst: runTier2 41, parseCard 36, Checklist 31, renderReview 31, Now 28); longest file `Tasks.tsx` at 1151 lines without blanks and comments, 95th percentile 442 (next: tier2.ts 961, tier2.test.ts 613, source.ts 575, live-shell.mjs 497). Changing `eslint.config.js` is lint config, so it's yours.
+Held at inspection (PR #55): the 3.5-point margin you approved was measured on an old commit. On today's develop, `build-test` (run 45705140457) measured lines 45.93 %, branches 82.87 %, functions 76.86 %, statements 45.93 % on Ubuntu (Windows within 0.3 points). A floor of 45 leaves under 1 point, so one desktop card could turn develop red and stop merges.
 
-Update (21:40): T-0035 (PR #57, the Tasks record) grows `Tasks.tsx` to 1484 lines, so 1250 would fail once it merges.
-
-1. Which limits? — Recommended: complexity 45 everywhere, and max-lines 1250 for every file except `Tasks.tsx`, which gets 1600 until a card splits it (queue that split card). Other options: 45/1600 for every file; 20/500 with the files over it allowed 45/1600; 20/500 everywhere, which fails 13+ places today.
+1. Which floor now? — Recommended: 42/79/73/42, today's develop less about 3.5 points, as you intended. Other options: keep 45/78/72/45 (under 1 point of room); 44/80/75/44.
 
 Answer:
