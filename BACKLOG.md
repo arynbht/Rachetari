@@ -6,23 +6,23 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-2. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-3. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
-4. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
-5. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
-6. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
-7. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
-8. Fix card (end of the shell chain): T-0041's `docs/screenshots/T-0041/home-sections.png`, never made because builders don't run the desktop e2e locally (inspector, PR #60); see docs/open-questions.md
-9. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-10. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-11. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-15. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-16. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-17. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-18. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+1. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
+2. Kit: parked lines live in the card's CARD.md; the merger appends them to BACKLOG.md (low) · from `docs/queue-2026-11-25.md` §Kit: parked lines live in the card
+3. Shell: CI state part 1 (T-0044) for `develop` and each card's PR via the gh CLI's existing sign-in, read-only (needs you; S-16 option (b)) · from `docs/queue-2026-11-25.md` §Shell: CI state
+4. Shell: CI state part 2, a CI badge per card in Tasks and Now (`Tasks.tsx`, `Now.tsx`, a new `CiBadge.tsx`; after T-0044) · from `docs/queue-2026-11-25.md` §Shell: CI state
+5. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+6. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+7. Fix card (end of the shell chain): T-0041's `docs/screenshots/T-0041/home-sections.png`, never made because builders don't run the desktop e2e locally (inspector, PR #60); see docs/open-questions.md
+8. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+9. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+10. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+13. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+14. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+15. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+16. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+17. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
