@@ -55,3 +55,16 @@ Each entry: the question, the options, what I chose and why, and how to reverse 
   out of the cards and commit them separately.
 - **Chose:** (a), recorded in each card's Decisions.
 - **Reverse:** n/a (records only).
+
+## D-06 · T-0004 on · How cards start tonight
+
+- **Question:** The kit's `/card` branches from the default branch and leaves the card as
+  `draft` for the owner to mark `ready`; CLAUDE.md rule 1 stops on a draft card. Tonight
+  the owner isn't here to mark anything ready, and asked for each card's branch to be cut
+  from the previous card's branch.
+- **Options:** (a) write each card from `cards/TEMPLATE.md` on a branch cut from the
+  previous card's, set it `ready` myself, then `in progress`; (b) leave cards as drafts
+  and stop.
+- **Chose:** (a), for every card tonight. Each card says which branch it's stacked on,
+  and its criteria come from the build prompt and `inventory/PHASE-0.md`, not new scope.
+- **Reverse:** set any card back to `draft` and re-plan it.

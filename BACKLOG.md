@@ -38,6 +38,11 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [product] The hallmark skill ships `scripts/install-hook.mjs` (a PostToolUse hook installer) and still scanned clean; the old scan only matched hook declarations · seen on phase 0 · `inventory/skills.md`
 - 2026-11-25 [product] The trimmed impeccable fork's pin `9563f828` is reachable only from branch `rivetari` of `arynbht/impeccable`; deleting that branch orphans it · seen on phase 0 · `inventory/skills.md`
 - 2026-11-25 [product] Shell gaps carried over, not fixed in the transplant: no single-instance lock, silent Add errors on Home, the Docs loading text, in-page anchor links · seen on phase 0 · `files/desktop-shell.md`
+- 2026-11-25 [product] `review --pr` error text still names "Rivetari's App installed on the repo", which was cut · seen on T-0004 · `packages/cli/src/commands/review.ts:60`
+- 2026-11-25 [product] The CLI still describes itself as "An auditor and scaffolder for GitHub repositories" · seen on T-0004 · `packages/cli/src/cli.ts:10`
+- 2026-11-25 [tool] The review withholds `redact.ts`, `redact.test.ts` and `tier2.test.ts` as "looks like it holds a secret" (fake tokens in tests), so it never reviews its own redaction · seen on T-0004 · review on PR #4
+- 2026-11-25 [tool] One review of PR #4 (45 files, 123k tokens) cost an estimated $1.02 at medium effort · seen on T-0004 · `review --pr 4`
+- 2026-11-25 [tool] Reviews on your own PR can only be COMMENT (GitHub refuses REQUEST_CHANGES from the author), so a blocking finding shows only in the body · seen on T-0004 · `packages/runtime/src/judge/review.ts`
 
 ## Repo checklist
 

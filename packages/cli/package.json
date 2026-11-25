@@ -30,6 +30,7 @@
   "scripts": {},
   "dependencies": {
     "@arynbht/rivetari-engine": "workspace:*",
-    "@arynbht/rivetari-runtime": "workspace:*"
+    "@arynbht/rivetari-runtime": "workspace:*",
+    "commander": "^15.0.0"
   }
 }

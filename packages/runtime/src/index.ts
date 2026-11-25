@@ -1,1 +1,57 @@
-export {};
+export {
+  type DiffEntry,
+  findProtected,
+  isProtectedConfig,
+  isTestFile,
+  PROTECTED,
+  type ProtectedFinding,
+  type ProtectedReason,
+} from "./judge/protected.js";
+export {
+  type Card,
+  CardError,
+  type CardInput,
+  CardSchema,
+  parseAcceptanceFlag,
+  parseCard,
+  RISKS,
+  TASK_TYPES,
+  VERIFY_KINDS,
+} from "./task/card.js";
+export {
+  BLOCKING_KINDS,
+  extractJson,
+  type Finding,
+  FINDING_KINDS,
+  JUDGE_DEFAULT_MODEL,
+  newSideLines,
+  packChange,
+  renderReview,
+  REVIEW_MARKER,
+  runTier2,
+  type Tier2Result,
+} from "./judge/tier2.js";
+export {
+  type CarriedVerdict,
+  type FindJudged,
+  MAX_ROUNDS,
+  reviewLocal,
+  reviewPullRequest,
+  type ReviewOutcome,
+  roundVerdict,
+  type ReviewVerdict,
+  treeOf,
+} from "./judge/review.js";
+export {
+  addBanned,
+  BANNED_PATH,
+  type BannedList,
+  BannedListSchema,
+  type BannedPattern,
+  BannedPatternSchema,
+  bannedHits,
+  defaultsFor,
+  loadBanned,
+  saveBanned,
+  STACK_DEFAULTS,
+} from "./judge/banned.js";

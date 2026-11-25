@@ -24,5 +24,9 @@
   "files": [
     "dist"
   ],
-  "scripts": {}
+  "scripts": {},
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@octokit/rest": "^22.0.1"
+  }
 }
