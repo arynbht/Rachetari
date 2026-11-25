@@ -370,3 +370,11 @@ export async function cardRef(
 ): Promise<string | null> {
   return card.where === "remote" ? remoteRef(repo, card.branch) : card.branch;
 }
+
+/** A night report's text on the default branch, or null when there's none. */
+export async function readNightText(
+  repo: string,
+  date: string,
+): Promise<string | null> {
+  return show(repo, await defaultBranch(repo), `nights/${date}.md`);
+}

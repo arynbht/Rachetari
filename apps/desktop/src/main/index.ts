@@ -9,6 +9,13 @@ import type { ZodType } from "zod";
 import {
   ChecklistRequest,
   ChecklistView,
+  DocList,
+  DocsListRequest,
+  DocsReadRequest,
+  HistoryNight,
+  HistoryNightRequest,
+  HistoryRequest,
+  HistoryView,
   IpcChannel,
   NowRepoRequest,
   NowSelectRequest,
@@ -27,6 +34,8 @@ import {
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
 import { readChecklist } from "./engine/checklist";
+import { listDocs, readDoc } from "./engine/docs";
+import { readHistory, readNight } from "./engine/history";
 import { NowHub } from "./engine/now";
 import { taskDetail, tasksState } from "./engine/tasks";
 import { fetchRepo } from "./kit/source";
@@ -342,6 +351,30 @@ function registerIpcHandlers(): void {
     const { repoPath: asked } = ChecklistRequest.parse(raw);
     const repoPath = await registered(asked);
     return ChecklistView.parse(await readChecklist(repoPath));
+  });
+
+  ipcMain.handle(IpcChannel.HistoryGet, async (_event, raw: unknown) => {
+    const { repoPath: asked } = HistoryRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return HistoryView.parse(await readHistory(repoPath));
+  });
+
+  ipcMain.handle(IpcChannel.HistoryNight, async (_event, raw: unknown) => {
+    const { repoPath: asked, date } = HistoryNightRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return HistoryNight.parse(await readNight(repoPath, date));
+  });
+
+  ipcMain.handle(IpcChannel.DocsList, async (_event, raw: unknown) => {
+    const { repoPath: asked } = DocsListRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return DocList.parse(await listDocs(repoPath));
+  });
+
+  ipcMain.handle(IpcChannel.DocsRead, async (_event, raw: unknown) => {
+    const { repoPath: asked, path } = DocsReadRequest.parse(raw);
+    const repoPath = await registered(asked);
+    return readDoc(repoPath, path);
   });
 
   ipcMain.handle(IpcChannel.SettingsLoad, async () =>

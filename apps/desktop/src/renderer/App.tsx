@@ -2,6 +2,7 @@ import { FolderPlus, House, Settings as SettingsIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Checklist } from "@/components/Checklist";
+import { History } from "@/components/History";
 import { Now } from "@/components/Now";
 import { Settings } from "@/components/Settings";
 import { Tasks } from "@/components/Tasks";
@@ -391,7 +392,15 @@ export function App() {
                 tabIndex={0}
                 hidden={view !== "history"}
               >
-                <NotBuiltYet what="The History view" card="T-0011" />
+                {/* key reads the newly selected repo's history afresh. */}
+                <History
+                  key={selectedRepo.path}
+                  repoPath={selectedRepo.path}
+                  onOpenTask={(id) => {
+                    setTasksFocus({ id, seq: ++focusSeq.current });
+                    showView("tasks");
+                  }}
+                />
               </div>
             )}
 

@@ -158,3 +158,12 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a) for `registered-repos.e2e.ts` and `axe.e2e.ts` at least: they check the fence and accessibility across views, which the new per-view tests cover only in part.
 - **Placeholder:** None in the code: the new e2e tests stand on their own. The dropped tests are listed in EXTRACTED.md under each card.
 - **Issue:** [#22](https://github.com/arynbht/Rachetari/issues/22)
+
+## S-18 · T-0011 · Docs viewer renders task-list checkboxes with no label (axe: critical)
+
+- **What:** The Docs viewer (copied unchanged with lib/markdown.ts) renders GFM task lists — every `- [x]` line in BACKLOG.md, CARD.md and the cards — as `<input type=checkbox disabled>` with no label. axe reports it as a critical `label` violation on History whenever a backlog or card is shown.
+- **Why:** The fix changes a kept component's behaviour (the build prompt keeps the Docs viewer "exactly as it is"), which the owner's overnight rules say to shelve rather than decide.
+- **Options:** (a) In lib/markdown.ts, label each task-list input in the DOMPurify hook (e.g. aria-label "done"/"not done"). (b) Render task-list items as text (☑/☐) instead of inputs, via a marked renderer override. (c) Leave it and accept the violation.
+- **Recommend:** (a): a few lines in the existing afterSanitizeAttributes hook, no visual change.
+- **Placeholder:** `apps/desktop/e2e/history.e2e.ts` has a `test.fixme` "History passes axe with the Docs viewer showing a backlog" naming this item; the other History tests run without axe on that page.
+- **Issue:** [#28](https://github.com/arynbht/Rachetari/issues/28)
