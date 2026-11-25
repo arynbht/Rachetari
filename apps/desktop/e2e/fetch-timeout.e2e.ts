@@ -30,6 +30,9 @@ test.beforeEach(async () => {
     sockets.add(socket);
     socket.on("close", () => sockets.delete(socket));
     socket.on("error", () => undefined);
+    // Read and drop what git sends, so its side closing is seen (a paused
+    // socket never notices the end on Linux); never answer.
+    socket.resume();
   });
   await new Promise<void>((resolve) =>
     server.listen(0, "127.0.0.1", () => resolve()),
