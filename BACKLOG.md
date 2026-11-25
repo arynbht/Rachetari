@@ -13,11 +13,10 @@ Ordered. The top line becomes the next `CARD.md`.
 5. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
 6. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
 7. SCOPE.md: rule 3 becomes "By day, the line runs at most three builders; one builder runs a chain of dependent cards. Night mode runs one card at a time until a six-card night meets the 'Parallel night cards' condition."; night cards merge, never rebase; small questions are decided and logged at night too, under the day rule (low; owner's answers on T-0038) · from `docs/open-questions.md` answers, 2026-11-25
-8. (paused) Army mode, design only: a one-page proposal in `docs/` for running N cards at once as the night runner with a width setting (picking ready cards with no overlapping files in scope and no dependencies, one worktree and one agent per card, the lead session's job, questions and holds, usage limits, what the shell shows); no code; lists changing SCOPE.md's two-session cap as a decision for the owner · from `docs/queue-2026-11-25.md` §Army mode, design only
-9. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
-10. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
-11. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-12. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+8. (paused) Set a coverage floor once the review tests land · from checklist "coverage floor"
+9. Clean code: set `complexity` and `max-lines` at error in `eslint.config.js` (lint config: needs you) · from checklist "Complexity and file-length limits are set" (T-0039)
+10. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+11. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
 
 ## Parked
 
