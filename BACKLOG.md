@@ -6,19 +6,21 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. PR review transplanted: `review --pr` posts COMMENT or REQUEST_CHANGES, never APPROVE, with its tests (T-0004) · from build prompt phase 2
-2. Area skills: the clean, permissively licensed ones into `skills/` with `skills/INDEX.md` · from build prompt phase 3
-3. Shell frame: window, sidebar, fence, tab bar, theme · from build prompt phase 4.1
-4. Shell file source with unit tests on a fixture repo · from build prompt phase 4.2
-5. Shell Now view · from build prompt phase 4.3
-6. Shell Tasks view · from build prompt phase 4.4
-7. Shell Checklist view · from build prompt phase 4.5
-8. Shell History and Docs · from build prompt phase 4.6
-9. Shell Map · from build prompt phase 4.7
-10. Shell Home, badges and notifications · from build prompt phase 4.8
-11. Hand-over: run `/setup`, `/card`, `/park`, `/done`, `/handoff` once on a scratch repo · from build prompt phase 5
-12. Set a coverage floor once the review tests land · from checklist "coverage floor"
-13. Require `ci` on main (repo setting, owner only) · from checklist "ci required on main"
+1. Give the tests that drive real git a longer timeout on Windows, and record how long the fetch test takes there (it hit 30 s on PR #30's CI, then took 961 ms on the re-run) · from owner, 2026-11-25 (T-0016)
+2. A `card/*` branch whose card is already in `cards/done/` shows as done, not as an unreadable card in Needs you · from owner, 2026-11-25
+3. PR review transplanted: `review --pr` posts COMMENT or REQUEST_CHANGES, never APPROVE, with its tests (T-0004) · from build prompt phase 2
+4. Area skills: the clean, permissively licensed ones into `skills/` with `skills/INDEX.md` · from build prompt phase 3
+5. Shell frame: window, sidebar, fence, tab bar, theme · from build prompt phase 4.1
+6. Shell file source with unit tests on a fixture repo · from build prompt phase 4.2
+7. Shell Now view · from build prompt phase 4.3
+8. Shell Tasks view · from build prompt phase 4.4
+9. Shell Checklist view · from build prompt phase 4.5
+10. Shell History and Docs · from build prompt phase 4.6
+11. Shell Map · from build prompt phase 4.7
+12. Shell Home, badges and notifications · from build prompt phase 4.8
+13. Hand-over: run `/setup`, `/card`, `/park`, `/done`, `/handoff` once on a scratch repo · from build prompt phase 5
+14. Set a coverage floor once the review tests land · from checklist "coverage floor"
+15. Require `ci` on main (repo setting, owner only) · from checklist "ci required on main"
 
 ## Parked
 
