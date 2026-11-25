@@ -11,12 +11,6 @@ out/
 # electron-builder packaged installers (apps/desktop/release)
 release/
 
-# The composite action ships a committed, bundled dist (standard for Actions).
-# tsc writes the package's own output to lib/, so a build never touches it.
-!packages/action/dist/
-!packages/action/dist/**
-packages/action/lib/
-
 # Test / coverage
 coverage/
 .vitest/
@@ -40,10 +34,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
-# Rivetari runtime (managed, regenerated each run)
-.rivetari/ai-usage.log
-.rivetari/state.json
-
 # The floorplan skill's map (it can only write to floorplan/ at the root).
 # Anchored: packages/engine/src/floorplan/ is source.
 /floorplan/
@@ -57,3 +47,7 @@ apps/desktop/playwright-report/
 .claude/*
 !.claude/settings.json
 !.claude/skills/
+
+# Local reference documents (the audit, the shell description, design notes).
+# They stay on this machine and never reach GitHub.
+/files/

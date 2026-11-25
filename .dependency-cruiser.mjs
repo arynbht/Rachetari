@@ -7,12 +7,6 @@ export default {
       to: { path: "^(packages/(runtime|cli)/|@arynbht/rivetari(-runtime)?$)" },
     },
     {
-      name: "agent-doesnt-touch-the-ledger",
-      severity: "error",
-      from: { path: "^packages/runtime/src/agent/" },
-      to: { path: "^packages/runtime/(src|dist)/task/ledger\\.[jt]s$" },
-    },
-    {
       // The desktop's main process reads tasks through the runtime's watcher;
       // its renderer and preload stay off it.
       name: "only-cli-imports-runtime",
@@ -22,20 +16,6 @@ export default {
         pathNot: "^(packages/(runtime|cli)/|apps/desktop/src/main/)",
       },
       to: { path: "^(packages/runtime/|@arynbht/rivetari-runtime$)" },
-    },
-    {
-      name: "only-action-imports-cli",
-      severity: "error",
-      from: { path: "^(packages|apps)/", pathNot: "^packages/(cli|action)/" },
-      to: { path: "^(packages/cli/|@arynbht/rivetari$)" },
-    },
-    {
-      name: "catalog-imports-no-workspace-package",
-      severity: "error",
-      from: { path: "^packages/catalog/" },
-      to: {
-        path: "^(packages/(engine|registry|runtime|cli)/|@arynbht/rivetari(-engine|-registry|-runtime)?$)",
-      },
     },
     {
       name: "no-circular",

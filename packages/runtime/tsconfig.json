@@ -6,9 +6,5 @@
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": ["src"],
-  "references": [
-    { "path": "../catalog" },
-    { "path": "../engine" },
-    { "path": "../registry" }
-  ]
+  "references": [{ "path": "../engine" }]
 }

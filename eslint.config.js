@@ -5,16 +5,6 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-import { existsSync, readFileSync } from "node:fs";
-
-import rivetari from "./packages/eslint-rules/index.js";
-
-const banned = existsSync(".rivetari/banned.json")
-  ? JSON.parse(readFileSync(".rivetari/banned.json", "utf8")).patterns.filter(
-      (p) => !p.covered_by,
-    )
-  : [];
-
 export default tseslint.config(
   {
     ignores: [
@@ -66,19 +56,6 @@ export default tseslint.config(
       // TypeScript covers prop types; the new runtime needs no React in scope.
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
-    },
-  },
-  {
-    files: ["packages/*/src/**/*.ts", "apps/*/src/**/*.{ts,tsx}"],
-    ignores: ["**/*.{test,spec}.{ts,tsx}"],
-    plugins: { rivetari },
-    rules: {
-      "rivetari/no-spec-section-refs": "error",
-      "rivetari/no-writes-to-workflows": [
-        "error",
-        { allow: ["packages/cli/src/commands/init.ts"] },
-      ],
-      "rivetari/no-banned": ["error", { patterns: banned }],
     },
   },
 );

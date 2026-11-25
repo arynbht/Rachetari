@@ -5,6 +5,5 @@
     "outDir": "dist",
     "tsBuildInfoFile": ".tsbuildinfo"
   },
-  "include": ["src"],
-  "references": [{ "path": "../catalog" }]
+  "include": ["src"]
 }
