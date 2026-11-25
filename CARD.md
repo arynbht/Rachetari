@@ -1,7 +1,7 @@
 # T-0040 · test: set a coverage floor
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0040 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0040 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: BACKLOG.md Next up "Set a coverage floor once the review tests land" (from checklist `quality.coverage.floor`) · Gate: needs you
 
 ## Why
