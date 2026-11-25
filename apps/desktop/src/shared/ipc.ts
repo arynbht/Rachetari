@@ -24,6 +24,10 @@ export const IpcChannel = {
   /** Push channel (main → renderer): one repo's cards after a change. */
   TasksUpdate: "tasks:update",
   ChecklistGet: "checklist:get",
+  DocsList: "docs:list",
+  DocsRead: "docs:read",
+  HistoryGet: "history:get",
+  HistoryNight: "history:night",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -278,3 +282,58 @@ export const ChecklistView = z.object({
 export type ChecklistView = z.infer<typeof ChecklistView>;
 
 export const ChecklistRequest = z.object({ repoPath: z.string().min(1) });
+
+// Docs — the repo's Markdown files, shown in History and rendered (with Mermaid).
+export const DocEntry = z.object({ path: z.string(), name: z.string() });
+export type DocEntry = z.infer<typeof DocEntry>;
+export const DocList = z.array(DocEntry);
+
+export const DocsListRequest = z.object({ repoPath: z.string().min(1) });
+export const DocsReadRequest = z.object({
+  repoPath: z.string().min(1),
+  path: z.string().min(1),
+});
+export const DocContent = z.object({
+  path: z.string(),
+  markdown: z.string(),
+});
+export type DocContent = z.infer<typeof DocContent>;
+
+// History — the finished cards in cards/done/ and the night reports in
+// nights/, both on the default branch. Read on demand; nothing here writes.
+export const HistoryRequest = z.object({ repoPath: z.string().min(1) });
+export const HistoryNightRequest = z.object({
+  repoPath: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d\d-\d\d$/),
+});
+
+export const HistoryView = z.object({
+  repoPath: z.string(),
+  done: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      /** The card's Status as written (the outcome), or "unreadable". */
+      status: z.string(),
+      pr: z.number().nullable(),
+      closedAt: z.string().nullable(),
+      path: z.string(),
+    }),
+  ),
+  nights: z.array(
+    z.object({
+      date: z.string(),
+      path: z.string(),
+      merged: z.number(),
+      held: z.number(),
+      blocked: z.number(),
+    }),
+  ),
+});
+export type HistoryView = z.infer<typeof HistoryView>;
+
+export const HistoryNight = z.object({
+  date: z.string(),
+  markdown: z.string(),
+});
+export type HistoryNight = z.infer<typeof HistoryNight>;

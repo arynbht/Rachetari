@@ -7,6 +7,14 @@ import { contextBridge, ipcRenderer } from "electron";
 import {
   ChecklistRequest,
   ChecklistView,
+  DocContent,
+  DocList,
+  DocsListRequest,
+  DocsReadRequest,
+  HistoryNight,
+  HistoryNightRequest,
+  HistoryRequest,
+  HistoryView,
   IpcChannel,
   NowRepoRequest,
   NowSelectRequest,
@@ -126,6 +134,44 @@ const api = {
         ChecklistRequest.parse({ repoPath }),
       );
       return ChecklistView.parse(raw);
+    },
+  },
+
+  history: {
+    /** The finished cards and the night reports on the default branch. */
+    async get(repoPath: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.HistoryGet,
+        HistoryRequest.parse({ repoPath }),
+      );
+      return HistoryView.parse(raw);
+    },
+    /** One night report's text. */
+    async night(repoPath: string, date: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.HistoryNight,
+        HistoryNightRequest.parse({ repoPath, date }),
+      );
+      return HistoryNight.parse(raw);
+    },
+  },
+
+  docs: {
+    async list(repoPath: string) {
+      const request = DocsListRequest.parse({ repoPath });
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.DocsList,
+        request,
+      );
+      return DocList.parse(raw);
+    },
+    async read(repoPath: string, path: string) {
+      const request = DocsReadRequest.parse({ repoPath, path });
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.DocsRead,
+        request,
+      );
+      return DocContent.parse(raw);
     },
   },
 
