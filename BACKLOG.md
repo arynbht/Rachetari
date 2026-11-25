@@ -99,5 +99,6 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] `/setup` edited the check (not the claim) on three of the owner's moved lines; the kit doesn't say whether a re-run may update an owner line's check · seen on T-0033 · `kit/setup/SKILL.md`
 - 2026-11-25 [product] The shell reads the stage and checklist from BACKLOG.md's "Repo checklist", which T-0033 moved to CHECKLIST.md on `develop`; once T-0031 shows `develop`, this repo's Checklist tab says there's no checklist and Now's health has no stage until the shell reads CHECKLIST.md · seen on T-0031 · `apps/desktop/src/main/kit/parse.ts`
 - 2026-11-25 [product] `history.ts` calls `readDoneCards`, `readNights` and `readNightText` without the display branch, so each resolves it again (three extra git reads; a ref can move between them); pass one branch through · seen on T-0031 inspection · `apps/desktop/src/main/engine/history.ts`
+- 2026-11-25 [product] The comment report (`diff.no-new-comments`) misses trailing comments after code, JSX `{/* */}` comments and Python docstrings, and skips `.vue` and `.css` files · seen on T-0025 · `kit/setup/templates/skills/done/comment-report.mjs`
 
 The checklist is in [CHECKLIST.md](CHECKLIST.md).
