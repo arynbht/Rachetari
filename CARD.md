@@ -1,6 +1,6 @@
 # T-0044 · feat(shell): CI state for develop and each card PR, via gh
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0044 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Shell: CI state; `SHELVED.md` S-16 option (b) · Gate: needs you
 
@@ -185,12 +185,13 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The data for part 2 (`prs`) ships in this card's `CiState`, so part 2
   touches only view files (§The line, shared first).
 - 2026-11-25: Decided for the owner by the foreman: split in two as proposed (alternative: one card); part 2, a CI badge per card in Tasks and Now, is queued in Next up.
+- 2026-11-25: Owner (21:56:58): yes, read-only, with the limits in A-last (allow-list `gh run list`/`gh pr view`/`gh api` GET only; known-value arguments; registered repos; timeout; ≤1 refresh/min/repo; no token in the shell or IPC; "CI unknown: gh not signed in"). This replaces the draft's `gh pr list`, its 120 calls/hour, and its missing/signed-out text. Set ready by the foreman.
 
 ## Questions for me
 
 One question per line, in this shape; options are separated by `;`.
 
-- [ ] (answer individually) May the shell run the `gh` CLI on your existing sign-in to
+- [x] (answer individually) May the shell run the `gh` CLI on your existing sign-in to
       read CI (`gh pr list`, `gh run list` only; the token stays in `gh`'s store, never
       read or stored by the shell)? — Recommended: yes, as drafted (S-16 option (b)).
       Options: no, build S-16's device flow (option (a)) instead; no, leave CI out of the
@@ -206,6 +207,14 @@ Lines noticed while drafting, not this card's work.
 
 - (none yet)
 
+Owner, 21:56:58: yes, read-only, with these limits:
+
+- A fixed list of read commands only: `gh run list`, `gh pr view` and `gh api` with GET. Nothing that creates, edits, merges, approves or comments. A test fails if any other subcommand or method can be called.
+- Arguments are built from known values (the repo's origin, branch names, PR numbers parsed as integers), never passed through as raw text from cards or other repo files.
+- Only for repos registered in the shell. Each call has a timeout, and results are refreshed at most once a minute per repo.
+- The token never enters the shell's own code or crosses IPC: gh uses its own sign-in.
+- If gh is missing or signed out, show "CI unknown: gh not signed in" rather than an error or a blank.
+
 ## Done
 
 - [ ] Every criterion ticked, with the command run and its result pasted below
@@ -218,5 +227,6 @@ Lines noticed while drafting, not this card's work.
 
 ```
 Waiting on the owner (wall clock, UTC):
+  question         21:55:13 → 21:56:58   1 min 46 s
   since 2026-11-25 21:55 (drafted; two questions above)
 ```
