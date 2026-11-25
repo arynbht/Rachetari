@@ -2,60 +2,60 @@
 
 Status: draft
 Branch: card/T-0054 · Held by: nobody
-Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Questions panel: answers · Gate: needs you (new write from the shell to card branches; a public type and IPC use; owner has not approved)
+Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Questions panel: answers · Gate: needs you (new IPC channels and a write from the shell; owner has not approved)
 
 ## Why
 
-The Questions panel on Now only reads. To answer, the owner edits `CARD.md` by hand on the right branch. This adds "Accept recommended" per question, "Accept all recommended" per card, and a free-text answer, each shown as a diff first and then made as a plain commit.
+The Questions panel only reads; to answer, the owner edits `CARD.md` by hand on the right branch. This card is the first half: the main-process answer path (accept one recommended, accept all recommended for a card, free text), each previewed then committed through T-0053's `card-commit.ts`. The panel buttons are a follow-up card.
 
 ## Acceptance criteria
 
-- [ ] A1: A pure function turns a card's text plus an answer (accept recommended, accept all, or free text) into the new text: the question's box is ticked and the answer written under it; questions with no "Recommended:" are skipped by accept-all · check: `pnpm --filter @arynbht/rivetari-desktop test -- answer.test.ts` (single, multi-line, code and link questions; two cards' worth; no-recommendation case)
-- [ ] A2: The panel shows the three actions, and each opens a preview of the diff before anything is written; cancelling writes nothing · check: `desktop-e2e` job on this PR, `answer.e2e.ts` (preview shown, cancel leaves the file unchanged)
-- [ ] A3: Confirming calls the shared write path and shows its result; a refusal (held by someone, dirty worktree, behind origin) is shown with its reason, not swallowed · check: `answer.e2e.ts` with a stubbed write path returning each refusal
-- [ ] A4: The answered question leaves the open list and Copy all's text on the next read · check: `answer.test.ts` re-parses the output with `parseCard` and compares with `docs/open-questions.md` shape
-- [ ] A5: Typecheck, lint and the existing tests pass · check: `pnpm typecheck && pnpm lint && pnpm test` in CI
+- [ ] A1: A pure function turns a card's text plus an answer (accept recommended, accept all, free text) into new text: the box is ticked and the answer written under the question; accept-all skips questions with no "Recommended:" · check: `pnpm --filter desktop test answer` (single, multi-line, code and link questions; two cards; no recommendation)
+- [ ] A2: Preview returns the exact diff and commits nothing; apply goes through `card-commit.ts`, so its refusals (held by, dirty worktree, behind origin, non-fast-forward) come back with their reasons · check: `pnpm --filter desktop test answer` (preview case; one refusal passed through, temp repo)
+- [ ] A3: The re-parsed card no longer lists the answered question as open · check: `pnpm --filter desktop test answer` (`parseCard` on the output)
+- [ ] A4: New answer channels are additive and own to this card; T-0053's channels are untouched · check: `git diff origin/develop -- apps/desktop/src/shared/ipc.ts` shows additions only
+- [ ] A5: Lint and typecheck pass · check: `pnpm lint` and `pnpm typecheck`
 
 ## Files in scope
 
-- `apps/desktop/src/shared/answer.ts` (new)
-- `apps/desktop/src/shared/answer.test.ts` (new)
-- `apps/desktop/src/renderer/components/Now.tsx` (changed)
-- `apps/desktop/e2e/answer.e2e.ts` (new)
+- `apps/desktop/src/main/engine/answer.ts` (new)
+- `apps/desktop/src/main/engine/answer.test.ts` (new)
+- `apps/desktop/src/shared/ipc.ts` (changed: new answer preview and apply channels, new types only)
+- `apps/desktop/src/preload/index.ts` (changed: expose them)
+- `apps/desktop/src/main/index.ts` (changed: register the handlers)
 
 ## Out of scope
 
-- The write path itself (diff, refuse if held, worktree rules, commit, fast-forward push): it is the shared-first card, not built here.
-- Marking a card ready (T-0053).
+- The panel buttons and diff dialog in `Now.tsx` (follow-up UI card).
+- Changing `card-commit.ts` or T-0053's channels.
 - Changing `parse.ts` or how questions are read.
 
 ## Constraints
 
 - No new dependencies.
-- Depends on the shared write path card (commit-to-card-branch helper, new IPC channels, preload bridge) being merged first; this card only calls it.
-- Answers are plain commits, never merges or ref moves.
+- Starts after T-0053 merges; imports `card-commit.ts` and does not copy its write rules.
+- Tests use temp repos, never this repo.
 
 ## Skills
 
-- `testing/test-driven-development` — pure answer function is logic, test first.
-- `ui/frontend-design` — preview and action layout in the panel.
+- `testing/test-driven-development` — new logic with several cases, test first.
 
 ## Stop and ask
 
-- If the shared write path's channel shape doesn't fit these three actions.
+- If `card-commit.ts` cannot take a text change other than mark-ready's.
 
 ## Next step
 
-Owner approves the gate and the shared-first split; then set ready.
+Owner approves the gate; after T-0053 merges, set ready.
 
 ## Decisions
 
-- 2026-11-25: Split in two. Shared-first card (new, needs an id): the owner's write path in a new main-process module, new IPC channels and preload bridge, with tests; built by whichever of this and T-0053 runs first, and both depend on it. This card holds only the answer text and panel.
-- 2026-11-25: Decided for the owner: the answer is written as a line under the ticked question (alternative: replace the question's "Recommended:" line).
+- 2026-11-25: Split by the coordinator: T-0053 is the shared write path; this card is the answer channels and logic; the Now.tsx buttons and e2e are a follow-up UI card, not drafted.
+- 2026-11-25: Decided for the owner: the answer is written as a line under the ticked question (alternative: replace the "Recommended:" line).
 
 ## Questions for me
 
-- [ ] Approve the gate and the split above? — Recommended: yes, shared-first card first. Options: one big card (over the five-file cap); no panel answers.
+- [ ] Approve the gate (new IPC channels and write)? — Recommended: approve, after T-0053. Options: keep the shell read-only.
 
 ## Done
 
@@ -75,4 +75,4 @@ Waiting on the owner (wall clock, UTC): 2026-11-25
 
 ## Parked
 
-- `source.ts` says it never writes to the repo; the shared write path needs that header changed or a new module.
+- Follow-up UI card: Accept/Accept all/free-text controls and diff dialog in `Now.tsx`, with `e2e/answer.e2e.ts`.
