@@ -87,6 +87,7 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] §The line gives two inspection caps: "Waiting for inspection at most 2" under Limits and "the inspection cap is 3" under Inspection · seen on T-0028 · `docs/queue-2026-11-25.md`
 - 2026-11-25 [tool] `ci-scope.mjs`'s `isDocs` (and `ci.yml`'s `code` filter) count only root `*.md` as docs, so a docs-only card PR that `/done` moves to `cards/done/<id>.md` is scoped to every package · seen on T-0028 · `scripts/ci-scope.mjs:16`
 - 2026-11-25 [tool] `review --pr` hit "request timed out after 600000ms" on PR #43, exited 0 and posted nothing; only the retry posted the review · seen on T-0028 inspection · `packages/cli/src/commands/review.ts`
+- 2026-11-25 [tool] `call-limit.test.ts › still reports a failed call by its stderr` timed out at 30 s on Windows CI (PR #41, run 45693636977 attempt 1) and passed on the re-run; a third Windows process-test hang today, after the fetch test and r28 · seen on T-0024 · `packages/engine/src/ai/call-limit.test.ts`
 
 ## Repo checklist
 
