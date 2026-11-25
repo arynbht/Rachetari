@@ -76,8 +76,8 @@ export default tseslint.config(
     },
   },
   {
-    // Tests: longer files allowed, no complexity limit.
-    files: ["**/*.{test,spec}.{ts,tsx,js,mjs,cjs}"],
+    // Tests (unit and e2e): longer files allowed, no complexity limit.
+    files: ["**/*.{test,spec,e2e}.{ts,tsx,js,mjs,cjs}"],
     rules: {
       complexity: "off",
       "max-lines": maxLines(800),
