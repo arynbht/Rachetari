@@ -161,8 +161,9 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Ready. Once T-0033, T-0031, T-0024 and T-0032 have merged into `develop`, merge
-`origin/develop` in (no rebase), then write A1's tests first.
+Done; draft PR open, stacked on T-0032 (#52). Once #52 merges, merge `origin/develop`
+in (no rebase) and retarget the PR to `develop`; then read CI's `ci` check (A5's CI
+half and A4's desktop-e2e half).
 
 ## Decisions
 
@@ -208,6 +209,24 @@ Appended by the session, one line each, newest last.
   every view's tests share. Alternative: a `CHECKLIST.md` in the kit fixture, which
   changes the existing views' tests.
 - 2026-11-25: Base: T-0029 merged into `develop`; merged in here at `2dac48d`, no rebase.
+- 2026-11-25: Chain: merged `origin/develop` (T-0033, T-0031, T-0024, T-0029 in) at
+  `e34e606` and `origin/card/T-0032` (PR #52, open) at `fe795ea`, no rebase, no
+  conflicts; BACKLOG.md's Next up equals develop's. The merge forced no change to the card.
+- 2026-11-25: What counts as a catalog id, decided for the owner: the first backticked
+  token only when it is shaped like one (lowercase, dotted, no spaces, e.g.
+  `ci.workflow.present`), so this repo's ``- [x] `review --pr` posts …`` keeps its text and
+  has no id. Alternative: any first backticked token is the id.
+- 2026-11-25: A CHECKLIST.md check, decided for the owner: kept as written, Markdown and
+  all, and the view shows its `code spans` as code and the rest as prose (most of this
+  repo's checks mix the two). The old BACKLOG.md checks are shown as before. Alternative:
+  strip the backticks off a check that is one code span, as the old reader does.
+- 2026-11-25: A section's row, decided for the owner: its four counts always shown, each
+  with its word ("0 fail"), in fixed-width right-aligned columns; a zero is muted, a
+  non-zero in its status colour. Greyed rows (n/a, not assessed) get a dashed border and
+  no chevron. Alternative: hide zero counts, as the old group header does.
+- 2026-11-25: The screenshot is taken at a 1900 px tall window so all fifteen rows show
+  (the view scrolls inside the window, so `fullPage` alone cuts it off). Alternative: the
+  default window, testing and cicd open, the rest below the fold.
 
 ## Questions for me
 
