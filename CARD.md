@@ -1,7 +1,7 @@
 # T-0031 · feat(shell): show develop, from the newer of local and origin
 
-Status: ready <!-- draft | ready | in progress | blocked | done -->
-Branch: card/T-0031 · Held by: nobody
+Status: in progress <!-- draft | ready | in progress | blocked | done -->
+Branch: card/T-0031 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Shell: the display branch, §Shell: live shell (first bullet) (part 2 of 3) · Gate: low
 
 ## Why
