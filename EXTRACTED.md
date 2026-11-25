@@ -75,3 +75,10 @@ Tests copied verbatim, unchanged: `runtime/src/judge/{tier2,tier2-cache-usage,ti
 New, not copied: `runtime/src/judge/review-never-approve.test.ts`.
 
 Tests dropped (they need left-behind code): `engine/src/github/token.test.ts` (`app.ts`), `runtime/src/judge/protected.test.ts` (`tier1.ts`), `tier2-evidence.test.ts` (`proof/prove.ts`), `r23-review-cost.test.ts` (`review-plan.ts`), `generated-suppressions.test.ts` (`diff-rules.ts`), `env-template.test.ts` (`agent/stops.ts`, `task/risk.ts`), `judge-verdict-pilot.test.ts`, `unverified-acceptance.test.ts`, `risk-check.test.ts` (task-judge, tier 1, the runner), `runtime/src/task/fast-path.test.ts` (the runner). So `githubToken` and `fast-path.ts` have no test here.
+
+## T-0005 · area skills
+
+Not from Rivetari: 13 skill folders fetched from their upstreams at the pins in
+Rivetari's `packages/registry/manifests/` (at `32f4b88`), copied unchanged into
+`skills/<area>/<name>/`. Each folder's content hash equals its manifest's `hash`. The
+list, with upstream, commit and license, is `skills/INDEX.md`.
