@@ -1,6 +1,6 @@
 # T-0017 · fix(kit): settle the kit trial's gaps in /setup, /done and /park
 
-Status: done <!-- draft | ready | in progress | blocked | done -->
+Status: blocked <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0017 · Held by: AB_Rouge
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4a · Gate: low
 
@@ -60,7 +60,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-None; done. After merge, the owner re-installs the kit into `.claude/skills/` and `~/.claude/skills/setup`.
+Held by the inspector: merge `day/2026-11-25` in (no rebase), fix "Next up" by hand (the day branch's list minus this card's line, renumbered, prettier-clean), re-check A2 and A5, record A5's green `ci`, then run `/done` again.
 
 ## Decisions
 
@@ -79,6 +79,7 @@ Appended by the session, one line each, newest last.
 
 ## Questions for me
 
+- [ ] HELD by the inspector (2026-11-25, PR #34): the PR conflicts with `day/2026-11-25`. The day branch renumbered Next up (T-0019 at 2) after this card merged it, and `BACKLOG.md merge=union` stacks the two lists, bringing back this card's own §4a line (undoing A2) and failing prettier. The card's own stop-and-ask covers it. Owner: put it back to ready for that fix?
 - [ ] None.
 
 ## Done
