@@ -20,7 +20,7 @@ Each one is checked by something that can be run or looked at. No criterion with
 - [ ] A2: `/done`, when it sets the card `done`, removes that card's own line from "Next up" in `BACKLOG.md`, matched by the card's `Source:`; if not exactly one line matches it removes none and says so in its report · check (reading, local): the same diff, read the step
 - [ ] A3: `/park` commits its line on its own: only `BACKLOG.md`, message `chore(park): <what>`, no push; on the default branch it leaves the line uncommitted and says so · check (reading, local): `git diff day/2026-11-25 -- kit/setup/templates/skills/park/SKILL.md`
 - [ ] A4: `/setup` says which branch it works on (the current branch unless it is the default branch, else a new `chore/kit-setup` from it) and that it commits its output there as one commit and never pushes; it writes `DESIGN.md` only when the repo has UI and otherwise skips it and says so in its report; and it names its templates folder as `${CLAUDE_SKILL_DIR}/templates/` · check (local): `grep -n 'CLAUDE_SKILL_DIR\|branch\|commit\|DESIGN.md' kit/setup/SKILL.md`, and read `git diff day/2026-11-25 -- kit/setup/SKILL.md`
-- [ ] A5: Nothing else in the three skills changes (frontmatter and untouched steps as they were), and `ci` is green on the PR · check: `git diff --stat day/2026-11-25` lists only files in scope; `gh pr checks` (CI runs every job here: `kit/` is outside every workspace package)
+- [ ] A5: Nothing else in the three skills changes (frontmatter and untouched steps as they were), and `ci` is green on the PR · check: `git diff --stat day/2026-11-25` lists only files in scope; `gh pr checks` (lint, typecheck and test run in full on both OSes: `kit/**/*.md` isn't docs to CI's path filter, and `node scripts/ci-scope.mjs` says `kit/setup/SKILL.md is outside every workspace package`, so `all=true`; desktop-e2e is skipped, and `ci` doesn't need it)
 
 ## Files in scope
 
@@ -56,7 +56,7 @@ At most three, from `skills/INDEX.md`. Read these and no others.
 Besides the standing list in CLAUDE.md:
 
 - If a fix seems to need `CLAUDE.md`, `kit/setup/templates/CLAUDE-section.md` or anything under `.claude/`
-- Queue cards 4e and 4g edit the same `/setup` and `/done` files; if either has landed on the day branch first, stop and rebase onto it before editing
+- Queue cards 4e and 4g edit the same `/setup` and `/done` files; if a card that edits the same files merges into the day branch first, merge the day branch into this card branch (no rebase) and re-check the criteria
 
 ## Next step
 
@@ -70,6 +70,7 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Drafter's defaults, for the owner to overrule: `/setup` branch rule and single commit (A4), `/park` commits only `BACKLOG.md` without pushing (A3), `/done` matches its Next up line by `Source:` (A2)
 - 2026-11-25: Finding 1 (headless `/setup` can't write `.claude/`) left out — no bullet in §4a covers it and it stays parked
 - 2026-11-25: `/setup`'s three fixes kept as one criterion (A4), matching §4a's single bullet, so the card stays at five criteria
+- 2026-11-25: Pre-build re-check against day/2026-11-25 at 0f12566: no in-scope file moved (only `docs/queue-2026-11-25.md` changed, and its 4a ruling matches this card), so no merge; the stop-and-ask line now merges instead of rebasing; A5's CI note now names what runs (lint, typecheck, test in full; desktop-e2e skipped)
 
 ## Questions for me
 
