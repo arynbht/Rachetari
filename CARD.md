@@ -1,6 +1,6 @@
 # T-0027 · feat(kit): /done deslops the card's diff first
 
-Status: draft <!-- draft | ready | in progress | blocked | done -->
+Status: ready <!-- draft | ready | in progress | blocked | done -->
 Branch: card/T-0027 · Held by: nobody
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §4e-2 · Gate: needs you
 
@@ -22,6 +22,9 @@ Each one is checked by something that can be run or looked at. No criterion with
 - [ ] A3: `/setup` copies each command folder from `templates/skills/` whole, so `done/comment-report.mjs` lands beside `/done` in `.claude/skills/done/`. It always copies `quality/deslop` from the library into the repo's `skills/quality/deslop/` and lists it in `skills/INDEX.md`, whatever areas the owner picks. If the library isn't installed, it says that deslop wasn't copied and that `/done` will skip it. Step 7's report names both · check (reading, local): `git diff origin/day/2026-11-25 -- kit/setup/SKILL.md`; `grep -n 'deslop\|comment-report\|whole' kit/setup/SKILL.md`
 - [ ] A4: A test holds the paths together. Every `${CLAUDE_SKILL_DIR}/<file>` that `/done` names exists in `kit/setup/templates/skills/done/`. The deslop path `/done` reads (`skills/quality/deslop/SKILL.md`) is the one `/setup` copies to, and it exists in this repo · check: `pnpm exec vitest run kit/setup/done-deslop.test.ts --coverage.enabled=false` passes, and fails when the script's name in `/done` is changed (shown in Evidence, then reverted); it runs in `pnpm test` and CI through T-0023's `kit/**/*.test.ts` include
 - [ ] A5: Nothing outside "Files in scope" changes, and `ci` is green on the PR · check: `git diff --stat origin/day/2026-11-25...HEAD`; `gh pr checks`. `kit/**` isn't docs to CI's `code` filter, and `node scripts/ci-scope.mjs origin/day/2026-11-25` says `kit/... is outside every workspace package` (`all=true`), so lint (`eslint .`, which covers the test), format check, boundaries, typecheck and the full `vitest run` run on Ubuntu and Windows; desktop-e2e is skipped and `ci` doesn't need it. Local before pushing: `pnpm test`, `pnpm lint`, `pnpm typecheck`
+- [ ] A6: If the checks fail after the deslop commit and passed before it, `/done` reverts that commit (a revert commit, never a reset), notes it in the report, and carries on with the checks; it doesn't try to fix the cleanup · check: read the diff of the done template's step; the seeded trial in A8 shows the order of runs
+- [ ] A7: The deslop step edits only files the card's diff already touches and that are inside "Files in scope"; it never adds files and never changes test assertions · check: read the diff of the done template and the deslop step's wording; the seeded trial's deslop commit (`git show --stat`) touches only already-changed in-scope files
+- [ ] A8: The headless trial runs twice on the kit-trial scratch repo: once on a diff seeded with three or four items from the slop list, showing the deslop commit removes them; once on a clean diff, showing it changes nothing and makes no commit · check: both runs' reports and `git log` pasted under Evidence (local, UTC times and cost)
 
 ## Files in scope
 
@@ -79,10 +82,12 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: Dirty files in scope: decided for the owner: skip deslop and name the files (alternative: commit pending work first, which commits work the session didn't mean to commit).
 - 2026-11-25: A card that isn't `in progress`: decided for the owner: list the comments, but deslop edits and commits nothing, as with the rest of `/done` there (alternative: skip the comment list too).
 - 2026-11-25: Checks: decided for the owner: a path test (`kit/setup/done-deslop.test.ts`) and one local headless trial of `/done` in the kit-trial scratch repo, with and without the skill (about $0.50 a run, from the kit trial) (alternative: reading checks only, which can't show the step runs or the skip works).
+- 2026-11-25: Owner (19:27:27): approved with three additions, written as A6–A8. Set ready by the foreman.
 
 ## Questions for me
 
-None.
+- [x] Approve the card as drafted? — Owner, 19:27:27: yes, approved, with three additions: revert the deslop commit if the checks fail after it and passed before it, note it, carry on; deslop edits only files the diff already touches inside "Files in scope", never adds files, never changes test assertions; run the headless trial twice, on a seeded diff and on a clean one. (Criteria A6–A8 added.)
+      None.
 
 ## Done
 
@@ -96,5 +101,6 @@ None.
 
 ```
 Waiting on the owner (wall clock, UTC):
+  approval         19:26:38 → 19:27:27   0 min 49 s
   draft 19:24:34 →
 ```
