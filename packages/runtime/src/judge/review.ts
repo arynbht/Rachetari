@@ -12,7 +12,15 @@ import { simpleGit } from "simple-git";
 import type { AllowedDecision, ReviewProof } from "./tier2.js";
 import type { Card } from "../task/card.js";
 import type { Tier1Checks } from "./tier1-criteria.js";
+import {
+  type Finding,
+  renderReview,
+  REVIEW_MARKER,
+  runTier2,
+  type Tier2Result,
+} from "./tier2.js";
 
+// Inlined from the engine's context.ts, which stayed behind with the audit.
 const QUIET_LOG = {
   debug: () => undefined,
   info: () => undefined,
@@ -29,13 +37,6 @@ async function resolveRepoSlug(root: string): Promise<RepoSlug | null> {
     return null;
   }
 }
-import {
-  type Finding,
-  renderReview,
-  REVIEW_MARKER,
-  runTier2,
-  type Tier2Result,
-} from "./tier2.js";
 
 /** After this many rounds, remaining blocking findings go to a person. */
 export const MAX_ROUNDS = 2;
