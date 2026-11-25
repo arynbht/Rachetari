@@ -31,7 +31,7 @@ branches 78, functions 72, statements 45**.
 Each one is checked by something that can be run or looked at. No criterion without a check.
 
 - [x] A1: `vitest.config.ts` sets `coverage.thresholds` to the floor the owner picked
-      (recommended: `lines: 45, branches: 78, functions: 72, statements: 45`), global, and
+      (re-measured: `lines: 42, branches: 79, functions: 73, statements: 42`), global, and
       nothing else in the file changes except the stale comment above `enabled` (see
       Decisions) · check: `git diff origin/develop...HEAD -- vitest.config.ts` shows only
       the `thresholds` block and that comment
@@ -40,7 +40,7 @@ Each one is checked by something that can be run or looked at. No criterion with
 - [x] A3: Coverage below the floor fails the run · check: a temporary local run of part
       of the suite against the committed config, not committed:
       `pnpm exec vitest run packages/engine --passWithNoTests; echo exit=$?` exits 1 and
-      prints `ERROR: Coverage for lines (…) does not meet global threshold (45%)` (the
+      prints `ERROR: Coverage for lines (…) does not meet global threshold (42%)` (the
       untested files still count, so totals fall to about 7% lines)
 - [x] A4: `CHECKLIST.md` is not edited by this card (T-0039 is rewriting it); the PR body says the next `/setup` run should tick `quality.coverage.floor` with today's numbers and the floor · check: `git diff --stat origin/develop...HEAD` lists no `CHECKLIST.md`; the PR body has the note
 - [ ] A5 (UNTESTED at PR open; the builder does not wait for CI): `ci` is green on the PR on both OSes · check: `gh pr checks <PR>` shows `ci`
@@ -92,8 +92,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Set `coverage.thresholds` to 42/79/73/42 in `vitest.config.ts`, run `pnpm test`, update
-A1/A2 evidence, then `/done`.
+Run `/done`: move the card to `cards/done/`, update PR #55's body.
 
 ## Decisions
 
@@ -205,6 +204,41 @@ $ git diff --stat origin/develop...HEAD
  CARD.md -> cards/done/T-0040.md
  vitest.config.ts | 8 ++-
 (no CHECKLIST.md; A4's PR-body note is in the PR)
+
+Rework (2026-11-25, AB_Rouge, Windows, after merging origin/develop; floor re-measured
+to 42/79/73/42 under the owner's standing pre-approval):
+$ git diff origin/develop...HEAD -- vitest.config.ts
+-      // coverage-summary.json (the judge's coverage floor reads it after its run).
++      // coverage-summary.json and checks the floor in `thresholds` below.
++      thresholds: {
++        lines: 42,
++        branches: 79,
++        functions: 73,
++        statements: 42,
++      },
+(no other lines)
+
+$ pnpm test; echo exit=$?
+ Test Files  42 passed (42)
+      Tests  222 passed (222)
+Statements   : 44.98% ( 3753/8343 )
+Branches     : 82.55% ( 1145/1387 )
+Functions    : 76.57% ( 206/269 )
+Lines        : 44.98% ( 3753/8343 )
+exit=0   (no "does not meet global threshold" line; grep count 0)
+
+$ pnpm exec vitest run packages/engine --passWithNoTests; echo exit=$?
+ Test Files  9 passed (9)
+Lines        : 6.41% ( 535/8343 )
+ERROR: Coverage for lines (6.41%) does not meet global threshold (42%)
+ERROR: Coverage for functions (47.16%) does not meet global threshold (73%)
+ERROR: Coverage for statements (6.41%) does not meet global threshold (42%)
+ERROR: Coverage for branches (71.48%) does not meet global threshold (79%)
+exit=1
+
+$ pnpm lint; echo $?        -> 0
+$ pnpm typecheck; echo $?   -> 0
+$ pnpm exec prettier --check vitest.config.ts CARD.md -> All matched files use Prettier code style!
 
 A5: UNTESTED (ci on the PR not awaited)
 ```
