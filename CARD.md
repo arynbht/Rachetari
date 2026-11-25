@@ -88,10 +88,11 @@ Appended by the session, one line each, newest last.
 - 2026-11-25: The write the fence refuses is `repos.fetch`, the only renderer channel that writes into a repo; "nothing written" becomes `other` holding only `secret.md`, since the audit's state file doesn't exist here.
 - 2026-11-25: The walk replaces Posture and Project with today's Tasks, Checklist and History tabs, so every screen is covered in one pass, as the source did for its tabs.
 - 2026-11-25: `Refs #22`, not `Closes`: six of the eight dropped tests stay shelved.
+- 2026-11-25: Owner (18:29): the axe walk includes History; build after T-0020 merges.
 
 ## Questions for me
 
-- [ ] Should the axe walk include History now, waiting on T-0020's fix, or leave History out until then? Recommended: include it and build after T-0020 merges (T-0020 is in progress and adds its own History axe check); the builder goes ahead on this unless you say otherwise.
+- [x] Should the axe walk include History now, waiting on T-0020's fix, or leave History out until then? Recommended: include it and build after T-0020 merges (T-0020 is in progress and adds its own History axe check); the builder goes ahead on this unless you say otherwise. — Owner, 18:29: as recommended: include History, build after T-0020 merges.
 
 ## Done
 
@@ -105,5 +106,5 @@ Appended by the session, one line each, newest last.
 
 ```
 Waiting on the owner (wall clock, UTC):
-  none (low card)
+  question         18:21:18 → 18:29:27   8 min 9 s
 ```
