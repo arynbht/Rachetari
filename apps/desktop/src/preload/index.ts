@@ -32,6 +32,7 @@ import {
   RepoRemoveRequest,
   SettingsSaveRequest,
   SettingsView,
+  ShellStatus,
   TaskDetail,
   TaskDetailRequest,
   TasksRequest,
@@ -232,6 +233,26 @@ const api = {
       ipcRenderer.on(IpcChannel.MapBlocked, listener);
       return () => {
         ipcRenderer.removeListener(IpcChannel.MapBlocked, listener);
+      };
+    },
+  },
+
+  shell: {
+    /** The header's status: the live shell's commit, and the repo on show's fetch. */
+    async status() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.ShellStatus);
+      return ShellStatus.parse(raw);
+    },
+    /** Hears the status after every change; returns an unsubscribe fn. */
+    onStatus(callback: (status: ShellStatus) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = ShellStatus.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.ShellStatusUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.ShellStatusUpdate, listener);
       };
     },
   },
