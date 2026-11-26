@@ -45,7 +45,7 @@ The Questions panel only reads. T-0054 adds the main-process answer path (previe
 
 ## Next step
 
-Wait for T-0054 to merge, then pull develop and start with A1.
+Waiting for the test lock (T-0061, then T-0062): then run vitest, and CI's desktop-e2e for answer.e2e.ts. Also questions.e2e.ts line 74 (`toHaveCount(1)` buttons) will now fail and needs the owner's OK to change.
 
 ## Decisions
 
@@ -55,7 +55,7 @@ Wait for T-0054 to merge, then pull develop and start with A1.
 
 ## Questions for me
 
-none
+- [ ] questions.e2e.ts asserts the panel has exactly one button (Copy all); the new buttons break it. May I change that assertion (file is out of scope)? — Recommended: yes, count only buttons named Copy all. Options: drop the assertion; leave failing.
 
 ## Done
 
@@ -74,5 +74,8 @@ Waiting on the owner (wall clock, UTC): none
 ```
 
 ## Parked
+
+- NowQuestion carries no full question text, so AnswerControls rebuilds it from ask/recommended/options; cards not in the template shape (e.g. `Other options:`) get 'not open' refused. Adding `text` to NowQuestion would fix it (schema change).
+- Decided for the owner: question text rebuilt in the renderer (alternative: schema field).
 
 - T-0062 and this card both edit `Now.tsx` and want one diff dialog; run one then the other, not together.

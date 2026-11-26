@@ -14,6 +14,7 @@ import type {
   NowState,
 } from "../../shared/ipc";
 import { openQuestionsText } from "../../shared/open-questions";
+import { AcceptAll, AnswerQuestion } from "./AnswerControls";
 import { CiBadge } from "./CiBadge";
 import { useCiState } from "./CiLine";
 import { DisplayBranchLine } from "./DisplayBranch";
@@ -114,7 +115,13 @@ function Inline({ text }: { text: string }) {
  * only reads: "Copy all" puts them on the clipboard in the format
  * docs/open-questions.md uses, and the answers go in each card's CARD.md.
  */
-function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
+function QuestionsPanel({
+  repoPath,
+  groups,
+}: {
+  repoPath: string;
+  groups: NowQuestionGroup[];
+}) {
   const [said, setSaid] = useState("");
   const clear = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(clear.current), []);
@@ -164,12 +171,15 @@ function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
               >
                 <h4
                   id={headingId}
-                  className="border-b border-border/60 px-4 py-2 text-sm font-medium"
+                  className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-sm font-medium"
                 >
                   <span className="font-mono text-xs text-muted-foreground">
                     {g.id}
                   </span>{" "}
                   · {g.title}
+                  <span className="ml-auto">
+                    <AcceptAll repoPath={repoPath} group={g} />
+                  </span>
                 </h4>
                 <ol className="divide-y divide-border/60">
                   {g.questions.map((q) => (
@@ -207,6 +217,11 @@ function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
                             ))}
                           </p>
                         )}
+                        <AnswerQuestion
+                          repoPath={repoPath}
+                          group={g}
+                          question={q}
+                        />
                       </div>
                     </li>
                   ))}
@@ -424,7 +439,7 @@ export function Now({
             )}
           </section>
 
-          <QuestionsPanel groups={state?.questions ?? []} />
+          <QuestionsPanel repoPath={repoPath} groups={state?.questions ?? []} />
 
           <section aria-labelledby="now-running" className="space-y-2">
             <h3 id="now-running" className="text-sm font-semibold">
