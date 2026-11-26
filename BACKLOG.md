@@ -11,14 +11,12 @@ Ordered. The top line becomes the next `CARD.md`.
 3. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
 4. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
 5. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-6. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-7. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+6. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+7. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -175,3 +173,5 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [tool] T-0058's Done box for tests, lint and typecheck is ticked though they were UNTESTED locally (CI ran them) · seen on T-0058 inspection · `cards/done/T-0058.md`
 - 2026-11-26 [tool] The fixture's worst-case cleanup (about 5 s waiting for pids plus about 5 s of EBUSY retries, ~10.5 s) sits just over Vitest's default 10 s hookTimeout, so a run that hits both limits reports a hook timeout · seen on T-0059 inspection · `apps/desktop/test/kit-fixture.ts`
 - 2026-11-26 [tool] Nothing shows T-0059's EBUSY retry path ever ran; its 40 local runs passed without hitting it · seen on T-0059 inspection · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-26 [product] `tier2-prompt.ts` now exports RUBRIC, GATE, the zod schemas, gatePrompt, reviewPrompt and applyTier1 for its siblings; `tier2.ts` doesn't re-export them and the package root only exposes `.`, so nothing public grew, but they read as public · seen on T-0055 inspection · `packages/runtime/src/judge/tier2-prompt.ts`
+- 2026-11-26 [tool] A criterion that greps for `eslint-disable` over the diff matches the card's own text; scope such greps to code paths (`packages/`, `apps/`) · seen on T-0055 inspection · `cards/done/T-0055.md`
