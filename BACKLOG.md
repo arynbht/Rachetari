@@ -6,14 +6,15 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-4. Kit: an installer and a machine version stamp (T-0067, part 1; needs you, see docs/open-questions.md)
-5. Kit: the templates stop naming Rivetari (`CLAUDE-section.md` lines 1 and 29, `skills/park/SKILL.md` line 10, `sections.md` line 3, `comment-report.test.ts` line 43's fixture) (low; T-0067 part 2)
-6. Kit: `/setup` stamps each repo with the kit version it installed, and an update mode proposes the diff to a newer kit as a reviewable branch (T-0067 part 3)
-7. Kit: `/setup`'s gaps from the breathband-console pilot: its branch name and never-push rule vs a draft PR; private free-plan repos where branch-protection APIs return 403; a kept `@AGENTS.md` carrying a contradicting contract; writing `.claude/` headless (T-0067 part 4)
-8. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-9. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-10. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+4. CI: desktop-e2e's install step gets a time limit and retries (T-0068, PR #85, owner-approved; paused unfinished 2026-11-26 — next try: apt network timeouts in /etc/apt/apt.conf.d plus killing each timed-out attempt's whole process group; see its card)
+5. Kit: an installer and a machine version stamp (T-0067, part 1; needs you, see docs/open-questions.md)
+6. Kit: the templates stop naming Rivetari (`CLAUDE-section.md` lines 1 and 29, `skills/park/SKILL.md` line 10, `sections.md` line 3, `comment-report.test.ts` line 43's fixture) (low; T-0067 part 2)
+7. Kit: `/setup` stamps each repo with the kit version it installed, and an update mode proposes the diff to a newer kit as a reviewable branch (T-0067 part 3)
+8. Kit: `/setup`'s gaps from the breathband-console pilot: its branch name and never-push rule vs a draft PR; private free-plan repos where branch-protection APIs return 403; a kept `@AGENTS.md` carrying a contradicting contract; writing `.claude/` headless (T-0067 part 4)
+9. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+10. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+11. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -200,3 +201,4 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-26 [product] `AnswerQuestion` is keyed by question number, so typed text could carry over to another question if a card's questions renumber · seen on T-0064 inspection · `apps/desktop/src/renderer/components/AnswerControls.tsx`
 - 2026-11-26 [tool] T-0064's held-card e2e covers only the free-text Answer (its fixture card has no recommendation), and A4's refusal test uses a dirty worktree, not a held card · seen on T-0064 inspection · `apps/desktop/e2e/answer.e2e.ts`
 - 2026-11-26 [tool] T-0068 (desktop-e2e install time limit + retry, PR #85) paused unfinished at the owner's "finish now": apt stalls fetching package lists and a timed-out attempt left apt-get holding the lock; next try: apt network timeouts plus killing the attempt's whole process group · seen on the line · `.github/workflows/ci.yml`
+- 2026-11-26 [tool] PR #68 (T-0051) still shows open though T-0051 merged into develop and is on main; close it by hand · seen on the line · `gh pr view 68`
