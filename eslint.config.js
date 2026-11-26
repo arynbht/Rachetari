@@ -96,9 +96,4 @@ export default tseslint.config(
     files: ["apps/desktop/scripts/live-shell.mjs"],
     rules: { complexity: ["error", 28] },
   },
-  {
-    // Shrink needsYouItems (now.ts) under the lint limits (complexity 25).
-    files: ["apps/desktop/src/main/engine/now.ts"],
-    rules: { complexity: ["error", 27] },
-  },
 );

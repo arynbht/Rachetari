@@ -64,7 +64,7 @@ test("the Questions panel shows one row per open question, grouped by card, each
   await expect(rows.nth(1)).toContainText("Recommended: commit only");
   await expect(panel.getByText("Already answered?")).toHaveCount(0);
 
-  // Cards in id order, and no button that writes: Copy all is the only one.
+  // Cards in id order, and Copy all plus only the named answer controls.
   const headings = await panel
     .getByRole("heading", { level: 4 })
     .allTextContents();
@@ -72,8 +72,11 @@ test("the Questions panel shows one row per open question, grouped by card, each
     "T-0005 · fix: the export rounds wrong",
     "T-0014 · feat: answer from the panel",
   ]);
-  await expect(panel.getByRole("button")).toHaveCount(1);
   await expect(panel.getByRole("button", { name: "Copy all" })).toBeVisible();
+  const names = await panel.getByRole("button").allTextContents();
+  expect(names.filter((n) => n.trim() === "Copy all")).toHaveLength(1);
+  for (const n of names.filter((n) => n.trim() !== "Copy all"))
+    expect(n).toMatch(/^(Accept all recommended|Accept recommended|Answer)/);
 
   // Needs you is unchanged: still one question item per card.
   await expect(page.getByText("5 waiting", { exact: true })).toBeVisible();
