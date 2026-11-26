@@ -1,7 +1,7 @@
 # T-0064 · feat(shell): answer questions from the Questions panel (UI)
 
-Status: ready
-Branch: card/T-0064 · Held by: nobody
+Status: in progress
+Branch: card/T-0064 · Held by: session-T-0064
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Questions panel: answers · Gate: low (UI on T-0054's owner-approved write path; no new IPC, no existing test changed)
 
 ## Why
