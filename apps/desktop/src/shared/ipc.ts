@@ -46,6 +46,10 @@ export const IpcChannel = {
   CardMarkReadyPreview: "card:markReadyPreview",
   /** Mark ready, step two: commit and push that diff, or refuse and say why. */
   CardMarkReadyApply: "card:markReadyApply",
+  /** Answer a question, step one: the diff of CARD.md; writes nothing. */
+  CardAnswerPreview: "card:answerPreview",
+  /** Answer a question, step two: commit and push that diff, or refuse and say why. */
+  CardAnswerApply: "card:answerApply",
 
   /** CI for the repo on show, read through the gh CLI (read-only). */
   CiState: "ci:state",
@@ -556,6 +560,38 @@ export const MarkReadyResult = z.discriminatedUnion("ok", [
   z.object({ ok: z.literal(false), reason: z.string() }),
 ]);
 export type MarkReadyResult = z.infer<typeof MarkReadyResult>;
+
+// Answer a question — a card's open question ticked and answered as a plain
+// commit on its branch, through the same preview-then-apply write path.
+export const AnswerSpec = z.discriminatedUnion("kind", [
+  /** Take the card's "Recommended:" for one question (named by its full text). */
+  z.object({ kind: z.literal("accept"), question: z.string().min(1) }),
+  /** Take the recommendation for every open question that has one. */
+  z.object({ kind: z.literal("acceptAll") }),
+  /** A free-text answer to one question. */
+  z.object({
+    kind: z.literal("text"),
+    question: z.string().min(1),
+    text: z.string().min(1),
+  }),
+]);
+export type AnswerSpec = z.infer<typeof AnswerSpec>;
+
+export const AnswerPreviewRequest = MarkReadyPreviewRequest.extend({
+  answer: AnswerSpec,
+});
+export type AnswerPreviewRequest = z.infer<typeof AnswerPreviewRequest>;
+
+export const AnswerApplyRequest = AnswerPreviewRequest.extend({
+  /** The diff the person was shown; nothing is written if the card has since changed. */
+  diff: z.string(),
+});
+export type AnswerApplyRequest = z.infer<typeof AnswerApplyRequest>;
+
+export const AnswerPreview = MarkReadyPreview;
+export type AnswerPreview = MarkReadyPreview;
+export const AnswerResult = MarkReadyResult;
+export type AnswerResult = MarkReadyResult;
 
 // CI state — the repo on show's CI, read through the gh CLI on the person's own
 // sign-in (no token ever crosses here): its display branch's last run, and the
