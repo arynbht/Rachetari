@@ -87,13 +87,17 @@ test("cancelling the diff commits nothing", async () => {
 test("confirming commits the answer and the question leaves the panel", async () => {
   const { page } = launched;
   const before = git("rev-parse", "card/T-0020");
+  const mainTip = git("rev-parse", "main");
   await group(page)
     .getByRole("button", { name: /^Accept recommended for question 2/ })
     .click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Confirm and commit" }).click();
   await expect(dialog).toBeHidden();
-  expect(git("rev-parse", "card/T-0020")).not.toBe(before);
+  // One commit, touching only CARD.md, and nothing else moved.
+  expect(git("rev-list", "--count", `${before}..card/T-0020`)).toBe("1");
+  expect(git("diff", "--name-only", before, "card/T-0020")).toBe("CARD.md");
+  expect(git("rev-parse", "main")).toBe(mainTip);
   expect(git("show", "card/T-0020:CARD.md")).toContain(
     "- [x] Commit, or commit",
   );
@@ -116,7 +120,7 @@ test("a free-text answer shows its diff, then commits", async () => {
   expect(git("show", "card/T-0020:CARD.md")).toContain("Answer: src/x.ts");
 });
 
-test("a refusal shows its reason and applies nothing", async () => {
+test("on a held card the answer controls are disabled and say who holds it", async () => {
   const { page } = launched;
   // T-0005 is held by another machine.
   execFileSync("git", ["fetch", "-q"], { cwd: fx.repo });
@@ -124,20 +128,29 @@ test("a refusal shows its reason and applies nothing", async () => {
   const held = page
     .getByRole("region", { name: "Questions", exact: true })
     .getByRole("group", { name: "T-0005 · fix: the export rounds wrong" });
-  await held.getByRole("button", { name: /^Answer question 1/ }).click();
-  await held
-    .getByLabel("Your answer to question 1 on T-0005")
-    .fill("half even");
-  const before = git("rev-parse", "card/T-0005");
-  await held.getByRole("button", { name: "Review answer" }).click();
+  await expect(held.getByText("Held by laptop")).toBeVisible();
+  await expect(
+    held.getByRole("button", { name: /^Answer question 1/ }),
+  ).toBeDisabled();
+});
+
+test("a refusal shows its reason and applies nothing", async () => {
+  const { page } = launched;
+  // A dirty worktree on the card refuses the write.
+  const wt = join(fx.repo, "..", "wt-T-0020");
+  git("worktree", "add", "-q", wt, "card/T-0020");
+  writeFileSync(join(wt, "scratch.txt"), "uncommitted");
+  const before = git("rev-parse", "card/T-0020");
+  const g = group(page);
+  await g.getByRole("button", { name: /^Answer question 1/ }).click();
+  await g.getByLabel("Your answer to question 1 on T-0020").fill("src/x.ts");
+  await g.getByRole("button", { name: "Review answer" }).click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("alert")).toContainText(
-    "the card is held by laptop",
-  );
+  await expect(dialog.getByRole("alert")).toContainText("uncommitted changes");
   await expect(
     dialog.getByRole("button", { name: "Confirm and commit" }),
   ).toHaveCount(0);
   expect(await runAxe(page)).toEqual([]);
   await dialog.getByRole("button", { name: "Close" }).click();
-  expect(git("rev-parse", "card/T-0005")).toBe(before);
+  expect(git("rev-parse", "card/T-0020")).toBe(before);
 });

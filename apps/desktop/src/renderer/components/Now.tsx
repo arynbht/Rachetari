@@ -118,9 +118,12 @@ function Inline({ text }: { text: string }) {
 function QuestionsPanel({
   repoPath,
   groups,
+  held,
 }: {
   repoPath: string;
   groups: NowQuestionGroup[];
+  /** Who holds each card, by branch. */
+  held: ReadonlyMap<string, string | null>;
 }) {
   const [said, setSaid] = useState("");
   const clear = useRef<number | undefined>(undefined);
@@ -178,7 +181,11 @@ function QuestionsPanel({
                   </span>{" "}
                   · {g.title}
                   <span className="ml-auto">
-                    <AcceptAll repoPath={repoPath} group={g} />
+                    <AcceptAll
+                      repoPath={repoPath}
+                      group={g}
+                      heldBy={held.get(g.branch) ?? null}
+                    />
                   </span>
                 </h4>
                 <ol className="divide-y divide-border/60">
@@ -221,6 +228,7 @@ function QuestionsPanel({
                           repoPath={repoPath}
                           group={g}
                           question={q}
+                          heldBy={held.get(g.branch) ?? null}
                         />
                       </div>
                     </li>
@@ -439,7 +447,11 @@ export function Now({
             )}
           </section>
 
-          <QuestionsPanel repoPath={repoPath} groups={state?.questions ?? []} />
+          <QuestionsPanel
+            repoPath={repoPath}
+            groups={state?.questions ?? []}
+            held={new Map(state?.cards.map((c) => [c.branch, c.heldBy]))}
+          />
 
           <section aria-labelledby="now-running" className="space-y-2">
             <h3 id="now-running" className="text-sm font-semibold">

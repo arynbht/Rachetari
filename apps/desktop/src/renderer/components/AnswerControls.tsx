@@ -164,13 +164,24 @@ function useAnswer(repoPath: string, branch: string) {
 
 const small = "h-7 px-2.5 text-xs";
 
+function HeldNote({ by }: { by: string }) {
+  return (
+    <span className="text-xs font-normal text-amber-400">
+      Held by {by}: can&apos;t be answered here
+    </span>
+  );
+}
+
 /** "Accept all recommended" for one card's group. */
 export function AcceptAll({
   repoPath,
   group,
+  heldBy,
 }: {
   repoPath: string;
   group: NowQuestionGroup;
+  /** Who holds the card, or null; a held card can't be answered. */
+  heldBy: string | null;
 }) {
   const a = useAnswer(repoPath, group.branch);
   if (!group.questions.some((q) => q.recommended !== null)) return null;
@@ -181,12 +192,13 @@ export function AcceptAll({
         size="sm"
         variant="outline"
         className={small}
-        disabled={a.busy}
+        disabled={a.busy || heldBy !== null}
         onClick={() => void a.start({ kind: "acceptAll" })}
       >
         Accept all recommended
         <span className="sr-only"> for {group.id}</span>
       </Button>
+      {heldBy !== null && <HeldNote by={heldBy} />}
       <DiffDialog
         title={`Accept all recommended answers on ${group.id}`}
         stage={a.stage}
@@ -202,10 +214,13 @@ export function AnswerQuestion({
   repoPath,
   group,
   question,
+  heldBy,
 }: {
   repoPath: string;
   group: NowQuestionGroup;
   question: NowQuestion;
+  /** Who holds the card, or null; a held card can't be answered. */
+  heldBy: string | null;
 }) {
   const a = useAnswer(repoPath, group.branch);
   const [typing, setTyping] = useState(false);
@@ -223,7 +238,7 @@ export function AnswerQuestion({
             size="sm"
             variant="outline"
             className={small}
-            disabled={a.busy}
+            disabled={a.busy || heldBy !== null}
             onClick={() => void a.start({ kind: "accept", question: line })}
           >
             Accept recommended
@@ -235,11 +250,13 @@ export function AnswerQuestion({
           size="sm"
           variant="outline"
           className={small}
+          disabled={heldBy !== null}
           aria-expanded={typing}
           onClick={() => setTyping((t) => !t)}
         >
           Answer<span className="sr-only"> {ref}</span>
         </Button>
+        {heldBy !== null && <HeldNote by={heldBy} />}
       </div>
       {typing && (
         <form
