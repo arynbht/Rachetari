@@ -47,7 +47,7 @@ T-0053 built the previewed write path for mark ready, main process only. Nothing
 
 ## Next step
 
-Build: read `cards/done/T-0053.md`, add `tasks/MarkReady.tsx`, mount it in `RecordHeader`, write the e2e first.
+Built and pushed. Waiting on the test lock for local vitest, then CI's desktop-e2e (mark-ready) for A1-A5 and the dialog screenshot (commit under docs/screenshots/T-0062/), then done check.
 
 ## Decisions
 
@@ -72,7 +72,9 @@ None.
 Waiting on the owner (wall clock, UTC): none
 
 ```
-<commands and results>
+pnpm lint: clean. pnpm typecheck (root and apps/desktop node+web): clean. pnpm boundaries: no violations.
+A1-A5 e2e (mark-ready): UNTESTED locally (no local desktop e2e); CI desktop-e2e gates.
+Local vitest: not yet run (test lock).
 ```
 
 ## Parked
