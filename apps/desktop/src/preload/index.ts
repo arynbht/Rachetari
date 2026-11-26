@@ -344,7 +344,7 @@ const api = {
   },
 };
 
-/** The shape exposed as `window.rivetari` in the renderer. */
-export type RivetariApi = typeof api;
+/** The shape exposed as `window.rachetari` in the renderer. */
+export type RachetariApi = typeof api;
 
-contextBridge.exposeInMainWorld("rivetari", api);
+contextBridge.exposeInMainWorld("rachetari", api);

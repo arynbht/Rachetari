@@ -13,7 +13,7 @@ const TARGET = "cb8b60c0a1b2c3d4e5f60718293a4b5c6d7e8f90";
 
 let dir: string;
 beforeAll(() => {
-  dir = mkdtempSync(join(tmpdir(), "rivetari-live-status-"));
+  dir = mkdtempSync(join(tmpdir(), "rachetari-live-status-"));
 });
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
@@ -24,7 +24,7 @@ function statusFile(name: string, contents: unknown) {
     path,
     typeof contents === "string" ? contents : JSON.stringify(contents),
   );
-  return { RIVETARI_LIVE_STATUS: path };
+  return { RACHETARI_LIVE_STATUS: path };
 }
 
 const status = (failure: unknown) => ({
@@ -36,16 +36,16 @@ const status = (failure: unknown) => ({
 });
 
 describe("liveStatus", () => {
-  it("no RIVETARI_LIVE_STATUS, no live status", async () => {
+  it("no RACHETARI_LIVE_STATUS, no live status", async () => {
     expect(await liveStatus({})).toBeNull();
-    expect(await liveStatus({ RIVETARI_LIVE_STATUS: "" })).toBeNull();
+    expect(await liveStatus({ RACHETARI_LIVE_STATUS: "" })).toBeNull();
   });
 
   it("a missing or malformed status file shows nothing", async () => {
     expect(
-      await liveStatus({ RIVETARI_LIVE_STATUS: join(dir, "missing.json") }),
+      await liveStatus({ RACHETARI_LIVE_STATUS: join(dir, "missing.json") }),
     ).toBeNull();
-    expect(await liveStatus({ RIVETARI_LIVE_STATUS: dir })).toBeNull();
+    expect(await liveStatus({ RACHETARI_LIVE_STATUS: dir })).toBeNull();
     expect(await liveStatus(statusFile("torn.json", '{"running": "d5'))).toBe(
       null,
     );

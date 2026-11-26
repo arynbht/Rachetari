@@ -1,7 +1,7 @@
 {
-  "name": "@arynbht/rivetari-desktop",
+  "name": "@arynbht/rachetari-desktop",
   "version": "0.1.0",
-  "description": "Electron desktop shell over Rivetari engine.",
+  "description": "Rachetari's Electron desktop shell.",
   "author": "Aryan Bhatia",
   "license": "MIT",
   "private": true,

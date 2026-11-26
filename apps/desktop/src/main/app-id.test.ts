@@ -15,7 +15,7 @@ describe("the app's id", () => {
       "utf8",
     );
     expect(APP_ID).toBe(/^appId: (\S+)$/m.exec(config)?.[1]);
-    expect(APP_ID).toBe("io.github.arynbht.rivetari");
+    expect(APP_ID).toBe("io.github.arynbht.rachetari");
   });
 
   it("reads a quoted or commented appId, and refuses a config with none", () => {

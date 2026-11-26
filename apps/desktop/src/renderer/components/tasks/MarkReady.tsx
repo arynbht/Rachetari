@@ -49,7 +49,7 @@ function MarkReadyDialog({
 
   useEffect(() => {
     let live = true;
-    window.rivetari.card.markReadyPreview(repoPath, branch).then(
+    window.rachetari.card.markReadyPreview(repoPath, branch).then(
       (res) => {
         if (!live) return;
         if (res.ok) setDiff(res.diff);
@@ -73,7 +73,7 @@ function MarkReadyDialog({
     // The buttons go disabled; keep focus inside the dialog.
     ref.current?.focus();
     setRefusal(null);
-    window.rivetari.card.markReadyApply(repoPath, branch, diff).then(
+    window.rachetari.card.markReadyApply(repoPath, branch, diff).then(
       (res) => {
         if (res.ok) onClose();
         else {

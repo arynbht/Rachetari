@@ -1,6 +1,6 @@
 // The repo on show's CI, read through gh, on its own line under "showing
 // develop" in Now, Tasks and Checklist. gh is the fake (test/fake-gh.mjs),
-// named by RIVETARI_GH; the fixture's origin is a GitHub URL that git
+// named by RACHETARI_GH; the fixture's origin is a GitHub URL that git
 // rewrites (insteadOf) to the local origin, so fetches stay offline.
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -56,7 +56,7 @@ test.beforeEach(() => {
     execFileSync("git", args, { cwd: fx.repo });
   git("remote", "set-url", "origin", GITHUB_URL);
   git("config", `url.${fx.origin}.insteadOf`, GITHUB_URL);
-  scratch = mkdtempSync(join(tmpdir(), "rivetari-e2e-gh-"));
+  scratch = mkdtempSync(join(tmpdir(), "rachetari-e2e-gh-"));
   dataFile = join(scratch, "gh.json");
   writeRun("success");
 });
@@ -72,9 +72,9 @@ async function open(env: Record<string, string> = {}): Promise<Page> {
   launched = await launchApp({
     repos: [{ path: fx.repo, name: "kit-repo" }],
     env: {
-      RIVETARI_LIVE_STATUS: "",
-      RIVETARI_GH: JSON.stringify([process.execPath, FAKE]),
-      RIVETARI_CI_MIN_MS: "500",
+      RACHETARI_LIVE_STATUS: "",
+      RACHETARI_GH: JSON.stringify([process.execPath, FAKE]),
+      RACHETARI_CI_MIN_MS: "500",
       FAKE_GH_DATA: dataFile,
       FAKE_GH_MODE: "ok",
       ...env,
@@ -131,7 +131,7 @@ test("shows develop's passing run from gh", async () => {
 });
 
 test("shows a failing run after the next background fetch", async () => {
-  const page = await open({ RIVETARI_FETCH_INTERVAL_MS: "1000" });
+  const page = await open({ RACHETARI_FETCH_INTERVAL_MS: "1000" });
   await showTab(page, "Now");
   const now = panel(page, "Now");
   await expect(
@@ -162,13 +162,13 @@ test("not signed in: the quiet line, and the rest of the view works", async () =
 
 test("gh not installed: the same line", async () => {
   const page = await open({
-    RIVETARI_GH: JSON.stringify([join(scratch, "no-such-gh")]),
+    RACHETARI_GH: JSON.stringify([join(scratch, "no-such-gh")]),
   });
   await shownInEveryTab(page, "CI unknown: gh not signed in");
 });
 
-test("no RIVETARI_GH under E2E: no CI line", async () => {
-  const page = await open({ RIVETARI_GH: "" });
+test("no RACHETARI_GH under E2E: no CI line", async () => {
+  const page = await open({ RACHETARI_GH: "" });
   for (const tab of TABS) {
     await showTab(page, tab);
     await expect(

@@ -110,7 +110,7 @@ rather than deleting it, so a re-run doesn't add it back.
 
 ## quality
 
-- [x] `quality.typecheck.clean` Typecheck is clean · stage: foundation · check: `pnpm typecheck` and `pnpm --filter @arynbht/rivetari-desktop typecheck`
+- [x] `quality.typecheck.clean` Typecheck is clean · stage: foundation · check: `pnpm typecheck` and `pnpm --filter @arynbht/rachetari-desktop typecheck`
 - [x] `quality.lint.clean` Lint is clean · stage: foundation · check: `pnpm lint`
 - [x] Format is clean · stage: foundation · check: `pnpm format`
 - [x] `quality.boundaries.clean` Module boundaries hold · stage: foundation · check: `pnpm boundaries` (no violations, 154 modules)

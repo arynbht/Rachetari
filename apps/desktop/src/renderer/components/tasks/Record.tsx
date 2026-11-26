@@ -205,7 +205,7 @@ export function TaskRecord({
 
   useEffect(() => {
     let live = true;
-    window.rivetari.tasks.detail(repoPath, item.key).then(
+    window.rachetari.tasks.detail(repoPath, item.key).then(
       (next) => {
         if (!live) return;
         setDetail(next);

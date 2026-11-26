@@ -15,8 +15,8 @@ function useShellStatus(): ShellStatusT | null {
   const [status, setStatus] = useState<ShellStatusT | null>(null);
   useEffect(() => {
     let mounted = true;
-    const off = window.rivetari.shell.onStatus(setStatus);
-    window.rivetari.shell.status().then(
+    const off = window.rachetari.shell.onStatus(setStatus);
+    window.rachetari.shell.status().then(
       // A push that landed first is newer: it stays.
       (read) => mounted && setStatus((pushed) => pushed ?? read),
       () => undefined,

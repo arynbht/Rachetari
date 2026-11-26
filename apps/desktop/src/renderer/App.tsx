@@ -98,9 +98,9 @@ function NeedsYouBadge({ count }: { count: number }) {
 }
 
 export function App() {
-  // The preload exposes `window.rivetari`; if it failed to load, surface a clear
+  // The preload exposes `window.rachetari`; if it failed to load, surface a clear
   // message instead of letting every handler throw into a blank screen.
-  const bridgeReady = typeof window.rivetari !== "undefined";
+  const bridgeReady = typeof window.rachetari !== "undefined";
   const [repos, setRepos] = useState<RepoEntry[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -143,11 +143,11 @@ export function App() {
 
   useEffect(() => {
     if (!bridgeReady) return;
-    window.rivetari.repos.list().then(setRepos, (err: unknown) => {
+    window.rachetari.repos.list().then(setRepos, (err: unknown) => {
       setError(errorMessage(err));
     });
     // Apply the saved theme as early as possible (index.html defaults to dark).
-    window.rivetari.settings.load().then(
+    window.rachetari.settings.load().then(
       (s) => {
         setTheme(s.theme);
         applyTheme(s.theme);
@@ -161,7 +161,7 @@ export function App() {
   // Main reads the repo on show more often than the rest of the sidebar's.
   useEffect(() => {
     if (!bridgeReady) return;
-    window.rivetari.now.select(selected).catch((err: unknown) => {
+    window.rachetari.now.select(selected).catch((err: unknown) => {
       setError(errorMessage(err));
     });
   }, [bridgeReady, selected]);
@@ -170,14 +170,14 @@ export function App() {
   useEffect(() => {
     if (!bridgeReady) return;
     let active = true;
-    const offBadges = window.rivetari.now.onBadges(
+    const offBadges = window.rachetari.now.onBadges(
       (next) => active && setBadges(next),
     );
-    window.rivetari.now.badges().then(
+    window.rachetari.now.badges().then(
       (next) => active && setBadges(next),
       (err: unknown) => active && setError(errorMessage(err)),
     );
-    const offFocus = window.rivetari.now.onFocus((focus) =>
+    const offFocus = window.rachetari.now.onFocus((focus) =>
       onFocusRef.current(focus),
     );
     return () => {
@@ -200,7 +200,7 @@ export function App() {
   async function handleAdd(): Promise<void> {
     setError(null);
     try {
-      setRepos(await window.rivetari.repos.add());
+      setRepos(await window.rachetari.repos.add());
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -209,7 +209,7 @@ export function App() {
   async function handleRemove(path: string): Promise<void> {
     setError(null);
     try {
-      setRepos(await window.rivetari.repos.remove(path));
+      setRepos(await window.rachetari.repos.remove(path));
       if (selected === path) setSelected(null);
     } catch (err) {
       setError(errorMessage(err));
@@ -231,7 +231,7 @@ export function App() {
     // A fetch can fail late (it may run up to its time limit): by then another
     // repo, or this one again, may have been opened, so a stale failure is dropped.
     const seq = ++fetchSeq.current;
-    window.rivetari.repos.fetch(path).catch((err: unknown) => {
+    window.rachetari.repos.fetch(path).catch((err: unknown) => {
       if (seq !== fetchSeq.current) return;
       setError(`Couldn't fetch this repo: ${errorMessage(err)}`);
     });
@@ -254,7 +254,7 @@ export function App() {
     <div className="flex h-screen">
       <aside className="flex w-72 shrink-0 flex-col border-r border-border bg-card/30">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-sm font-semibold tracking-tight">Rivetari</h1>
+          <h1 className="text-sm font-semibold tracking-tight">Rachetari</h1>
           <Button
             size="sm"
             variant="secondary"

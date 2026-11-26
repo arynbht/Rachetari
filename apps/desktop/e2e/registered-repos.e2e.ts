@@ -43,7 +43,7 @@ test.describe("registered repos", () => {
   test("main refuses a repo path that isn't registered", async () => {
     fx = kitFixture();
     const repo = fx.repo;
-    const other = mkdtempSync(join(tmpdir(), "rivetari-e2e-unregistered-"));
+    const other = mkdtempSync(join(tmpdir(), "rachetari-e2e-unregistered-"));
     cleanup.push(other);
     writeFileSync(join(other, "secret.md"), "# not for the app\n");
     launched = await launchApp({
@@ -54,7 +54,7 @@ test.describe("registered repos", () => {
     // The registered repo answers.
     const listed = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.docs
+        (window as unknown as { rachetari: Bridge }).rachetari.docs
           .list(repoPath)
           .then((docs) => docs.length),
       repo,
@@ -62,7 +62,7 @@ test.describe("registered repos", () => {
     expect(listed).toBeGreaterThanOrEqual(0);
     const checklist = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.checklist.get(
+        (window as unknown as { rachetari: Bridge }).rachetari.checklist.get(
           repoPath,
         ),
       repo,
@@ -72,7 +72,7 @@ test.describe("registered repos", () => {
     // Another folder is refused, for a read and for a write.
     const read = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.docs
+        (window as unknown as { rachetari: Bridge }).rachetari.docs
           .read(repoPath, "secret.md")
           .then(
             (doc) => `read: ${doc.markdown}`,
@@ -85,7 +85,7 @@ test.describe("registered repos", () => {
 
     const fetched = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.repos
+        (window as unknown as { rachetari: Bridge }).rachetari.repos
           .fetch(repoPath)
           .then(
             () => "fetched",
@@ -99,7 +99,7 @@ test.describe("registered repos", () => {
     // A path that climbs out of the registered repo isn't that repo either.
     const climbed = await page.evaluate(
       (repoPath) =>
-        (window as unknown as { rivetari: Bridge }).rivetari.docs
+        (window as unknown as { rachetari: Bridge }).rachetari.docs
           .read(repoPath, "secret.md")
           .then(
             () => "read",

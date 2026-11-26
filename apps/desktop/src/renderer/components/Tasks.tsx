@@ -69,11 +69,11 @@ export function Tasks({
 
   useEffect(() => {
     let active = true;
-    const unsubscribe = window.rivetari.tasks.onUpdate((next) => {
+    const unsubscribe = window.rachetari.tasks.onUpdate((next) => {
       if (active && next.repoPath === repoPath) setState(next);
     });
     // The first read's reply can land after a push that's newer than it.
-    window.rivetari.tasks.get(repoPath).then(
+    window.rachetari.tasks.get(repoPath).then(
       (first) =>
         active &&
         setState((current) =>

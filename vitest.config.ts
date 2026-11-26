@@ -15,8 +15,8 @@ const inOneFork = (glob: string): [string, "forks"] => [
 // still under the 30 s test timeout, so a real hang fails with git's own
 // message. The product keeps 10 s; source-timeout.test.ts sets its own 2 s.
 const gitReadLimit: Record<string, string> =
-  process.platform === "win32" && !process.env.RIVETARI_GIT_READ_LIMIT_MS
-    ? { RIVETARI_GIT_READ_LIMIT_MS: "20000" }
+  process.platform === "win32" && !process.env.RACHETARI_GIT_READ_LIMIT_MS
+    ? { RACHETARI_GIT_READ_LIMIT_MS: "20000" }
     : {};
 
 export default defineConfig({

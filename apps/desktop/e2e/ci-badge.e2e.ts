@@ -1,5 +1,5 @@
 // A CI badge on each card with an open PR, in Tasks' board and Now's running
-// rows. gh is the fake (test/fake-gh.mjs), named by RIVETARI_GH; the fixture's
+// rows. gh is the fake (test/fake-gh.mjs), named by RACHETARI_GH; the fixture's
 // origin is a GitHub URL that git rewrites (insteadOf), so fetches stay offline.
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -58,7 +58,7 @@ test.beforeEach(() => {
     execFileSync("git", args, { cwd: fx.repo });
   git("remote", "set-url", "origin", GITHUB_URL);
   git("config", `url.${fx.origin}.insteadOf`, GITHUB_URL);
-  scratch = mkdtempSync(join(tmpdir(), "rivetari-e2e-gh-"));
+  scratch = mkdtempSync(join(tmpdir(), "rachetari-e2e-gh-"));
   dataFile = join(scratch, "gh.json");
   write({});
 });
@@ -74,9 +74,9 @@ async function open(env: Record<string, string> = {}): Promise<Page> {
   launched = await launchApp({
     repos: [{ path: fx.repo, name: "kit-repo" }],
     env: {
-      RIVETARI_LIVE_STATUS: "",
-      RIVETARI_GH: JSON.stringify([process.execPath, FAKE]),
-      RIVETARI_CI_MIN_MS: "500",
+      RACHETARI_LIVE_STATUS: "",
+      RACHETARI_GH: JSON.stringify([process.execPath, FAKE]),
+      RACHETARI_CI_MIN_MS: "500",
       FAKE_GH_DATA: dataFile,
       FAKE_GH_MODE: "ok",
       ...env,
@@ -170,7 +170,7 @@ test("Now: the running card's badge", async () => {
 
 test("badge follows the next background fetch", async () => {
   write({ "card/T-0003": "running" });
-  const page = await open({ RIVETARI_FETCH_INTERVAL_MS: "1000" });
+  const page = await open({ RACHETARI_FETCH_INTERVAL_MS: "1000" });
   await showTab(page, "Now");
   await expect(
     running(page).getByRole("link", { name: "CI running" }),
@@ -189,7 +189,7 @@ test("badge follows the next background fetch", async () => {
 test("gh not installed: no badges, views still work", async () => {
   write({ "card/T-0003": "success" });
   const page = await open({
-    RIVETARI_GH: JSON.stringify([join(scratch, "no-such-gh")]),
+    RACHETARI_GH: JSON.stringify([join(scratch, "no-such-gh")]),
   });
   await showTab(page, "Now");
   await expect(

@@ -10,8 +10,8 @@ import type { DisplayBranch } from "../../shared/ipc";
  * are set. Each can be overridden through its env var, read at call time.
  */
 const LIMITS = {
-  read: { env: "RIVETARI_GIT_READ_LIMIT_MS", ms: 10_000 },
-  fetch: { env: "RIVETARI_GIT_FETCH_LIMIT_MS", ms: 60_000 },
+  read: { env: "RACHETARI_GIT_READ_LIMIT_MS", ms: 10_000 },
+  fetch: { env: "RACHETARI_GIT_FETCH_LIMIT_MS", ms: 60_000 },
 } as const;
 
 function limitMs(kind: keyof typeof LIMITS): number {

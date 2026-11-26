@@ -9,7 +9,8 @@ What the code and config already do. Everything here is read from the repo as it
 
 - One pnpm workspace (`pnpm@10.32.1`, Node 22 per `.nvmrc`): `packages/*` and `apps/*`.
 - Package names stay as Rivetari had them: `@arynbht/rivetari` (packages/cli),
-  `-engine`, `-runtime`, `-desktop` (apps/desktop).
+  `-engine`, `-runtime`. The desktop shell is `@arynbht/rachetari-desktop`
+  (apps/desktop), renamed at the owner's request.
 - The lockfile is committed and CI installs with `--frozen-lockfile`. Dependency versions
   come from Rivetari's lockfile at `32f4b88`; a dependency arrives only with the code that
   needs it, at the version Rivetari used.
@@ -57,4 +58,4 @@ What the code and config already do. Everything here is read from the repo as it
 - The files transplanted from Rivetari: each is copied verbatim, then cut in a separate
   commit, and listed in `EXTRACTED.md`.
 - The kit files and `SCOPE.md` (exactly as the owner wrote them).
-- Package names and internal names such as `window.rivetari`.
+- Package names and internal names such as `window.rachetari`.

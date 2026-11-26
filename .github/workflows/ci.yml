@@ -175,7 +175,7 @@ jobs:
       # The desktop app is built by electron-vite, outside the tsc --build graph.
       - name: Typecheck desktop
         if: steps.scope.outputs.desktop == 'true'
-        run: pnpm --filter @arynbht/rivetari-desktop typecheck
+        run: pnpm --filter @arynbht/rachetari-desktop typecheck
       - *cancel
 
   test:
@@ -260,7 +260,7 @@ jobs:
       - *install
       - name: Install Electron runtime libraries + xvfb
         run: |
-          pnpm --filter @arynbht/rivetari-desktop exec playwright install-deps
+          pnpm --filter @arynbht/rachetari-desktop exec playwright install-deps
           sudo apt-get install -y xvfb
       - name: Create screenshot directory
         run: mkdir -p "$SCREENSHOT_DIR"
@@ -268,7 +268,7 @@ jobs:
           SCREENSHOT_DIR: ${{ runner.temp }}/screenshots
       - name: Run desktop e2e (xvfb)
         # Chromium won't render on xvfb's 8-bit default, so force 24-bit.
-        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" pnpm --filter @arynbht/rivetari-desktop e2e
+        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" pnpm --filter @arynbht/rachetari-desktop e2e
         env:
           SCREENSHOT_DIR: ${{ runner.temp }}/screenshots
       - name: Upload e2e screenshots
@@ -303,7 +303,7 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
       - name: Typecheck desktop
-        run: pnpm --filter @arynbht/rivetari-desktop typecheck
+        run: pnpm --filter @arynbht/rachetari-desktop typecheck
       - name: Lint
         run: pnpm lint
       - name: Format check
