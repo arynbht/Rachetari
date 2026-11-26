@@ -21,12 +21,13 @@ The Questions panel only reads. T-0054 adds the main-process answer path (previe
 - `apps/desktop/src/renderer/components/AnswerControls.tsx` (new: buttons, free-text box, diff dialog)
 - `apps/desktop/src/renderer/components/Now.tsx` (changed: wiring only)
 - `apps/desktop/e2e/answer.e2e.ts` (new)
+- `apps/desktop/e2e/questions.e2e.ts` (changed: the one-button assertion replaced by the owner's stricter set; approved 2026-11-26)
 
 ## Out of scope
 
 - Any IPC, preload or main-process change; the channels come from T-0054 as merged.
 - The mark-ready button (T-0062); reuse its diff dialog if it has merged, otherwise build it here in `AnswerControls.tsx` for T-0062 to reuse.
-- Changing `questions.e2e.ts` or how questions are parsed.
+- How questions are parsed; any `questions.e2e.ts` change beyond the owner's approved replacement of the one-button assertion.
 
 ## Constraints
 
@@ -45,17 +46,20 @@ The Questions panel only reads. T-0054 adds the main-process answer path (previe
 
 ## Next step
 
-Waiting for the test lock (T-0061, then T-0062): then run vitest, and CI's desktop-e2e for answer.e2e.ts. Also questions.e2e.ts line 74 (`toHaveCount(1)` buttons) will now fail and needs the owner's OK to change.
+Answered (owner, 2026-11-26): change `questions.e2e.ts` as approved (see Questions for me): replace the one-button assertion with the stricter set, plus the held-by and one-commit checks; then the test lock, vitest, and CI's desktop-e2e.
 
 ## Decisions
 
 - 2026-11-25: The owner approved the answers write path (T-0054); the UI on it is ready, nothing new needs them.
 - 2026-11-25: Decided for the owner: one shared diff dialog component, built by whichever of this card and T-0062 runs first (alternative: two dialogs).
 - 2026-11-25: Decided for the owner: free-text box is per question, opened by an "Answer" button (alternative: always visible).
+- 2026-11-26: Owner approved editing `questions.e2e.ts` (an existing test): the one-button assertion is replaced by a stricter set, with held-by and one-commit checks added.
 
 ## Questions for me
 
-- [ ] questions.e2e.ts asserts the panel has exactly one button (Copy all); the new buttons break it. May I change that assertion (file is out of scope)? — Recommended: yes, count only buttons named Copy all. Options: drop the assertion; leave failing.
+- [x] questions.e2e.ts asserts the panel has exactly one button (Copy all); the new buttons break it. May I change that assertion (file is out of scope)? — Recommended: yes, count only buttons named Copy all. Options: drop the assertion; leave failing.
+
+  - Answer (owner, 2026-11-26), approved as an edit to an existing test: add `questions.e2e.ts` to this card's files and replace the one-button assertion with a stricter set: Copy all is still there; the only other buttons are the named answer controls; opening and cancelling a preview leaves the branch tip unchanged. Plus two more: on a card whose "Held by" names anyone, the answer controls are disabled and say who holds it; confirming an answer changes only that card's CARD.md, in one commit, and nothing else on the branch.
 
 ## Done
 
