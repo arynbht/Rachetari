@@ -7,11 +7,15 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 3. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
-4. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-5. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-6. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-7. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+4. Kit: an installer and a machine version stamp (T-0067, part 1; needs you, see docs/open-questions.md)
+5. Kit: the templates stop naming Rivetari (`CLAUDE-section.md` lines 1 and 29, `skills/park/SKILL.md` line 10, `sections.md` line 3, `comment-report.test.ts` line 43's fixture) (low; T-0067 part 2)
+6. Kit: `/setup` stamps each repo with the kit version it installed, and an update mode proposes the diff to a newer kit as a reviewable branch (T-0067 part 3)
+7. Kit: `/setup`'s gaps from the breathband-console pilot: its branch name and never-push rule vs a draft PR; private free-plan repos where branch-protection APIs return 403; a kept `@AGENTS.md` carrying a contradicting contract; writing `.claude/` headless (T-0067 part 4)
+8. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+9. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+10. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+12. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
