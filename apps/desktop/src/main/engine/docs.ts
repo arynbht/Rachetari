@@ -45,21 +45,23 @@ function buildContext(repoPath: string) {
 const DOC_GLOBS = [
   "*.md",
   "docs/**/*.md",
+  ".rachetari/**/*.md",
   ".rivetari/**/*.md",
   ".github/**/*.md",
 ];
 
 /**
- * Task ledgers live under here. Tasks already shows each task's record, so
- * listing them again would bury the repo's own docs among them.
+ * Task ledgers live under these. Tasks already shows each task's record, so
+ * listing them again would bury the repo's own docs among them. Repos written
+ * before the rename keep theirs under `.rivetari/`.
  */
-const TASKS_DIR = ".rivetari/tasks/";
+const TASKS_DIRS = [".rachetari/tasks/", ".rivetari/tasks/"];
 
 export async function listDocs(repoPath: string): Promise<DocEntry[]> {
   const ctx = buildContext(repoPath);
   const matches = await ctx.glob(DOC_GLOBS);
   const unique = [...new Set(matches)]
-    .filter((path) => !path.startsWith(TASKS_DIR))
+    .filter((path) => !TASKS_DIRS.some((dir) => path.startsWith(dir)))
     .sort((a, b) => a.localeCompare(b));
   return unique.map((path) => ({ path, name: path }));
 }

@@ -39,7 +39,7 @@ async function open(env: Record<string, string> = {}): Promise<Page> {
   launched = await launchApp({
     repos: [{ path: fx.repo, name: "kit-repo" }],
     // Not live unless a test says so, whatever the runner's own env holds.
-    env: { RIVETARI_LIVE_STATUS: "", ...env },
+    env: { RACHETARI_LIVE_STATUS: "", ...env },
   });
   await launched.page.getByRole("button", { name: /^kit-repo/ }).click();
   return launched.page;
@@ -128,7 +128,7 @@ test("a failing fetch shows in the header", async () => {
 });
 
 test("a card pushed to the origin shows after the next background fetch, without reopening the repo", async () => {
-  const page = await open({ RIVETARI_FETCH_INTERVAL_MS: "1000" });
+  const page = await open({ RACHETARI_FETCH_INTERVAL_MS: "1000" });
   await expect(page.getByText("4 waiting", { exact: true })).toBeVisible();
   await expect(panel(page, "Now").getByText(FETCHED)).toBeVisible();
 
@@ -148,7 +148,7 @@ test("a card pushed to the origin shows after the next background fetch, without
 });
 
 test("shows the running commit and the behind warning from the live status, and neither without it", async () => {
-  statusDir = mkdtempSync(join(tmpdir(), "rivetari-e2e-live-"));
+  statusDir = mkdtempSync(join(tmpdir(), "rachetari-e2e-live-"));
   const statusFile = join(statusDir, "status.json");
   writeStatus(statusFile, {
     sha: TARGET,
@@ -156,7 +156,7 @@ test("shows the running commit and the behind warning from the live status, and 
     reason: "exit 1",
     at: new Date().toISOString(),
   });
-  const page = await open({ RIVETARI_LIVE_STATUS: statusFile });
+  const page = await open({ RACHETARI_LIVE_STATUS: statusFile });
 
   for (const tab of ["Now", "Tasks", "Checklist"]) {
     await showTab(page, tab);

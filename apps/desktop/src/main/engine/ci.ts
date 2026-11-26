@@ -229,7 +229,7 @@ export class CiWatch {
 
 /**
  * Main's CiWatch: gh as kit/gh's ghCommand gives it (under E2E, the fake or
- * none), a read at most once a minute (under E2E only, RIVETARI_CI_MIN_MS).
+ * none), a read at most once a minute (under E2E only, RACHETARI_CI_MIN_MS).
  */
 export function ciWatchFor(
   e2e: boolean,
@@ -237,7 +237,7 @@ export function ciWatchFor(
   env: NodeJS.ProcessEnv = process.env,
 ): CiWatch {
   const command = ghCommand(e2e, env);
-  const set = Number(env.RIVETARI_CI_MIN_MS);
+  const set = Number(env.RACHETARI_CI_MIN_MS);
   return new CiWatch({
     read: command && ((repoPath) => readGitHub(command, repoPath)),
     onState,

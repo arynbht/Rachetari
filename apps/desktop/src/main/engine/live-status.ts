@@ -1,5 +1,5 @@
 // The live shell's status (T-0030's scripts/live-shell.mjs writes it and names
-// it in RIVETARI_LIVE_STATUS) as the header shows it: the commit running, and
+// it in RACHETARI_LIVE_STATUS) as the header shows it: the commit running, and
 // why the shell is behind develop when it is. Not live, or a file that can't
 // be read as that script writes it: nothing. Electron-free; read only.
 import { readFile } from "node:fs/promises";
@@ -26,7 +26,7 @@ const CHECKS = new Set(["install", "build", "test"]);
 export async function liveStatus(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<LiveStatus | null> {
-  const path = env.RIVETARI_LIVE_STATUS;
+  const path = env.RACHETARI_LIVE_STATUS;
   if (!path) return null;
   let parsed: z.infer<typeof StatusFile>;
   try {

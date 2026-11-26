@@ -14,7 +14,7 @@ import { fetchRepo, readLiveCards } from "./source";
 import { type KitEvent, watchRepo } from "./watch";
 
 const LIMIT_MS = 2000;
-const ENV = ["RIVETARI_GIT_READ_LIMIT_MS", "RIVETARI_GIT_FETCH_LIMIT_MS"];
+const ENV = ["RACHETARI_GIT_READ_LIMIT_MS", "RACHETARI_GIT_FETCH_LIMIT_MS"];
 
 function git(cwd: string, ...args: string[]): string {
   return execFileSync("git", args, { cwd, encoding: "utf8" });

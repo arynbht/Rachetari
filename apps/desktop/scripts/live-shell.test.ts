@@ -81,7 +81,7 @@ function fakeRunner(s: Scenario) {
         ? { code: 1, output: s.fail.install }
         : ok("installed");
     }
-    if (command === "pnpm --filter @arynbht/rivetari-desktop build") {
+    if (command === "pnpm --filter @arynbht/rachetari-desktop build") {
       return s.fail?.build ? { code: 1, output: s.fail.build } : ok("built");
     }
     if (
@@ -140,7 +140,7 @@ describe("live shell: one check", () => {
     expect(ranIn(r.calls, "check")).toEqual([
       `git checkout --detach --force ${B}`,
       "pnpm install --frozen-lockfile --prefer-offline",
-      "pnpm --filter @arynbht/rivetari-desktop build",
+      "pnpm --filter @arynbht/rachetari-desktop build",
       "pnpm exec vitest run apps/desktop --coverage.enabled=false",
     ]);
     expect(ranIn(r.calls, "live")).toContain(`git checkout --detach ${B}`);
@@ -213,7 +213,7 @@ describe("live shell: one check", () => {
     expect(r.status.failure?.step).toBe("install");
     expect(r.status.failure?.reason).toBe("ERR_PNPM_OUTDATED_LOCKFILE");
     expect(ranIn(r.calls, "check")).not.toContain(
-      "pnpm --filter @arynbht/rivetari-desktop build",
+      "pnpm --filter @arynbht/rachetari-desktop build",
     );
   });
 

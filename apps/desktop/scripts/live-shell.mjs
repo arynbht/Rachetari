@@ -25,7 +25,7 @@ const FETCH_TIMEOUT_MS = 60_000;
 const INTERVAL_MS = 30_000;
 const TAIL_LINES = 20;
 const INSTALL = ["install", "--frozen-lockfile", "--prefer-offline"];
-const BUILD = ["--filter", "@arynbht/rivetari-desktop", "build"];
+const BUILD = ["--filter", "@arynbht/rachetari-desktop", "build"];
 const TEST = [
   "exec",
   "vitest",
@@ -50,7 +50,7 @@ Start (from the main checkout, with any other copy of the shell closed):
   live worktree only if all pass. Renderer changes arrive by HMR, preload
   changes by a renderer reload, main-process changes by an app restart.
   Status: .claude/live-shell/status.json (passed to the shell as
-  RIVETARI_LIVE_STATUS).
+  RACHETARI_LIVE_STATUS).
 
 Stop:
   Ctrl+C, or close the shell's window. Either stops the dev server and every
@@ -58,7 +58,7 @@ Stop:
 
 Back to the normal build:
   Stop it, then in the main checkout run
-    pnpm --filter @arynbht/rivetari-desktop preview
+    pnpm --filter @arynbht/rachetari-desktop preview
   which runs \`electron-vite build\` and starts the production bundle under the
   strict policy. The two worktrees can stay; to delete them:
     git worktree remove .claude/worktrees/shell-live
@@ -489,7 +489,7 @@ async function main() {
       ["exec", "electron-vite", "dev", "--watch"],
       {
         cwd: join(live, "apps", "desktop"),
-        env: { ...process.env, RIVETARI_LIVE_STATUS: statusFile },
+        env: { ...process.env, RACHETARI_LIVE_STATUS: statusFile },
       },
     );
     const relay = (stream) => {

@@ -13,6 +13,8 @@ import {
 } from "electron";
 import type { ZodType } from "zod";
 
+// First: copies the Rivetari userData across before any store is read.
+import "./store/migrate-on-start";
 import {
   ChecklistRequest,
   ChecklistView,
@@ -84,7 +86,7 @@ const isDev = Boolean(DEV_RENDERER_URL);
 // End-to-end test mode (Playwright): loosens the CSP enough to inject axe-core and
 // routes sign-in through a canned device flow so the suite runs without the network.
 // Never set in a real session — it gates test-only seams, nothing user-facing.
-const isE2E = process.env.RIVETARI_E2E === "1";
+const isE2E = process.env.RACHETARI_E2E === "1";
 
 // Dev convenience: load apps/desktop/.env into process.env so config like the
 // GitHub client id persists across restarts without exporting it each time. The
@@ -134,11 +136,11 @@ function focusItem(focus: NowFocus): void {
 
 /**
  * Notifications raised under E2E, which shows none on the desktop: the suite
- * reads them, and clicks one, through `globalThis.rivetariE2E`.
+ * reads them, and clicks one, through `globalThis.rachetariE2E`.
  */
 const e2eNotices: { repoPath: string; id: string; title: string }[] = [];
 if (isE2E)
-  (globalThis as unknown as { rivetariE2E: unknown }).rivetariE2E = {
+  (globalThis as unknown as { rachetariE2E: unknown }).rachetariE2E = {
     notices: e2eNotices,
     click: (i: number) => {
       const notice = e2eNotices[i];
@@ -216,7 +218,7 @@ const nowHub = new NowHub({
  * is for the e2e only (as T-0024's git limits are).
  */
 function fetchIntervalMs(): number {
-  const set = Number(process.env.RIVETARI_FETCH_INTERVAL_MS);
+  const set = Number(process.env.RACHETARI_FETCH_INTERVAL_MS);
   return Number.isFinite(set) && set > 0 ? set : FETCH_INTERVAL_MS;
 }
 
@@ -378,7 +380,7 @@ function createWindow(): void {
     stopLiveStatus();
   });
   watchSidebarRepos();
-  if (process.env.RIVETARI_LIVE_STATUS) {
+  if (process.env.RACHETARI_LIVE_STATUS) {
     stopLiveStatus();
     readLiveStatus(liveRun);
   }

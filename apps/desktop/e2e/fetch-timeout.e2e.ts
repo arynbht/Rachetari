@@ -85,7 +85,7 @@ function hangingRepo(): KitFixture {
 async function launch(repos: { path: string; name: string }[]) {
   launched = await launchApp({
     repos,
-    env: { RIVETARI_GIT_FETCH_LIMIT_MS: String(LIMIT_MS) },
+    env: { RACHETARI_GIT_FETCH_LIMIT_MS: String(LIMIT_MS) },
   });
   return launched.page;
 }

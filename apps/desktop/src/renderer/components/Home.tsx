@@ -171,7 +171,7 @@ export function Home({
     setLoading(true);
     setError(null);
     try {
-      setView(await window.rivetari.home.get());
+      setView(await window.rachetari.home.get());
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -185,7 +185,7 @@ export function Home({
 
   // Each repo follows its watcher between reads.
   useEffect(() => {
-    return window.rivetari.now.onUpdate((state) =>
+    return window.rachetari.now.onUpdate((state) =>
       setView((prev) =>
         prev
           ? {

@@ -26,7 +26,7 @@ let outside = "";
 const url = (...parts: string[]) => pathToFileURL(join(...parts)).href;
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), "rivetari-desktop-fence-"));
+  root = mkdtempSync(join(tmpdir(), "rachetari-desktop-fence-"));
   repo = join(root, "repo");
   mapDir = join(repo, "floorplan");
   outside = join(root, "outside");

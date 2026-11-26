@@ -29,7 +29,7 @@ const ENV = [
   "FAKE_GH_LOG",
   "FAKE_GH_PIDS",
   "FAKE_GH_ALL_PIDS",
-  "RIVETARI_GH_LIMIT_MS",
+  "RACHETARI_GH_LIMIT_MS",
 ];
 
 const RUN = {
@@ -188,7 +188,7 @@ describe("readGitHub", () => {
 
   it("a hang is killed at the limit: error, and the process is gone", async () => {
     process.env.FAKE_GH_MODE = "hang";
-    process.env.RIVETARI_GH_LIMIT_MS = "1500";
+    process.env.RACHETARI_GH_LIMIT_MS = "1500";
     const pids = join(scratch, "pids");
     process.env.FAKE_GH_PIDS = pids;
     const started = Date.now();
@@ -286,19 +286,19 @@ describe("the read-only allow-list", () => {
 });
 
 describe("ghCommand", () => {
-  it("is gh outside E2E, whatever RIVETARI_GH says", () => {
-    expect(ghCommand(false, { RIVETARI_GH: '["/fake"]' })).toEqual(["gh"]);
+  it("is gh outside E2E, whatever RACHETARI_GH says", () => {
+    expect(ghCommand(false, { RACHETARI_GH: '["/fake"]' })).toEqual(["gh"]);
     expect(ghCommand(false, {})).toEqual(["gh"]);
   });
 
-  it("under E2E is RIVETARI_GH, and nothing without it", () => {
-    expect(ghCommand(true, { RIVETARI_GH: '["node","/fake.mjs"]' })).toEqual([
+  it("under E2E is RACHETARI_GH, and nothing without it", () => {
+    expect(ghCommand(true, { RACHETARI_GH: '["node","/fake.mjs"]' })).toEqual([
       "node",
       "/fake.mjs",
     ]);
     expect(ghCommand(true, {})).toBeNull();
-    expect(ghCommand(true, { RIVETARI_GH: "gh" })).toBeNull();
-    expect(ghCommand(true, { RIVETARI_GH: "[]" })).toBeNull();
-    expect(ghCommand(true, { RIVETARI_GH: "[1]" })).toBeNull();
+    expect(ghCommand(true, { RACHETARI_GH: "gh" })).toBeNull();
+    expect(ghCommand(true, { RACHETARI_GH: "[]" })).toBeNull();
+    expect(ghCommand(true, { RACHETARI_GH: "[1]" })).toBeNull();
   });
 });

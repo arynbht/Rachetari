@@ -5,8 +5,8 @@
 # Releases API instead (ADR-0010). Code signing is intentionally left off here —
 # unsigned installers are acceptable for a trusting team (macOS users right-click
 # "Open" once); add certs/notarization before any wider audience.
-appId: io.github.arynbht.rivetari
-productName: Rivetari
+appId: io.github.arynbht.rachetari
+productName: Rachetari
 
 directories:
   output: release

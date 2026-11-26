@@ -361,10 +361,10 @@ export function Now({
 
   useEffect(() => {
     let active = true;
-    const unsubscribe = window.rivetari.now.onUpdate((next) => {
+    const unsubscribe = window.rachetari.now.onUpdate((next) => {
       if (active && next.repoPath === repoPath) setState(next);
     });
-    window.rivetari.now.get(repoPath).then(
+    window.rachetari.now.get(repoPath).then(
       (first) => active && setState((current) => current ?? first),
       (err: unknown) => active && setError(errorMessage(err)),
     );

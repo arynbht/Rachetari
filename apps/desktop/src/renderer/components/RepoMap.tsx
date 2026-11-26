@@ -26,10 +26,10 @@ export function RepoMap({ repoPath }: { repoPath: string }) {
 
   useEffect(() => {
     let active = true;
-    const unsubscribe = window.rivetari.map.onBlocked((next) => {
+    const unsubscribe = window.rachetari.map.onBlocked((next) => {
       if (active && next.repoPath === repoPath) setBlocked(next.urls);
     });
-    window.rivetari.map.get(repoPath).then(
+    window.rachetari.map.get(repoPath).then(
       (next) => active && setView(next),
       (err: unknown) => active && setError(errorMessage(err)),
     );

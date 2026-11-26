@@ -1,7 +1,7 @@
 // The IPC contract shared by main, preload, and renderer. Every channel has a
 // zod schema validated on BOTH sides: the main process re-validates each request
 // it receives, and the preload re-validates each response before handing it to
-// the renderer. The renderer only ever sees the typed `window.rivetari` surface
+// the renderer. The renderer only ever sees the typed `window.rachetari` surface
 // (see preload) — never ipcRenderer, fs, git, or the network directly.
 import { z } from "zod";
 
@@ -483,7 +483,7 @@ export type HistoryNight = z.infer<typeof HistoryNight>;
 // webview whose session cancels every request outside floorplan/.
 
 /** The map webview's session, which main guards; the renderer's webview names it. */
-export const MAP_PARTITION = "rivetari-map";
+export const MAP_PARTITION = "rachetari-map";
 
 export const MapGetRequest = z.object({ repoPath: z.string().min(1) });
 
@@ -504,7 +504,7 @@ export const MapBlocked = z.object({
 export type MapBlocked = z.infer<typeof MapBlocked>;
 
 // Shell status — what the header says about the shell itself: the commit the
-// live shell runs and whether it's behind develop (from RIVETARI_LIVE_STATUS),
+// live shell runs and whether it's behind develop (from RACHETARI_LIVE_STATUS),
 // and the background fetch of the repo on show.
 export const ShellStatus = z.object({
   /** Only when the shell runs live (T-0030), else null. */

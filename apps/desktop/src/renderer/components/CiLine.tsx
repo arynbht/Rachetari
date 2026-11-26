@@ -14,11 +14,11 @@ export function useCiState(): CiState {
   useEffect(() => {
     let mounted = true;
     let pushed = false;
-    const off = window.rivetari.ci.onState((next) => {
+    const off = window.rachetari.ci.onState((next) => {
       pushed = true;
       setState(next);
     });
-    window.rivetari.ci.state().then(
+    window.rachetari.ci.state().then(
       // A push that landed first is newer: it stays.
       (read) => mounted && !pushed && setState(read),
       () => undefined,

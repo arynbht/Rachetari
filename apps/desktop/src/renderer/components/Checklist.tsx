@@ -28,7 +28,7 @@ export function Checklist({ repoPath }: { repoPath: string }) {
     const seq = ++loadSeq.current;
     const active = () => seq === loadSeq.current;
     setLoading(true);
-    window.rivetari.checklist.get(repoPath).then(
+    window.rachetari.checklist.get(repoPath).then(
       (next) => {
         if (!active()) return;
         setView(next);

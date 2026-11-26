@@ -25,7 +25,7 @@ export function Docs({ repoPath }: { repoPath: string }) {
     setSelected(null);
     setHtml("");
     setError(null);
-    window.rivetari.docs.list(repoPath).then(
+    window.rachetari.docs.list(repoPath).then(
       (list) => {
         setDocs(list);
         setSelected(list[0]?.path ?? null);
@@ -37,7 +37,7 @@ export function Docs({ repoPath }: { repoPath: string }) {
   useEffect(() => {
     if (!selected) return;
     let active = true;
-    window.rivetari.docs.read(repoPath, selected).then(
+    window.rachetari.docs.read(repoPath, selected).then(
       (doc) => active && setHtml(renderMarkdown(doc.markdown)),
       (err: unknown) => active && setError(errorMessage(err)),
     );
@@ -73,7 +73,7 @@ export function Docs({ repoPath }: { repoPath: string }) {
       >
         {(docs ?? []).length === 0 ? (
           <p className="px-2 py-2 text-xs text-muted-foreground">
-            No Markdown docs found under docs/ or .rivetari/.
+            No Markdown docs found under docs/, .rachetari/ or .rivetari/.
           </p>
         ) : (
           (docs ?? []).map((doc) => (

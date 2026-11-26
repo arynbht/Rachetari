@@ -16,7 +16,7 @@ const GIT_LIMIT_MS = 10_000;
 const MAX_OUTPUT = 16 * 1024 * 1024;
 
 function ghLimitMs(): number {
-  const set = Number(process.env.RIVETARI_GH_LIMIT_MS);
+  const set = Number(process.env.RACHETARI_GH_LIMIT_MS);
   return Number.isFinite(set) && set > 0 ? set : GH_LIMIT_MS;
 }
 
@@ -307,7 +307,7 @@ export async function readGitHub(
 
 /**
  * The command that runs gh: `gh` itself, except under E2E, where it's
- * RIVETARI_GH (a JSON argument array, the fake) and, without it, none at all,
+ * RACHETARI_GH (a JSON argument array, the fake) and, without it, none at all,
  * so no e2e ever runs the machine's own gh.
  */
 export function ghCommand(
@@ -316,7 +316,7 @@ export function ghCommand(
 ): string[] | null {
   if (!e2e) return ["gh"];
   try {
-    const set: unknown = JSON.parse(env.RIVETARI_GH ?? "");
+    const set: unknown = JSON.parse(env.RACHETARI_GH ?? "");
     const ok =
       Array.isArray(set) &&
       set.length > 0 &&
