@@ -28,6 +28,7 @@ const ENV = [
   "FAKE_GH_DATA",
   "FAKE_GH_LOG",
   "FAKE_GH_PIDS",
+  "FAKE_GH_ALL_PIDS",
   "RIVETARI_GH_LIMIT_MS",
 ];
 
@@ -92,6 +93,10 @@ beforeEach(() => {
     JSON.stringify({ runs: { main: [RUN] }, allRuns: [RUN], pulls: [PULL] }),
   );
   process.env.FAKE_GH_DATA = data;
+  // Every hung call's pids, so the fixture waits for all of them to exit.
+  const allPids = join(scratch, "all-pids");
+  process.env.FAKE_GH_ALL_PIDS = allPids;
+  fx.trackPids(allPids);
 });
 
 afterEach(() => {
