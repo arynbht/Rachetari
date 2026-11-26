@@ -14,6 +14,7 @@ import type {
   NowState,
 } from "../../shared/ipc";
 import { openQuestionsText } from "../../shared/open-questions";
+import { AcceptAll, AnswerQuestion } from "./AnswerControls";
 import { CiBadge } from "./CiBadge";
 import { useCiState } from "./CiLine";
 import { DisplayBranchLine } from "./DisplayBranch";
@@ -114,7 +115,16 @@ function Inline({ text }: { text: string }) {
  * only reads: "Copy all" puts them on the clipboard in the format
  * docs/open-questions.md uses, and the answers go in each card's CARD.md.
  */
-function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
+function QuestionsPanel({
+  repoPath,
+  groups,
+  held,
+}: {
+  repoPath: string;
+  groups: NowQuestionGroup[];
+  /** Who holds each card, by branch. */
+  held: ReadonlyMap<string, string | null>;
+}) {
   const [said, setSaid] = useState("");
   const clear = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(clear.current), []);
@@ -162,15 +172,19 @@ function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
                 aria-labelledby={headingId}
                 className="overflow-hidden"
               >
-                <h4
-                  id={headingId}
-                  className="border-b border-border/60 px-4 py-2 text-sm font-medium"
-                >
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {g.id}
-                  </span>{" "}
-                  · {g.title}
-                </h4>
+                <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
+                  <h4 id={headingId} className="text-sm font-medium">
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {g.id}
+                    </span>{" "}
+                    · {g.title}
+                  </h4>
+                  <AcceptAll
+                    repoPath={repoPath}
+                    group={g}
+                    heldBy={held.get(g.branch) ?? null}
+                  />
+                </div>
                 <ol className="divide-y divide-border/60">
                   {g.questions.map((q) => (
                     <li key={q.n} className="flex gap-3 px-4 py-2.5">
@@ -207,6 +221,12 @@ function QuestionsPanel({ groups }: { groups: NowQuestionGroup[] }) {
                             ))}
                           </p>
                         )}
+                        <AnswerQuestion
+                          repoPath={repoPath}
+                          group={g}
+                          question={q}
+                          heldBy={held.get(g.branch) ?? null}
+                        />
                       </div>
                     </li>
                   ))}
@@ -424,7 +444,11 @@ export function Now({
             )}
           </section>
 
-          <QuestionsPanel groups={state?.questions ?? []} />
+          <QuestionsPanel
+            repoPath={repoPath}
+            groups={state?.questions ?? []}
+            held={new Map(state?.cards.map((c) => [c.branch, c.heldBy]))}
+          />
 
           <section aria-labelledby="now-running" className="space-y-2">
             <h3 id="now-running" className="text-sm font-semibold">
