@@ -8,7 +8,7 @@ Ordered. The top line becomes the next `CARD.md`.
 
 2. Shell: the mark-ready button and its diff dialog, on T-0053's write path (`card:markReadyPreview` / `card:markReadyApply`); shows the diff, applies on confirm, shows each refusal
 3. Shell: `card-commit.ts` runs git through T-0060's `git-run.ts` instead of its own runner (follow-up to T-0053, decided for the owner 2026-11-26)
-4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
+4. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
 5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
 6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
 7. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
@@ -186,3 +186,6 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [tool] A background loop that Claude Code killed for low memory left its bash shell and vitest running, and the shell went on starting runs; this session killed them by pid · seen on T-0045 · Claude Code background shells on Windows
 - 2026-11-25 [tool] After merging origin/develop (f1266e0), PR #66's CI fails `Format check`: `prettier --check .` warns on `.claude/settings.json` (develop's file), so lint/typecheck/test jobs are cancelled and `ci` is red; not this card's file · seen on T-0045 · `.claude/settings.json`
 - 2026-11-26 [tool] T-0045's before and after loops ran on different develop code (A1 on f3474bd with T-0059's fixture fix, A4 before it), so the timings compare the config change only roughly · seen on T-0045 inspection · `cards/done/T-0045.md`
+- 2026-11-26 [tool] No test covers `registerCardWrites` or the mark-ready IPC channels end to end; a fake-ipc test would show both stay registered · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
+- 2026-11-26 [product] `answer.ts` copies `parse.ts`'s rule for where a question ends, so the two can drift; one shared helper would keep them together · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
+- 2026-11-26 [tool] The answer path has no failed-commit rollback test of its own; it relies on T-0053's in `card-commit.test.ts` · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.test.ts`
