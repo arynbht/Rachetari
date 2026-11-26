@@ -1,7 +1,7 @@
 # T-0065 · refactor(shell): shrink Checklist under the lint limits
 
-Status: in progress
-Branch: card/T-0065 · Held by: builder T-0065 session
+Status: in progress (review)
+Branch: card/T-0065 · Held by: nobody
 Created: 2026-11-26 · Source: BACKLOG Next up, from T-0043 · Gate: low (standing pre-approval: removing a lint override when the code already fits the default)
 
 ## Why
@@ -46,7 +46,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Pull, read `Checklist.tsx`, find what pushes `Checklist` to 31 (the nested ternaries and `&&` chains in its render), move them into small components in `ChecklistParts.tsx`, then delete the override and run the checks.
+Wait for CI desktop-e2e and the test lock, run vitest, then done check. (Was: pull, read `Checklist.tsx`, find what pushes `Checklist` to 31 (the nested ternaries and `&&` chains in its render), move them into small components in `ChecklistParts.tsx`, then delete the override and run the checks.
 
 ## Decisions
 
@@ -74,5 +74,5 @@ none
 Waiting on the owner (wall clock, UTC): none
 
 ```
-<commands and results>
+pnpm lint: clean (override removed). pnpm typecheck + apps/desktop typecheck: clean. pnpm boundaries: no violations. Export of Checklist.tsx: Checklist only. Diff touches no test/e2e file. A4 desktop-e2e: UNTESTED locally (CI). Local vitest: UNTESTED (test lock held by T-0062).
 ```
