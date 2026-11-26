@@ -46,7 +46,7 @@ The Questions panel only reads. T-0054 adds the main-process answer path (previe
 
 ## Next step
 
-Answered (owner, 2026-11-26): change `questions.e2e.ts` as approved (see Questions for me): replace the one-button assertion with the stricter set, plus the held-by and one-commit checks; then the test lock, vitest, and CI's desktop-e2e.
+pnpm test: 292 passed. desktop-e2e hung twice (cancelled at 15 min) in the "Install Electron runtime libraries + xvfb" step, before any e2e ran; the first run found two real failures in my tests and UI, both fixed. Re-run desktop-e2e when that step works, then tick the criteria and finish.
 
 ## Decisions
 
