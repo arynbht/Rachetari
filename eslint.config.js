@@ -87,11 +87,6 @@ export default tseslint.config(
   // size then plus room (complexity +2, lines +50) so it can't grow. Each names
   // the Next up line that will shrink it; delete the block when that lands.
   {
-    // Shrink parseCard (parse.ts) under the lint limits (complexity 36).
-    files: ["apps/desktop/src/main/kit/parse.ts"],
-    rules: { complexity: ["error", 38] },
-  },
-  {
     // Shrink Checklist (Checklist.tsx) under the lint limits (complexity 31).
     files: ["apps/desktop/src/renderer/components/Checklist.tsx"],
     rules: { complexity: ["error", 33] },
