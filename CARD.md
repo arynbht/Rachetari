@@ -1,7 +1,7 @@
 # T-0068 · ci: desktop-e2e install step gets a time limit and retries
 
-Status: in progress
-Branch: card/T-0068 · Held by: builder session T-0068
+Status: blocked
+Branch: card/T-0068 · Held by: nobody
 Created: 2026-11-26 · Source: prompt · Gate: needs you (CI change), approved by the owner 2026-11-26
 
 ## Why
@@ -55,7 +55,7 @@ Step edited, PR #85 open. CI runs on it were cancelled externally ~30s in (3 tim
 
 ## Questions for me
 
-none
+- [ ] Run 45767801407 still failed (5m51s): attempt 1 hung, `timeout 110` killed only the bash wrapper, and its orphaned apt-get (pid 2468, stuck on repo fetches: Ign/Get lines) kept the dpkg lock for attempts 2 and 3. Kill the whole process group? � Recommended: use `timeout -k 5 --foreground`-less group kill, e.g. run each attempt via `setsid timeout -s KILL 110 ...` or `pkill -P`; plus `-o Acquire::http::Timeout=20 -o Acquire::Retries=2` so apt does not hang on mirrors. Options: kill stray apt-get before retry (the rejected alternative); accept.
 
 ## Done
 
