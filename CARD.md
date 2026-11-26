@@ -1,7 +1,7 @@
 # T-0065 · refactor(shell): shrink Checklist under the lint limits
 
-Status: ready
-Branch: card/T-0065 · Held by: nobody
+Status: in progress
+Branch: card/T-0065 · Held by: builder T-0065 session
 Created: 2026-11-26 · Source: BACKLOG Next up, from T-0043 · Gate: low (standing pre-approval: removing a lint override when the code already fits the default)
 
 ## Why
