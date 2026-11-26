@@ -7,6 +7,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import {
   ChecklistRequest,
   ChecklistView,
+  CiState,
   DocContent,
   DocList,
   DocsListRequest,
@@ -18,6 +19,10 @@ import {
   IpcChannel,
   MapBlocked,
   MapGetRequest,
+  MarkReadyApplyRequest,
+  MarkReadyPreview,
+  MarkReadyPreviewRequest,
+  MarkReadyResult,
   MapView,
   HomeView,
   NowBadges,
@@ -215,6 +220,25 @@ const api = {
     },
   },
 
+  card: {
+    /** The diff mark ready would commit, or why it can't; writes nothing. */
+    async markReadyPreview(repoPath: string, branch: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardMarkReadyPreview,
+        MarkReadyPreviewRequest.parse({ repoPath, branch }),
+      );
+      return MarkReadyPreview.parse(raw);
+    },
+    /** Commit and push the diff the person was shown, or refuse and say why. */
+    async markReadyApply(repoPath: string, branch: string, diff: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardMarkReadyApply,
+        MarkReadyApplyRequest.parse({ repoPath, branch, diff }),
+      );
+      return MarkReadyResult.parse(raw);
+    },
+  },
+
   map: {
     /** The repo's floorplan map (or why there's none); fences the map's session to it. */
     async get(repoPath: string) {
@@ -253,6 +277,26 @@ const api = {
       ipcRenderer.on(IpcChannel.ShellStatusUpdate, listener);
       return () => {
         ipcRenderer.removeListener(IpcChannel.ShellStatusUpdate, listener);
+      };
+    },
+  },
+
+  ci: {
+    /** The repo on show's CI, read through gh; null before its first read. */
+    async state() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.CiState);
+      return CiState.parse(raw);
+    },
+    /** Hears the repo on show's CI after each read; returns an unsubscribe fn. */
+    onState(callback: (state: CiState) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = CiState.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.CiStateUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.CiStateUpdate, listener);
       };
     },
   },
