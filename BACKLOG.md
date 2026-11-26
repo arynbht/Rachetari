@@ -9,10 +9,9 @@ Ordered. The top line becomes the next `CARD.md`.
 3. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
 4. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
 5. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-6. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-7. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+6. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+7. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -193,3 +192,4 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-26 [product] In the mark-ready dialog, Shift+Tab can move focus out while apply is running, and focus is lost after a successful commit (it should return to the record) · seen on T-0062 inspection · `apps/desktop/src/renderer/components/tasks/MarkReady.tsx`
 - 2026-11-26 [tool] T-0062's A3 e2e finds "ready" anywhere in the record, not in the Status field itself · seen on T-0062 inspection · `apps/desktop/e2e/mark-ready.e2e.ts`
 - 2026-11-26 [product] A mark-ready button in Now's Needs-you rows, now that T-0062's dialog exists (parked by T-0062's drafter) · seen on T-0062 · `apps/desktop/src/renderer/components/Now.tsx`
+- 2026-11-26 [tool] `ChecklistParts.tsx` exports six helpers used only inside it; only ChecklistBody and Subtitle need exporting · seen on T-0065 inspection · `apps/desktop/src/renderer/components/ChecklistParts.tsx`
