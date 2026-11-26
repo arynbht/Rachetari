@@ -262,6 +262,8 @@ jobs:
         # This step has hung until the job limit; a short limit and retries turn a hang into a retry (3 x 110 s fits the 6-minute step).
         timeout-minutes: 6
         run: |
+          # Make every apt call (including playwright's own) wait for the dpkg lock.
+          echo 'DPkg::Lock::Timeout "120";' | sudo tee /etc/apt/apt.conf.d/99-lock-timeout
           for attempt in 1 2 3; do
             echo "install attempt $attempt of 3"
             if timeout 110 bash -c 'pnpm --filter @arynbht/rivetari-desktop exec playwright install-deps && sudo apt-get install -y xvfb'; then
