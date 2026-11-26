@@ -1,7 +1,7 @@
 # T-0062 · feat(shell): the mark-ready button and its diff dialog
 
-Status: ready
-Branch: card/T-0062 · Held by: nobody
+Status: in progress
+Branch: card/T-0062 · Held by: builder-T-0062
 Created: 2026-11-25 · Source: docs/queue-2026-11-25.md §Shell action: mark ready · Gate: needs you, approved by the owner on T-0053 (the split into write path then button); this card only calls T-0053's existing channels and adds no IPC
 
 ## Why
