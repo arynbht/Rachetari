@@ -102,7 +102,9 @@ test("confirming commits the answer and the question leaves the panel", async ()
     "- [x] Commit, or commit",
   );
   await expect(page.getByText("Commit, or commit and push?")).toHaveCount(0);
-  await expect(page.getByText("Which file holds the answers?")).toBeVisible();
+  await expect(
+    group(page).getByText("Which file holds the answers?"),
+  ).toBeVisible();
 });
 
 test("a free-text answer shows its diff, then commits", async () => {
