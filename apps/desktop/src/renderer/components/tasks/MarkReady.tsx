@@ -70,6 +70,8 @@ function MarkReadyDialog({
   const confirm = () => {
     if (diff === null || busy) return;
     setBusy(true);
+    // The buttons go disabled; keep focus inside the dialog.
+    ref.current?.focus();
     setRefusal(null);
     window.rivetari.card.markReadyApply(repoPath, branch, diff).then(
       (res) => {
@@ -90,7 +92,8 @@ function MarkReadyDialog({
     if (event.key === "Escape") {
       event.preventDefault();
       event.stopPropagation();
-      onClose();
+      // Not while the commit is running: its result must be seen.
+      if (!busy) onClose();
       return;
     }
     if (event.key !== "Tab") return;
@@ -117,8 +120,9 @@ function MarkReadyDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={bodyId}
+        tabIndex={-1}
         onKeyDown={onKeyDown}
-        className="flex max-h-full w-full max-w-xl flex-col gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-lg"
+        className="flex max-h-full w-full max-w-xl flex-col gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-lg focus:outline-none"
       >
         <h2 id={titleId} className="text-base font-semibold">
           Mark ready
@@ -154,7 +158,13 @@ function MarkReadyDialog({
           )}
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="focus-visible:ring-2 focus-visible:ring-ring"
+            disabled={busy}
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button size="sm" onClick={confirm} disabled={diff === null || busy}>

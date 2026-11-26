@@ -108,9 +108,65 @@ test("the dialog shows the diff first; cancel writes nothing; confirm commits it
   expect(git(fx.repo, "show", "card/T-0004:CARD.md")).toContain(
     "Status: ready",
   );
-  await expect(
-    page.getByRole("region", { name: "T-0004 record" }),
-  ).toContainText("ready");
+  const after = page.getByRole("region", { name: "T-0004 record" });
+  await expect(after.getByText("ready", { exact: true })).toBeVisible();
+  await expect(after.getByRole("button", { name: "Mark ready" })).toHaveCount(
+    0,
+  );
+});
+
+test("Cancel and Escape are held back while the commit runs, and the dialog stays until it returns", async () => {
+  await start((repo) => {
+    // Slow every ref update so apply is still pending when we press keys.
+    const hook = join(repo, ".git", "hooks", "reference-transaction");
+    writeFileSync(
+      hook,
+      `#!/bin/sh\nif [ "$1" = "prepared" ]; then sleep 3; fi\ncat >/dev/null\n`,
+      { mode: 0o755 },
+    );
+  });
+  const { page } = launched;
+  const record = await openRecord(page, "T-0004");
+  await record.getByRole("button", { name: "Mark ready" }).click();
+  const dialog = page.getByRole("dialog", { name: "Mark ready" });
+  await expect(dialog.locator("[data-mark-ready=diff]")).toBeVisible();
+  await dialog.getByRole("button", { name: "Confirm" }).click();
+  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveCount(0, { timeout: 30_000 });
+  expect(git(fx.repo, "show", "card/T-0004:CARD.md")).toContain(
+    "Status: ready",
+  );
+});
+
+test("a refusal at apply time shows its reason and writes nothing", async () => {
+  await start();
+  const { page } = launched;
+  const record = await openRecord(page, "T-0004");
+  await record.getByRole("button", { name: "Mark ready" }).click();
+  const dialog = page.getByRole("dialog", { name: "Mark ready" });
+  await expect(dialog.locator("[data-mark-ready=diff]")).toBeVisible();
+  // The card is taken after the preview was shown.
+  git(fx.repo, "checkout", "-q", "card/T-0004");
+  writeFileSync(
+    join(fx.repo, "CARD.md"),
+    cardText({
+      id: "T-0004",
+      title: "feat: dark mode",
+      status: "draft",
+      heldBy: "laptop",
+      gate: "needs you",
+    }),
+  );
+  git(fx.repo, "commit", "-qam", "chore(card): taken");
+  git(fx.repo, "push", "-q", "origin", "card/T-0004");
+  git(fx.repo, "checkout", "-q", "main");
+  const tip = git(fx.repo, "rev-parse", "card/T-0004");
+  await dialog.getByRole("button", { name: "Confirm" }).click();
+  await expect(dialog.locator("[data-mark-ready=refusal]")).not.toBeEmpty();
+  await expect(dialog).toBeVisible();
+  expect(git(fx.repo, "rev-parse", "card/T-0004")).toBe(tip);
 });
 
 test("a refusal shows its reason, keeps the dialog open and writes nothing", async () => {
