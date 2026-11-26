@@ -6,15 +6,15 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-4. CI: desktop-e2e's install step gets a time limit and retries (T-0068, PR #85, owner-approved; paused unfinished 2026-11-26 — next try: apt network timeouts in /etc/apt/apt.conf.d plus killing each timed-out attempt's whole process group; see its card)
-5. Kit: an installer and a machine version stamp (T-0067, part 1; needs you, see docs/open-questions.md)
-6. Kit: the templates stop naming Rivetari (`CLAUDE-section.md` lines 1 and 29, `skills/park/SKILL.md` line 10, `sections.md` line 3, `comment-report.test.ts` line 43's fixture) (low; T-0067 part 2)
-7. Kit: `/setup` stamps each repo with the kit version it installed, and an update mode proposes the diff to a newer kit as a reviewable branch (T-0067 part 3)
-8. Kit: `/setup`'s gaps from the breathband-console pilot: its branch name and never-push rule vs a draft PR; private free-plan repos where branch-protection APIs return 403; a kept `@AGENTS.md` carrying a contradicting contract; writing `.claude/` headless (T-0067 part 4)
-9. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-10. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-11. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+1. CI: desktop-e2e's install step gets a time limit and retries (T-0068, PR #85, owner-approved; paused unfinished 2026-11-26 — next try: apt network timeouts in /etc/apt/apt.conf.d plus killing each timed-out attempt's whole process group; see its card)
+2. Kit: an installer and a machine version stamp (T-0067, part 1; needs you, see docs/open-questions.md)
+3. Kit: the templates stop naming Rivetari (`CLAUDE-section.md` lines 1 and 29, `skills/park/SKILL.md` line 10, `sections.md` line 3, `comment-report.test.ts` line 43's fixture) (low; T-0067 part 2)
+4. Kit: `/setup` stamps each repo with the kit version it installed, and an update mode proposes the diff to a newer kit as a reviewable branch (T-0067 part 3)
+5. Kit: `/setup`'s gaps from the breathband-console pilot: its branch name and never-push rule vs a draft PR; private free-plan repos where branch-protection APIs return 403; a kept `@AGENTS.md` carrying a contradicting contract; writing `.claude/` headless (T-0067 part 4)
+6. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+7. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+8. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
