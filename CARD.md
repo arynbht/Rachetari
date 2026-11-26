@@ -1,7 +1,7 @@
 # T-0066 · refactor(shell): shrink needsYouItems under the lint limits
 
-Status: ready
-Branch: card/T-0066 · Held by: nobody
+Status: in progress
+Branch: card/T-0066 · Held by: builder-T-0066
 Created: 2026-11-26 · Source: BACKLOG Next up (from T-0043) · Gate: low
 
 Starts after T-0065 merges: both cards edit `eslint.config.js`.
