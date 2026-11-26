@@ -1,7 +1,7 @@
 # T-0068 · ci: desktop-e2e install step gets a time limit and retries
 
-Status: ready
-Branch: card/T-0068 · Held by: nobody
+Status: in progress
+Branch: card/T-0068 · Held by: builder session T-0068
 Created: 2026-11-26 · Source: prompt · Gate: needs you (CI change), approved by the owner 2026-11-26
 
 ## Why

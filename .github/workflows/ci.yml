@@ -259,9 +259,19 @@ jobs:
       - *node
       - *install
       - name: Install Electron runtime libraries + xvfb
+        # This step has hung until the job limit; a short limit and retries turn a hang into a retry.
+        timeout-minutes: 6
         run: |
-          pnpm --filter @arynbht/rivetari-desktop exec playwright install-deps
-          sudo apt-get install -y xvfb
+          for attempt in 1 2 3; do
+            echo "install attempt $attempt of 3"
+            if timeout 300 bash -c 'pnpm --filter @arynbht/rivetari-desktop exec playwright install-deps && sudo apt-get install -y xvfb'; then
+              echo "install succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "install attempt $attempt failed or timed out"
+          done
+          echo "::error::Electron runtime libraries + xvfb install failed after 3 attempts"
+          exit 1
       - name: Create screenshot directory
         run: mkdir -p "$SCREENSHOT_DIR"
         env:
