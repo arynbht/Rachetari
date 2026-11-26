@@ -12,10 +12,10 @@ Starts after T-0065 merges: both cards edit `eslint.config.js`.
 
 ## Acceptance criteria
 
-- [ ] A1: `needsYouItems` and its helpers each pass the default complexity limit (20) · check: the override block for `apps/desktop/src/main/engine/now.ts` is gone from `eslint.config.js`, and `pnpm lint` passes
+- [x] A1: `needsYouItems` and its helpers each pass the default complexity limit (20) · check: the override block for `apps/desktop/src/main/engine/now.ts` is gone from `eslint.config.js`, and `pnpm lint` passes
 - [ ] A2: Behaviour is identical: same items, same order, same wording · check: `pnpm test` passes with no test file changed (`git diff --stat` shows none)
-- [ ] A3: Exports of `now.ts` are unchanged (same names and signatures) · check: `pnpm typecheck` passes and `git diff` shows no export line changed
-- [ ] A4: Module boundaries still hold · check: `pnpm boundaries` passes
+- [x] A3: Exports of `now.ts` are unchanged (same names and signatures) · check: `pnpm typecheck` passes and `git diff` shows no export line changed
+- [x] A4: Module boundaries still hold · check: `pnpm boundaries` passes
 
 ## Files in scope
 
@@ -46,7 +46,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Start after T-0065 merges: pull develop, then split `needsYouItems` (per-card items and the held-night items into small helpers).
+Run `pnpm test` once the test lock is free (A2), then finish the done check. Split done: `needsYouItems` (per-card items and the held-night items into small helpers).
 
 ## Decisions
 
@@ -70,4 +70,6 @@ none
 Waiting on the owner (wall clock, UTC): none
 
 ```
+A1: pnpm lint passes, override block removed. A3: pnpm typecheck + desktop typecheck pass, no export changed. A4: pnpm boundaries: no dependency violations.
+A2: UNTESTED (waiting for the test lock; T-0064 holds it). No test file changed.
 ```
