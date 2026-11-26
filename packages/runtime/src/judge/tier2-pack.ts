@@ -7,7 +7,6 @@ import { type SimpleGit, simpleGit } from "simple-git";
 
 import { bannedSection, loadBanned } from "./banned.js";
 import { isTestFile, parseNameStatus } from "./protected.js";
-import type { CitedFile, PackedChange } from "./tier2.js";
 
 /** Max characters of diff packed into the prompt (~100k tokens). */
 const DIFF_BUDGET = 400_000;
@@ -302,4 +301,27 @@ export function newSideLines(fileDiff: string): Set<number> {
     if (text.startsWith("+") || text.startsWith(" ")) out.add(line++);
   }
   return out;
+}
+
+export interface PackedChange {
+  diff: string;
+  files: string[];
+  /** `stats` is the file's added and removed line counts, when git has them. */
+  omitted: { path: string; why: string; stats?: string | undefined }[];
+  /** Test files sent only in part, and how much of each was left out. */
+  trimmed?: { path: string; note: string }[] | undefined;
+  /** New-side line numbers that appear in the diff, per file (for inline comments). */
+  lines: Map<string, Set<number>>;
+  agents: string | null;
+  constraints: string | null;
+  banned?: string | null | undefined;
+  /** Repo files the changed Markdown cites, at head, so citations can be checked. */
+  cited?: CitedFile[] | undefined;
+}
+
+export interface CitedFile {
+  path: string;
+  /** The file at head, cut at the per-file cap; null when over the total cap. */
+  text: string | null;
+  truncated: boolean;
 }

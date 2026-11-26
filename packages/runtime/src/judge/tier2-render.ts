@@ -1,5 +1,5 @@
 // Judge tier 2, rendering: the review as the Markdown a PR carries.
-import type { Finding, Tier2Result } from "./tier2.js";
+import type { Finding, Tier2Result } from "./tier2-prompt.js";
 
 /** Marker in every review body, so later rounds can be counted. */
 export const REVIEW_MARKER = "<!-- rivetari-judge-review";

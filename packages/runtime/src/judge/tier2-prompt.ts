@@ -1,18 +1,14 @@
 // Judge tier 2, prompts: the rubric, the gate's instructions, the text of what
 // the reviewer and the gate are shown, and reading their replies back.
-import { looksLikeSecret } from "@arynbht/rivetari-engine";
+import { type Effort, looksLikeSecret } from "@arynbht/rivetari-engine";
+import { z } from "zod";
 
 import type { Card } from "../task/card.js";
-import { CITED_FILE_CAP } from "./tier2-pack.js";
-import type {
-  AllowedDecision,
-  BeforeCheck,
-  CitedFile,
-  Finding,
-  PackedChange,
-  ReviewProof,
-  Tier2Result,
-} from "./tier2.js";
+import {
+  CITED_FILE_CAP,
+  type CitedFile,
+  type PackedChange,
+} from "./tier2-pack.js";
 import {
   type Tier1Checks,
   tier1Section,
@@ -278,4 +274,144 @@ export function applyTier1(
     else out[i] = { id: c.id, ...settled };
   }
   return out;
+}
+
+// The shapes of a proof screenshot and of a person's stop-and-ask answer, as
+// the task runtime (not part of this repo) defined them in proof/shoot.ts and
+// task/tasks.ts. Review only passes them through when a caller supplies them.
+export interface Shot {
+  page: string;
+  breakpoint: string;
+  /** Absolute path of the PNG. */
+  file: string;
+  /** The page's HTTP status (0 when there was no response). */
+  status: number;
+  /** What was measured on the page, so a text-only reviewer can judge the shot. */
+  layout?: Layout | undefined;
+  /** The viewport's width in CSS pixels. */
+  width?: number | undefined;
+  /** The PNG's size: a loading skeleton is a fraction of the real page's. */
+  bytes?: number | undefined;
+  /** Whether the page really rendered before the shot. */
+  ready?: boolean | undefined;
+  /** Why it didn't, when it didn't: the shot is of whatever showed at the timeout. */
+  notReady?: string | undefined;
+}
+
+export interface Layout {
+  /** The viewport's width and the page's scroll width, in CSS pixels. */
+  viewport: number;
+  scrollWidth: number;
+  /** Up to five visible elements that reach past the viewport's edge. */
+  overflowing: string[];
+  /** The start of the page's visible text. */
+  text?: string | undefined;
+}
+
+export interface AllowedDecision {
+  asked: string;
+  by: string;
+  at: string;
+  note: string;
+  flagged?: boolean | undefined;
+}
+
+export const BLOCKING_KINDS = ["defect", "contract", "acceptance"] as const;
+export const FINDING_KINDS = [...BLOCKING_KINDS, "suggestion"] as const;
+export type FindingKind = (typeof FINDING_KINDS)[number];
+
+/** Optional text the model may send as null or leave out: both mean none. */
+const optionalText = () =>
+  z
+    .string()
+    .nullish()
+    .transform((v) => v ?? "");
+
+export const FindingSchema = z.object({
+  kind: z.enum(FINDING_KINDS).catch("suggestion"),
+  file: optionalText(),
+  // A bad line or a missing title shouldn't throw away the whole review.
+  line: z.number().int().nonnegative().nullable().default(null).catch(null),
+  acceptance_id: z.string().nullable().optional(),
+  title: z.string().min(1).catch("(untitled)"),
+  detail: optionalText(),
+  repro: optionalText(),
+  fix: optionalText(),
+});
+export type Finding = z.infer<typeof FindingSchema> & {
+  /** Set when the false-positive gate turned a blocking finding into a suggestion. */
+  downgraded?: string | undefined;
+  pattern?: string | undefined;
+};
+
+export const ReviewSchema = z.object({
+  findings: z.array(FindingSchema).default([]),
+  acceptance: z
+    .array(
+      z.object({
+        id: z.string(),
+        status: z.enum(["met", "unmet", "unverified"]).catch("unverified"),
+        note: optionalText(),
+      }),
+    )
+    .default([]),
+  /** Asked only on a fix card with a UI proof: does the "before" show the defect? */
+  before: z
+    .object({
+      // Anything but a plain yes means the before doesn't show it.
+      shows_defect: z.boolean().catch(false),
+      note: optionalText(),
+      criteria: z.array(z.string()).catch([]).default([]),
+    })
+    .nullish()
+    .catch(null),
+});
+
+export type BeforeCheck = NonNullable<z.infer<typeof ReviewSchema>["before"]>;
+
+export const GateSchema = z.object({
+  reproducible: z.boolean(),
+  repro: optionalText(),
+  reason: optionalText(),
+});
+
+export interface Tier2Result {
+  verdict: "approve" | "request-changes";
+  blocking: Finding[];
+  suggestions: Finding[];
+  acceptance: z.infer<typeof ReviewSchema>["acceptance"];
+  /** The reviewer's answer on a fix card's "before" proof, when it was asked. */
+  before?: BeforeCheck | undefined;
+  /**
+   * Changed files the reviewer wasn't shown for a reason other than being
+   * generated (sensitive, secret-shaped, binary, over budget). A change with
+   * any can't be approved by the judge: a person looks at them.
+   */
+  unreviewed: string[];
+  /**
+   * The card's criteria nobody confirmed: marked unverified, or not reported
+   * at all. Set when there's a card; a change with any can't be approved
+   * without a person.
+   */
+  unverified?: { id: string; note: string }[] | undefined;
+  model: string;
+  /** The effort the review ran at, when one was set. */
+  effort?: Effort | undefined;
+  calls: number;
+  /** Tokens and estimated cost across every call. */
+  usage: { tokens: number; costUsd: number };
+  packed: Omit<PackedChange, "diff">;
+}
+
+/**
+ * The parts of a task's proof record (`proof/proof.json`) the reviewer is
+ * shown. Its own type, not the prove beat's: prove imports tier 1, which
+ * imports this module.
+ */
+export interface ReviewProof {
+  kind: string;
+  passed: boolean;
+  lines: string[];
+  shots?: (Shot & { side: "before" | "after" })[] | undefined;
+  tests?: { exitCode: number; added: string[]; output: string } | undefined;
 }
