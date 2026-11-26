@@ -19,6 +19,11 @@ import {
   IpcChannel,
   MapBlocked,
   MapGetRequest,
+  AnswerApplyRequest,
+  AnswerPreview,
+  AnswerPreviewRequest,
+  AnswerResult,
+  type AnswerSpec,
   MarkReadyApplyRequest,
   MarkReadyPreview,
   MarkReadyPreviewRequest,
@@ -236,6 +241,27 @@ const api = {
         MarkReadyApplyRequest.parse({ repoPath, branch, diff }),
       );
       return MarkReadyResult.parse(raw);
+    },
+    /** The diff an answer would commit, or why it can't; writes nothing. */
+    async answerPreview(repoPath: string, branch: string, answer: AnswerSpec) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardAnswerPreview,
+        AnswerPreviewRequest.parse({ repoPath, branch, answer }),
+      );
+      return AnswerPreview.parse(raw);
+    },
+    /** Commit and push the answer's diff the person was shown, or refuse and say why. */
+    async answerApply(
+      repoPath: string,
+      branch: string,
+      answer: AnswerSpec,
+      diff: string,
+    ) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardAnswerApply,
+        AnswerApplyRequest.parse({ repoPath, branch, answer, diff }),
+      );
+      return AnswerResult.parse(raw);
     },
   },
 
