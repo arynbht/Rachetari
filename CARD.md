@@ -1,7 +1,7 @@
 # T-0060 · refactor(shell): shrink source.ts under the lint limits
 
-Status: ready
-Branch: card/T-0060 · Held by: nobody
+Status: in progress
+Branch: card/T-0060 · Held by: builder-T-0060
 Created: 2026-11-25 · Source: BACKLOG Next up (from T-0043) · Gate: low
 
 ## Why
