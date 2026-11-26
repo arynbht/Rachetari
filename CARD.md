@@ -10,10 +10,10 @@ The desktop-e2e job's step "Install Electron runtime libraries + xvfb" has hung 
 
 ## Acceptance criteria
 
-- [ ] A1: Only the "Install Electron runtime libraries + xvfb" step changes in `.github/workflows/ci.yml`; no other job, the `ci` aggregator's needs/conditions, or tests change · check: read `git diff develop...HEAD`
-- [ ] A2: The step has `timeout-minutes: 6` and runs the install (`playwright install-deps`, then `sudo apt-get install -y xvfb`) up to 3 attempts, each under `timeout 300`, and exits non-zero with a clear message if all three fail · check: read the step in the diff
-- [ ] A3: The package filter name stays as on develop · check: the diff does not touch the `--filter` argument
-- [ ] A4: The workflow file is valid · check: `actionlint .github/workflows/ci.yml` if installed locally, else a YAML parse of the file (say which was run)
+- [x] A1: Only the "Install Electron runtime libraries + xvfb" step changes in `.github/workflows/ci.yml`; no other job, the `ci` aggregator's needs/conditions, or tests change · check: read `git diff develop...HEAD`
+- [x] A2: The step has `timeout-minutes: 6` and runs the install (`playwright install-deps`, then `sudo apt-get install -y xvfb`) up to 3 attempts, each under `timeout 300`, and exits non-zero with a clear message if all three fail · check: read the step in the diff
+- [x] A3: The package filter name stays as on develop · check: the diff does not touch the `--filter` argument
+- [x] A4: The workflow file is valid · check: `actionlint .github/workflows/ci.yml` if installed locally, else a YAML parse of the file (say which was run)
 - [ ] A5: The PR's own desktop-e2e run passes, its log shows which attempt succeeded, and `ci` is green · check: `gh pr checks` and the step log
 
 ## Files in scope
@@ -44,7 +44,7 @@ Besides the standing list in CLAUDE.md:
 
 ## Next step
 
-Edit the install step in `.github/workflows/ci.yml` as A2 describes, run A4, open a draft PR.
+Step edited, PR #85 open. CI runs on it were cancelled externally ~30s in (3 times, incl. a rerun and a fresh push). Find who cancels, then re-run and read the desktop-e2e install log for A5.
 
 ## Decisions
 
@@ -61,13 +61,17 @@ none
 - [ ] Tests, lint and typecheck run; output below
 - [ ] No edits outside "Files in scope" (`git diff --stat` below)
 - [ ] Anything not run is marked UNTESTED, never "verified"
-- [ ] Draft PR opened: #
+- [x] Draft PR opened: #85
 
 ### Evidence
 
 Waiting on the owner (wall clock, UTC): none
 
 ```
+A4: no actionlint installed; python PyYAML safe_load parsed ci.yml, step shows timeout-minutes 6 and the 3-attempt loop.
+A5: UNTESTED. Runs 45766599050 (x2) and 45767027215 were cancelled ~30s in, before the install step finished; not a code failure.
 ```
 
 ## Parked
+- Step timeout-minutes 6 is shorter than 3 x timeout 300, so at most 2 attempts run; per card, flag for owner.
+- [tool] CI runs on card/T-0068 cancelled externally ~30s after start (concurrency group is only per ref).
