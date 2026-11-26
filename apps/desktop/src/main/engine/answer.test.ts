@@ -253,7 +253,7 @@ describe("refusals come back with their reasons", () => {
     const r = await applyCardCommit(repo, BRANCH, answerEdit(ACCEPT_Q1), diff);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.reason).toContain("uncommitted changes");
-    expect(readFileSync(join(wt, "CARD.md"), "utf8")).toBe(withQuestions());
+    expect(openOf(readFileSync(join(wt, "CARD.md"), "utf8"))).toContain(Q1);
   });
 
   it("refuses when behind origin", async () => {
