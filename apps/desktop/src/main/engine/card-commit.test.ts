@@ -1,6 +1,7 @@
 // The write path, in temp repos only: a bare origin, a clone, card branches.
 import { execFileSync } from "node:child_process";
 import {
+  chmodSync,
   existsSync,
   mkdtempSync,
   readFileSync,
@@ -216,6 +217,42 @@ describe("apply", () => {
     expect(readFileSync(join(repo, "CARD.md"), "utf8")).toMatch(
       /^Status: ready/m,
     );
+  });
+});
+
+describe("failures after the checks", () => {
+  it("a failed commit in the worktree is refused and leaves it clean", async () => {
+    const wt = addWorktree();
+    const hook = join(
+      git(wt, "rev-parse", "--path-format=absolute", "--git-path", "hooks"),
+      "pre-commit",
+    );
+    writeFileSync(hook, "#!/bin/sh\necho hook says no >&2\nexit 1\n");
+    chmodSync(hook, 0o755);
+    const tip = git(repo, "rev-parse", BRANCH);
+    const r = await applyCardCommit(repo, BRANCH, markReady, await shown());
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toContain("hook says no");
+    expect(git(wt, "status", "--porcelain")).toBe("");
+    expect(readFileSync(join(wt, "CARD.md"), "utf8")).toMatch(
+      /^Status: draft/m,
+    );
+    expect(git(repo, "rev-parse", BRANCH)).toBe(tip);
+  });
+
+  it("a push the origin refuses is reported, committed locally, and not forced", async () => {
+    const hook = join(origin, "hooks", "pre-receive");
+    writeFileSync(hook, "#!/bin/sh\necho origin says no >&2\nexit 1\n");
+    chmodSync(hook, 0o755);
+    const originTip = git(origin, "rev-parse", BRANCH);
+    const r = await applyCardCommit(repo, BRANCH, markReady, await shown());
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.reason).toMatch(/committed [0-9a-f]{7} locally/);
+      expect(r.reason).toContain("origin says no");
+    }
+    expect(git(origin, "rev-parse", BRANCH)).toBe(originTip);
+    expect(git(repo, "show", `${BRANCH}:CARD.md`)).toMatch(/^Status: ready/m);
   });
 });
 

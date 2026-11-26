@@ -6,10 +6,6 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import {
   ChecklistRequest,
-  MarkReadyApplyRequest,
-  MarkReadyPreview,
-  MarkReadyPreviewRequest,
-  MarkReadyResult,
   ChecklistView,
   CiState,
   DocContent,
@@ -23,6 +19,10 @@ import {
   IpcChannel,
   MapBlocked,
   MapGetRequest,
+  MarkReadyApplyRequest,
+  MarkReadyPreview,
+  MarkReadyPreviewRequest,
+  MarkReadyResult,
   MapView,
   HomeView,
   NowBadges,

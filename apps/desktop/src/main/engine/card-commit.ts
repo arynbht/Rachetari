@@ -235,37 +235,35 @@ export async function applyCardCommit(
     return { ok: false, reason: "the card changed since the diff was shown" };
 
   let commit: string;
-  if (p.worktree) {
-    writeFileSync(join(p.worktree, CARD_FILE), p.after);
-    await git(p.worktree, ["add", "--", CARD_FILE]);
-    await git(p.worktree, [
-      "commit",
-      "-q",
-      "-m",
-      change.message,
-      "--",
-      CARD_FILE,
-    ]);
-    commit = (await git(p.worktree, ["rev-parse", "HEAD"])).trim();
-  } else {
-    commit = await commitWithoutCheckout(repo, branch, p, change.message);
+  try {
+    if (p.worktree) {
+      commit = await commitInWorktree(p.worktree, p.after, change.message);
+    } else {
+      commit = await commitWithoutCheckout(repo, branch, p, change.message);
+    }
+  } catch (err) {
+    return {
+      ok: false,
+      reason: `the commit failed, nothing was changed: ${errorText(err)}`,
+    };
   }
 
   let pushed = false;
   if (p.hasOrigin) {
-    // No --force: a remote that moved since the check rejects this.
-    const done = await succeeds(
-      git(repo, [
+    // No --force: a remote that moved since the check rejects this. The
+    // commit stays local, and a retry is refused (the status is already ready).
+    try {
+      await git(repo, [
         "push",
         "origin",
         `refs/heads/${branch}:refs/heads/${branch}`,
-      ]),
-    );
-    if (!done)
+      ]);
+    } catch (err) {
       return {
         ok: false,
-        reason: `committed ${commit.slice(0, 7)} locally, but the push was refused (not a fast-forward); nothing was forced`,
+        reason: `committed ${commit.slice(0, 7)} locally, but the push was refused and nothing was forced: ${errorText(err)}`,
       };
+    }
     pushed = true;
   }
   return {
@@ -346,4 +344,27 @@ export function registerMarkReady(
   const h = markReadyHandlers(registered);
   ipc.handle(IpcChannel.CardMarkReadyPreview, (_e, raw) => h.preview(raw));
   ipc.handle(IpcChannel.CardMarkReadyApply, (_e, raw) => h.apply(raw));
+}
+
+const errorText = (err: unknown): string =>
+  (err instanceof Error ? err.message : String(err)).trim();
+
+/** Write, stage and commit CARD.md in the worktree; on failure put it back as it was. */
+async function commitInWorktree(
+  worktree: string,
+  text: string,
+  message: string,
+): Promise<string> {
+  writeFileSync(join(worktree, CARD_FILE), text);
+  try {
+    await git(worktree, ["add", "--", CARD_FILE]);
+    await git(worktree, ["commit", "-q", "-m", message, "--", CARD_FILE]);
+  } catch (err) {
+    // A hook or a missing identity: unstage and restore, leaving it clean.
+    await git(worktree, ["checkout", "HEAD", "--", CARD_FILE]).catch(
+      () => undefined,
+    );
+    throw err;
+  }
+  return (await git(worktree, ["rev-parse", "HEAD"])).trim();
 }
