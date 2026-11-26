@@ -11,7 +11,6 @@
 //    without a checkout (git plumbing, a compare-and-swap on the ref);
 //  - a branch ref is never moved underneath a worktree;
 //  - the push is fast-forward only, never forced; behind origin is refused.
-import { execFile } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -23,6 +22,7 @@ import {
   MarkReadyResult,
   IpcChannel,
 } from "../../shared/ipc";
+import { type GitOptions, git as run } from "../kit/git-run";
 import { parseCard } from "../kit/parse";
 
 /** What a caller wants changed in CARD.md. */
@@ -54,38 +54,13 @@ export const markReady: CardEdit = {
 
 const CARD_FILE = "CARD.md";
 const BRANCH = /^card\/[A-Za-z0-9._-]+$/;
-const LIMIT_MS = 60_000;
 
-function git(
+/** Every git call here: git-run's runner, on its 60 s "fetch" limit. */
+const git = (
   cwd: string,
   args: string[],
-  opts: { input?: string; env?: NodeJS.ProcessEnv; okCodes?: number[] } = {},
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const child = execFile(
-      "git",
-      args,
-      {
-        cwd,
-        encoding: "utf8",
-        windowsHide: true,
-        timeout: LIMIT_MS,
-        maxBuffer: 16 * 1024 * 1024,
-        env: { ...process.env, GIT_TERMINAL_PROMPT: "0", ...opts.env },
-      },
-      (err, stdout, stderr) => {
-        const code = (err as { code?: unknown } | null)?.code;
-        if (!err || (typeof code === "number" && opts.okCodes?.includes(code)))
-          resolve(stdout);
-        else
-          reject(
-            new Error(`git ${args[0] ?? ""} failed: ${stderr || err.message}`),
-          );
-      },
-    );
-    if (opts.input !== undefined) child.stdin?.end(opts.input);
-  });
-}
+  opts: GitOptions = {},
+): Promise<string> => run(cwd, args, "fetch", opts);
 
 const succeeds = (p: Promise<unknown>): Promise<boolean> =>
   p.then(
