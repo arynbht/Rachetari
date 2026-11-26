@@ -172,22 +172,19 @@ function QuestionsPanel({
                 aria-labelledby={headingId}
                 className="overflow-hidden"
               >
-                <h4
-                  id={headingId}
-                  className="flex items-center gap-2 border-b border-border/60 px-4 py-2 text-sm font-medium"
-                >
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {g.id}
-                  </span>{" "}
-                  · {g.title}
-                  <span className="ml-auto">
-                    <AcceptAll
-                      repoPath={repoPath}
-                      group={g}
-                      heldBy={held.get(g.branch) ?? null}
-                    />
-                  </span>
-                </h4>
+                <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
+                  <h4 id={headingId} className="text-sm font-medium">
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {g.id}
+                    </span>{" "}
+                    · {g.title}
+                  </h4>
+                  <AcceptAll
+                    repoPath={repoPath}
+                    group={g}
+                    heldBy={held.get(g.branch) ?? null}
+                  />
+                </div>
                 <ol className="divide-y divide-border/60">
                   {g.questions.map((q) => (
                     <li key={q.n} className="flex gap-3 px-4 py-2.5">
