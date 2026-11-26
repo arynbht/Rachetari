@@ -15,7 +15,6 @@ Ordered. The top line becomes the next `CARD.md`.
 9. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
 10. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 11. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -197,3 +196,4 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-26 [tool] T-0062's A3 e2e finds "ready" anywhere in the record, not in the Status field itself · seen on T-0062 inspection · `apps/desktop/e2e/mark-ready.e2e.ts`
 - 2026-11-26 [product] A mark-ready button in Now's Needs-you rows, now that T-0062's dialog exists (parked by T-0062's drafter) · seen on T-0062 · `apps/desktop/src/renderer/components/Now.tsx`
 - 2026-11-26 [tool] `ChecklistParts.tsx` exports six helpers used only inside it; only ChecklistBody and Subtitle need exporting · seen on T-0065 inspection · `apps/desktop/src/renderer/components/ChecklistParts.tsx`
+- 2026-11-26 [tool] CI's desktop-e2e hangs in "Install Electron runtime libraries + xvfb" (`apt-get`) until the job's 15-minute limit, three times today (develop 66321e8, PR #79 twice, PR #82); the step has no timeout or retry of its own · seen on the line · `.github/workflows/ci.yml`
