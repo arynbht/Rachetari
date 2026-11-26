@@ -2,15 +2,18 @@
 #
 # Pull requests get a fast signal on Ubuntu and Windows: lint, typecheck and
 # sharded tests run as parallel jobs over the packages the change affects
-# (scripts/ci-scope.mjs), and only the jobs whose paths changed run at all. Main
-# gets the full pipeline on both OSes on every push and nightly.
+# (scripts/ci-scope.mjs), and only the jobs whose paths changed run at all. On
+# PRs (except PRs into main) the Windows legs run but are advisory: a red Windows
+# leg shows on the PR and the inspector reports it, while `ci` stays green on
+# Ubuntu. Main and develop get the full pipeline on both OSes on every push
+# (build-test, where Windows is required); main also nightly.
 name: CI
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches: [main]
+    branches: [main, develop]
   schedule:
     - cron: "41 3 * * *" # nightly, 03:41 UTC
 
@@ -68,6 +71,8 @@ jobs:
     if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    # Advisory on PRs (except into main): see the header.
+    continue-on-error: ${{ matrix.os == 'windows-latest' && github.event_name == 'pull_request' && github.base_ref != 'main' }}
     strategy:
       fail-fast: false
       matrix:
@@ -123,7 +128,8 @@ jobs:
       # Fail fast: a red lint fails the aggregator now instead of after tests.
       - &cancel
         name: Cancel the rest of the run
-        if: failure()
+        # An advisory Windows leg never cancels the Ubuntu legs.
+        if: failure() && !(matrix.os == 'windows-latest' && github.event_name == 'pull_request' && github.base_ref != 'main')
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh run cancel "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY"
@@ -134,6 +140,8 @@ jobs:
     if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    # Advisory on PRs (except into main): see the header.
+    continue-on-error: ${{ matrix.os == 'windows-latest' && github.event_name == 'pull_request' && github.base_ref != 'main' }}
     strategy:
       fail-fast: false
       matrix:
@@ -167,7 +175,7 @@ jobs:
       # The desktop app is built by electron-vite, outside the tsc --build graph.
       - name: Typecheck desktop
         if: steps.scope.outputs.desktop == 'true'
-        run: pnpm --filter @arynbht/rivetari-desktop typecheck
+        run: pnpm --filter @arynbht/rachetari-desktop typecheck
       - *cancel
 
   test:
@@ -176,6 +184,8 @@ jobs:
     if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    # Advisory on PRs (except into main): see the header.
+    continue-on-error: ${{ matrix.os == 'windows-latest' && github.event_name == 'pull_request' && github.base_ref != 'main' }}
     strategy:
       fail-fast: false
       matrix:
@@ -250,11 +260,25 @@ jobs:
       - *install
       - name: Install Electron runtime libraries + xvfb
         run: |
-          pnpm --filter @arynbht/rivetari-desktop exec playwright install-deps
+          pnpm --filter @arynbht/rachetari-desktop exec playwright install-deps
           sudo apt-get install -y xvfb
+      - name: Create screenshot directory
+        run: mkdir -p "$SCREENSHOT_DIR"
+        env:
+          SCREENSHOT_DIR: ${{ runner.temp }}/screenshots
       - name: Run desktop e2e (xvfb)
         # Chromium won't render on xvfb's 8-bit default, so force 24-bit.
-        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" pnpm --filter @arynbht/rivetari-desktop e2e
+        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" pnpm --filter @arynbht/rachetari-desktop e2e
+        env:
+          SCREENSHOT_DIR: ${{ runner.temp }}/screenshots
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: desktop-e2e-screenshots
+          path: ${{ runner.temp }}/screenshots
+          if-no-files-found: ignore
+          retention-days: 7
 
   # Main and nightly: every check on both OSes.
   build-test:
@@ -279,7 +303,7 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
       - name: Typecheck desktop
-        run: pnpm --filter @arynbht/rivetari-desktop typecheck
+        run: pnpm --filter @arynbht/rachetari-desktop typecheck
       - name: Lint
         run: pnpm lint
       - name: Format check
@@ -291,6 +315,10 @@ jobs:
         run: pnpm test
 
   # The one check a PR needs.
+  # On PRs (except PRs into main) a Windows leg of lint, typecheck or test is
+  # advisory: it runs and a red one shows on the PR for the inspector to report,
+  # but continue-on-error keeps its result a pass here, so `ci` stays green on
+  # Ubuntu. develop's pushes still run build-test on both OSes.
   # It always runs, so a job skipped by its path filter never leaves a PR
   # waiting, and it treats skipped as fine but anything else that isn't a pass
   # as a failure (GitHub counts a skipped required check as passing).

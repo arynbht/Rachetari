@@ -36,7 +36,7 @@ function NightReport({ repoPath, date }: { repoPath: string; date: string }) {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
-    window.rivetari.history.night(repoPath, date).then(
+    window.rachetari.history.night(repoPath, date).then(
       (next) => live && setNight(next),
       (err: unknown) => live && setError(errorMessage(err)),
     );
@@ -79,7 +79,7 @@ export function History({
     setLoading(true);
     setError(null);
     try {
-      setData(await window.rivetari.history.get(repoPath));
+      setData(await window.rachetari.history.get(repoPath));
     } catch (err) {
       setError(errorMessage(err));
     } finally {

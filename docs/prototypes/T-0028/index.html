@@ -1,0 +1,1418 @@
+<!doctype html>
+<!--
+  T-0028: a static prototype of the Tasks overhaul, on the kit fixture's cards.
+  Opens from disk: no server, no network, no IPC. The look is the shell's own
+  stylesheet: shoot.mjs builds apps/desktop/src/renderer/index.css with the
+  desktop's Tailwind and tailwind.config.ts into out/shell.css (ignored by git),
+  so this page carries no CSS of its own.
+
+  index.html               the board, then a card's record beside a narrow list
+  index.html?layout=list   the alternative: the list and the record, always
+  index.html?done=20       the board with 20 done cards in all
+-->
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tasks prototype</title>
+    <link rel="stylesheet" href="out/shell.css" />
+  </head>
+  <body>
+    <p
+      id="no-css"
+      hidden
+      style="margin: 16px; font-family: system-ui, sans-serif"
+    >
+      The shell's stylesheet isn't built yet. Run
+      <code>node docs/prototypes/T-0028/shoot.mjs</code> from the repo root
+      once: it writes <code>docs/prototypes/T-0028/out/shell.css</code>.
+    </p>
+
+    <div class="flex h-screen">
+      <aside
+        class="flex w-72 shrink-0 flex-col border-r border-border bg-card/30"
+      >
+        <div class="flex items-center justify-between p-4">
+          <h1 class="text-sm font-semibold tracking-tight">Rivetari</h1>
+          <button
+            type="button"
+            class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-secondary px-3 text-xs font-medium text-secondary-foreground hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span data-icon="folder-plus"></span>
+            Add
+          </button>
+        </div>
+        <div class="px-2 pb-1">
+          <button
+            type="button"
+            class="inline-flex h-8 w-full items-center justify-start gap-2 rounded-md px-3 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span data-icon="house"></span>
+            Home
+          </button>
+        </div>
+        <nav aria-label="Repositories" class="flex-1 overflow-y-auto px-2 pb-2">
+          <ul class="space-y-0.5">
+            <li>
+              <div
+                class="group flex items-center gap-2 rounded-md bg-accent px-2 py-1.5 text-accent-foreground"
+              >
+                <button
+                  type="button"
+                  aria-current="true"
+                  class="min-w-0 flex-1 rounded text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span class="flex items-center gap-2">
+                    <span class="truncate text-sm">fixture-app</span>
+                    <span
+                      id="repo-badge"
+                      class="shrink-0 rounded-full bg-amber-500/20 px-1.5 text-xs font-medium tabular-nums text-amber-300"
+                    ></span>
+                  </span>
+                  <span class="block truncate text-xs text-muted-foreground">
+                    C:\Users\you\code\fixture-app
+                  </span>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </nav>
+        <div class="px-2 pb-2">
+          <button
+            type="button"
+            class="inline-flex h-8 w-full items-center justify-start gap-2 rounded-md px-3 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span data-icon="settings"></span>
+            Settings
+          </button>
+        </div>
+        <p class="px-4 pb-3 text-xs text-muted-foreground">
+          GitHub sign-in isn't built: it's shelved (see SHELVED.md).
+        </p>
+      </aside>
+
+      <main class="relative flex-1 overflow-y-auto">
+        <div class="mx-auto max-w-4xl space-y-5 p-6">
+          <div class="min-w-0">
+            <h2 class="truncate text-xl font-semibold">fixture-app</h2>
+            <p class="truncate text-xs text-muted-foreground">
+              C:\Users\you\code\fixture-app
+            </p>
+          </div>
+
+          <div
+            role="tablist"
+            aria-label="Repository views"
+            class="flex gap-4 border-b border-border text-sm"
+          >
+            <button
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              class="-mb-px rounded-t-sm border-b-2 border-transparent px-1 pb-2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Now
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="tab-tasks"
+              aria-selected="true"
+              aria-controls="panel-tasks"
+              class="-mb-px rounded-t-sm border-b-2 border-sky-500 px-1 pb-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Tasks
+            </button>
+            <button
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              class="-mb-px rounded-t-sm border-b-2 border-transparent px-1 pb-2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Checklist
+            </button>
+            <button
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              class="-mb-px rounded-t-sm border-b-2 border-transparent px-1 pb-2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              History
+            </button>
+            <button
+              type="button"
+              role="tab"
+              tabindex="-1"
+              aria-selected="false"
+              class="-mb-px rounded-t-sm border-b-2 border-transparent px-1 pb-2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Map
+            </button>
+          </div>
+
+          <div
+            id="panel-tasks"
+            role="tabpanel"
+            aria-labelledby="tab-tasks"
+            class="space-y-4"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <h2 class="text-lg font-semibold">Tasks</h2>
+                <p id="tasks-lede" class="text-xs text-muted-foreground"></p>
+              </div>
+              <button
+                type="button"
+                id="needs-me"
+                aria-pressed="false"
+                class="inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-border px-3 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                Needs me
+                <span
+                  id="needs-me-count"
+                  class="rounded-full bg-amber-500/20 px-1.5 tabular-nums text-amber-300"
+                ></span>
+              </button>
+            </div>
+            <div id="tasks"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="fixture.js"></script>
+    <script>
+      /* global window, document, URLSearchParams, getComputedStyle */
+      (function () {
+        "use strict";
+
+        // The line's limits, as constants: docs/queue-2026-11-25.md §The line,
+        // "Limits" (draft plus ready 5, in progress 2) and "Inspection" (the
+        // inspection cap, 3, carried by PR open). Reading them from the repo is
+        // the Shell's work, not the prototype's.
+        const LIMITS = { draftReady: 5, progress: 2, pr: 3 };
+
+        // The stages a card moves through, and the board's columns in each.
+        const GROUPS = [
+          {
+            id: "draftReady",
+            label: "Draft + Ready",
+            columns: [
+              { id: "draft", label: "Draft" },
+              { id: "ready", label: "Ready" },
+            ],
+            limit: LIMITS.draftReady,
+          },
+          {
+            id: "progress",
+            label: "In progress",
+            columns: [{ id: "progress", label: "In progress" }],
+            limit: LIMITS.progress,
+          },
+          {
+            id: "blocked",
+            label: "Blocked",
+            columns: [{ id: "blocked", label: "Blocked" }],
+            limit: null,
+          },
+          {
+            id: "pr",
+            label: "PR open",
+            columns: [{ id: "pr", label: "PR open" }],
+            limit: LIMITS.pr,
+          },
+        ];
+        const DONE_SHOWN = 5;
+
+        const ICONS = {
+          "folder-plus":
+            '<path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+          house:
+            '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+          settings:
+            '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+          "circle-alert":
+            '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+          "git-pull-request":
+            '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/>',
+          "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+        };
+
+        function icon(name, size) {
+          const t = document.createElement("template");
+          t.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="' +
+            (size || "h-4 w-4") +
+            ' shrink-0">' +
+            ICONS[name] +
+            "</svg>";
+          return t.content.firstChild;
+        }
+
+        /** A tiny element builder: h("p", { class: "x" }, "text", child). */
+        function h(tag, props) {
+          const el = document.createElement(tag);
+          const attrs = props || {};
+          Object.keys(attrs).forEach(function (k) {
+            const v = attrs[k];
+            if (v === null || v === undefined || v === false) return;
+            if (k === "class") el.className = v;
+            else if (k.indexOf("on") === 0)
+              el.addEventListener(k.slice(2).toLowerCase(), v);
+            else el.setAttribute(k, v === true ? "" : String(v));
+          });
+          const kids = Array.prototype.slice.call(arguments, 2).flat(Infinity);
+          kids.forEach(function (kid) {
+            if (kid === null || kid === undefined || kid === false) return;
+            el.append(kid.nodeType ? kid : String(kid));
+          });
+          return el;
+        }
+
+        // --- Data -------------------------------------------------------------
+
+        const params = new URLSearchParams(window.location.search);
+        const layout = params.get("layout") === "list" ? "list" : "board";
+        const doneCount = Math.max(2, parseInt(params.get("done"), 10) || 2);
+
+        const live = window.FIXTURE.cards;
+        const done = window.FIXTURE.doneCards(doneCount);
+        const nextUp = window.FIXTURE.nextUp;
+        const byKey = {};
+        live.concat(done).forEach(function (c) {
+          byKey[c.key] = c;
+        });
+
+        const openQuestions = (c) => c.questions.filter((q) => q.open);
+        const awaitsApproval = (c) =>
+          c.status === "draft" && c.gate === "needs you";
+        /** Waiting on the owner: an approval, an open question, or a card that can't be read. */
+        const needsMe = (c) =>
+          c.unreadable || awaitsApproval(c) || openQuestions(c).length > 0;
+
+        /** Why a card waits on the owner, in a few words, or null. */
+        function reason(c) {
+          if (c.unreadable)
+            return { tone: "text-rose-300", icon: true, text: "Can't be read" };
+          if (awaitsApproval(c))
+            return { tone: "text-amber-300", text: "Needs your approval" };
+          const n = openQuestions(c).length;
+          if (n > 0)
+            return {
+              tone: "text-amber-300",
+              text: n === 1 ? "1 open question" : n + " open questions",
+            };
+          return null;
+        }
+
+        const inColumn = (cards, id) => cards.filter((c) => c.column === id);
+        const inGroup = (cards, g) =>
+          g.columns.flatMap((col) => inColumn(cards, col.id));
+
+        // --- State ------------------------------------------------------------
+
+        const state = {
+          selected: null,
+          needsMe: false,
+          nextOpen: false,
+          tab: "card",
+          boardFocus: null,
+          focusKey: null,
+          focusTab: false,
+        };
+
+        const visibleLive = () => (state.needsMe ? live.filter(needsMe) : live);
+        const visibleDone = () =>
+          state.needsMe ? [] : done.slice(0, DONE_SHOWN);
+
+        /** Every card in the list's order: by stage, then the latest done. */
+        function listOrder() {
+          const cards = visibleLive();
+          return GROUPS.flatMap((g) => inGroup(cards, g)).concat(visibleDone());
+        }
+
+        function open(key) {
+          state.selected = key;
+          state.tab = "card";
+          state.focusKey = key;
+          render();
+        }
+
+        function close() {
+          if (!state.selected) return;
+          state.focusKey = state.selected;
+          state.boardFocus = state.selected;
+          state.selected = null;
+          render();
+        }
+
+        // --- Pieces -----------------------------------------------------------
+
+        /** A stage's load against its limit: slots, then "n/limit". */
+        function load(n, limit) {
+          if (limit === null)
+            return h(
+              "span",
+              {
+                class: "text-xs font-normal tabular-nums text-muted-foreground",
+                "data-load": String(n),
+              },
+              String(n),
+            );
+          const full = n >= limit;
+          const slots = [];
+          for (let i = 0; i < limit; i++)
+            slots.push(
+              h("span", {
+                class:
+                  "h-1.5 w-2 rounded-sm " +
+                  (i < n
+                    ? full
+                      ? "bg-amber-400"
+                      : "bg-sky-500"
+                    : "bg-muted-foreground/30"),
+              }),
+            );
+          return h(
+            "span",
+            {
+              class: "flex items-center gap-1.5 font-normal",
+              "data-load": n + "/" + limit,
+            },
+            h("span", { class: "flex gap-0.5", "aria-hidden": "true" }, slots),
+            h(
+              "span",
+              {
+                class:
+                  "text-xs tabular-nums " +
+                  (full ? "text-amber-300" : "text-muted-foreground"),
+              },
+              h("span", { class: "sr-only" }, "load "),
+              n + "/" + limit,
+              full ? " full" : "",
+            ),
+          );
+        }
+
+        function boardCard(c) {
+          const r = reason(c);
+          const border = c.unreadable
+            ? "border-rose-500/70"
+            : c.column === "pr"
+              ? "border-sky-500/70"
+              : "border-border";
+          return h(
+            "button",
+            {
+              type: "button",
+              "data-card": "",
+              "data-key": c.key,
+              tabindex: c.key === state.boardFocus ? "0" : "-1",
+              class:
+                "flex w-full flex-col gap-1 rounded-md border bg-card p-2 text-left text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
+                border,
+              onclick: () => open(c.key),
+              onfocus: () => {
+                state.boardFocus = c.key;
+              },
+            },
+            h(
+              "span",
+              { class: "flex items-center justify-between gap-2" },
+              h("span", { class: "font-mono text-muted-foreground" }, c.id),
+              c.heldBy &&
+                h(
+                  "span",
+                  { class: "truncate text-muted-foreground" },
+                  c.heldBy,
+                ),
+            ),
+            h("span", { class: "line-clamp-2 text-sm font-medium" }, c.title),
+            r &&
+              h(
+                "span",
+                { class: "flex items-center gap-1 font-medium " + r.tone },
+                r.icon && icon("circle-alert", "h-3.5 w-3.5"),
+                r.text,
+              ),
+            !r &&
+              c.pr &&
+              h(
+                "span",
+                {
+                  class:
+                    "flex items-center gap-1 " +
+                    (c.column === "pr"
+                      ? "text-sky-300"
+                      : "text-muted-foreground"),
+                },
+                icon("git-pull-request", "h-3.5 w-3.5"),
+                c.column === "pr"
+                  ? "PR #" + c.pr + " waiting to merge"
+                  : "Draft PR #" + c.pr,
+              ),
+          );
+        }
+
+        function nextUpRail() {
+          return h(
+            "section",
+            {
+              "aria-labelledby": "rail-next",
+              class: "rounded-lg border border-border/60 bg-background/40",
+            },
+            h(
+              "h3",
+              { id: "rail-next", class: "text-xs font-semibold" },
+              h(
+                "button",
+                {
+                  type: "button",
+                  "aria-expanded": String(state.nextOpen),
+                  "data-rail": "next",
+                  class:
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  onclick: () => {
+                    state.nextOpen = !state.nextOpen;
+                    state.focusKey = "rail:next";
+                    render();
+                  },
+                },
+                h(
+                  "span",
+                  { class: state.nextOpen ? "rotate-90" : "" },
+                  icon("chevron-right", "h-3.5 w-3.5"),
+                ),
+                "Next up",
+                h(
+                  "span",
+                  {
+                    class: "font-normal tabular-nums text-muted-foreground",
+                    "data-count": String(nextUp.length),
+                  },
+                  String(nextUp.length),
+                ),
+                !state.nextOpen &&
+                  h(
+                    "span",
+                    {
+                      class:
+                        "min-w-0 flex-1 truncate font-normal text-muted-foreground",
+                    },
+                    "First: " + nextUp[0],
+                  ),
+              ),
+            ),
+            state.nextOpen &&
+              h(
+                "ol",
+                { class: "list-decimal space-y-1 pb-2 pl-12 pr-3 text-xs" },
+                nextUp.map((line) => h("li", null, line)),
+              ),
+          );
+        }
+
+        function doneRail() {
+          const shown = done.slice(0, DONE_SHOWN);
+          return h(
+            "section",
+            {
+              "aria-labelledby": "rail-done",
+              class: "rounded-lg border border-border/60 bg-background/40 pb-1",
+            },
+            h(
+              "div",
+              {
+                class:
+                  "flex items-baseline justify-between gap-2 px-3 pb-1 pt-2",
+              },
+              h(
+                "h3",
+                {
+                  id: "rail-done",
+                  class: "flex items-baseline gap-2 text-xs font-semibold",
+                },
+                "Done",
+                h(
+                  "span",
+                  {
+                    class: "font-normal tabular-nums text-muted-foreground",
+                    "data-count": String(done.length),
+                  },
+                  String(done.length),
+                ),
+                done.length > DONE_SHOWN &&
+                  h(
+                    "span",
+                    { class: "font-normal text-muted-foreground" },
+                    "latest " + DONE_SHOWN + " shown",
+                  ),
+              ),
+              h(
+                "a",
+                {
+                  href: "#history",
+                  class:
+                    "rounded text-xs text-sky-400 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  onclick: (e) => e.preventDefault(),
+                },
+                "History",
+              ),
+            ),
+            h(
+              "ul",
+              { class: "px-1" },
+              shown.map((c) =>
+                h(
+                  "li",
+                  null,
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      "data-card": "",
+                      "data-done-item": "",
+                      "data-key": c.key,
+                      class:
+                        "flex w-full items-baseline gap-3 rounded-md px-2 py-1 text-left text-xs hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      onclick: () => open(c.key),
+                    },
+                    h(
+                      "span",
+                      {
+                        class: "w-14 shrink-0 font-mono text-muted-foreground",
+                      },
+                      c.id,
+                    ),
+                    h("span", { class: "min-w-0 flex-1 truncate" }, c.title),
+                    h(
+                      "span",
+                      { class: "shrink-0 tabular-nums text-muted-foreground" },
+                      "PR #" + c.pr,
+                    ),
+                    h(
+                      "span",
+                      {
+                        class:
+                          "w-20 shrink-0 text-right tabular-nums text-muted-foreground",
+                      },
+                      c.merged,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        function board() {
+          const cards = visibleLive();
+          if (
+            !state.boardFocus ||
+            !cards.some((c) => c.key === state.boardFocus)
+          )
+            state.boardFocus = cards.length
+              ? GROUPS.flatMap((g) => inGroup(cards, g))[0].key
+              : null;
+          const grid = h(
+            "div",
+            {
+              "data-board": "",
+              class: "grid grid-cols-5 gap-2",
+              onkeydown: boardKeys,
+            },
+            GROUPS.map((g) => {
+              const all = inGroup(live, g);
+              const headingId = "stage-" + g.id;
+              return h(
+                "section",
+                {
+                  "aria-labelledby": headingId,
+                  class:
+                    "flex min-w-0 flex-col" +
+                    (g.columns.length > 1 ? " col-span-2" : ""),
+                },
+                h(
+                  "h3",
+                  {
+                    id: headingId,
+                    "data-stage": g.id,
+                    class:
+                      "mb-1.5 flex items-center justify-between gap-2 px-1 text-xs font-semibold",
+                  },
+                  g.label,
+                  load(all.length, g.limit),
+                ),
+                h(
+                  "div",
+                  {
+                    class:
+                      "flex-1 " +
+                      (g.columns.length > 1
+                        ? "grid grid-cols-2 gap-2"
+                        : "flex flex-col"),
+                  },
+                  g.columns.map((col) => {
+                    const here = inColumn(cards, col.id);
+                    return h(
+                      "section",
+                      {
+                        "aria-label": col.label,
+                        "data-column": col.id,
+                        class:
+                          "min-h-[9rem] flex-1 space-y-2 rounded-lg border border-border/60 bg-background/40 p-2",
+                      },
+                      g.columns.length > 1 &&
+                        h(
+                          "h4",
+                          {
+                            class:
+                              "flex justify-between text-xs text-muted-foreground",
+                          },
+                          col.label,
+                          h(
+                            "span",
+                            { class: "tabular-nums" },
+                            String(inColumn(live, col.id).length),
+                          ),
+                        ),
+                      here.length
+                        ? h(
+                            "ul",
+                            { class: "space-y-2" },
+                            here.map((c) => h("li", null, boardCard(c))),
+                          )
+                        : h(
+                            "p",
+                            { class: "text-xs text-muted-foreground" },
+                            "None",
+                          ),
+                    );
+                  }),
+                ),
+              );
+            }),
+          );
+          return h(
+            "div",
+            { "data-view": "board", class: "space-y-3" },
+            state.needsMe
+              ? h(
+                  "p",
+                  { role: "status", class: "text-xs text-amber-300" },
+                  "Showing the " +
+                    cards.length +
+                    " cards waiting on you. Next up and Done are hidden until you turn off Needs me.",
+                )
+              : nextUpRail(),
+            grid,
+            !state.needsMe && doneRail(),
+          );
+        }
+
+        /** The board's cards as columns of keys, for the arrow keys. */
+        function boardColumns() {
+          const cards = visibleLive();
+          return GROUPS.flatMap((g) => g.columns).map((col) =>
+            inColumn(cards, col.id).map((c) => c.key),
+          );
+        }
+
+        function boardKeys(e) {
+          const key =
+            e.target.getAttribute && e.target.getAttribute("data-key");
+          if (!key) return;
+          const cols = boardColumns();
+          const ci = cols.findIndex((col) => col.includes(key));
+          if (ci < 0) return;
+          const ri = cols[ci].indexOf(key);
+          let target = null;
+          if (e.key === "ArrowDown") target = cols[ci][ri + 1];
+          else if (e.key === "ArrowUp") target = cols[ci][ri - 1];
+          else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            const step = e.key === "ArrowRight" ? 1 : -1;
+            for (let i = ci + step; i >= 0 && i < cols.length; i += step) {
+              if (cols[i].length) {
+                target = cols[i][Math.min(ri, cols[i].length - 1)];
+                break;
+              }
+            }
+          } else return;
+          e.preventDefault();
+          if (!target) return;
+          state.boardFocus = target;
+          const grid = e.currentTarget;
+          grid.querySelectorAll("[data-card]").forEach((b) => {
+            b.setAttribute(
+              "tabindex",
+              b.getAttribute("data-key") === target ? "0" : "-1",
+            );
+          });
+          grid.querySelector('[data-key="' + target + '"]').focus();
+        }
+
+        /** The grouped list: narrow beside a record, or the alternative layout's left pane. */
+        function list(wide) {
+          const cards = visibleLive();
+          const order = listOrder().map((c) => c.key);
+          const rovingKey =
+            state.selected && order.includes(state.selected)
+              ? state.selected
+              : order[0];
+          function row(c) {
+            const current = c.key === state.selected;
+            const r = reason(c);
+            return h(
+              "li",
+              null,
+              h(
+                "button",
+                {
+                  type: "button",
+                  "data-card": "",
+                  "data-key": c.key,
+                  "data-done-item": c.column === "done" ? "" : null,
+                  "aria-current": current ? "true" : null,
+                  tabindex: c.key === rovingKey ? "0" : "-1",
+                  class:
+                    "flex w-full min-w-0 flex-col rounded-md px-2 py-1 text-left text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
+                    (current
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-accent/40"),
+                  onclick: () => open(c.key),
+                  onkeydown: (e) => {
+                    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+                    e.preventDefault();
+                    const i =
+                      order.indexOf(c.key) + (e.key === "ArrowDown" ? 1 : -1);
+                    if (i >= 0 && i < order.length) open(order[i]);
+                  },
+                },
+                h(
+                  "span",
+                  { class: "flex w-full min-w-0 items-baseline gap-2" },
+                  h(
+                    "span",
+                    { class: "w-12 shrink-0 font-mono text-muted-foreground" },
+                    c.id,
+                  ),
+                  h("span", { class: "min-w-0 flex-1 truncate" }, c.title),
+                  !wide &&
+                    r &&
+                    h("span", {
+                      class:
+                        "h-1.5 w-1.5 shrink-0 self-center rounded-full " +
+                        (c.unreadable ? "bg-rose-400" : "bg-amber-400"),
+                      "aria-hidden": "true",
+                    }),
+                  !wide && r && h("span", { class: "sr-only" }, ", " + r.text),
+                ),
+                wide &&
+                  h(
+                    "span",
+                    { class: "flex min-w-0 gap-2 pl-14 text-muted-foreground" },
+                    meta(c) &&
+                      h("span", { class: "min-w-0 truncate" }, meta(c)),
+                    r &&
+                      h(
+                        "span",
+                        {
+                          class:
+                            "shrink-0 whitespace-nowrap font-medium " + r.tone,
+                        },
+                        r.text,
+                      ),
+                  ),
+              ),
+            );
+          }
+          /** The wide list's second line: what the group heading doesn't say. */
+          function meta(c) {
+            return c.column === "done"
+              ? "merged " + c.merged + ", PR #" + c.pr
+              : [
+                  c.column === "draft" || c.column === "ready"
+                    ? c.status
+                    : null,
+                  c.heldBy ? "held by " + c.heldBy : null,
+                ]
+                  .filter(Boolean)
+                  .join(", ");
+          }
+          function group(id, label, count, items) {
+            return h(
+              "section",
+              { "aria-labelledby": "list-" + id, class: "space-y-0.5" },
+              h(
+                "h3",
+                {
+                  id: "list-" + id,
+                  "data-stage": id,
+                  class:
+                    "flex items-center justify-between gap-2 px-2 pt-2 text-xs font-semibold",
+                },
+                label,
+                count,
+              ),
+              items.length
+                ? h("ul", { class: "space-y-0.5" }, items.map(row))
+                : null,
+            );
+          }
+          return h(
+            "nav",
+            {
+              "aria-label": "Cards",
+              "data-list": "",
+              class:
+                "min-h-0 space-y-1 overflow-y-auto rounded-lg border border-border/60 bg-background/40 p-1",
+            },
+            !state.needsMe &&
+              h(
+                "p",
+                {
+                  class: "flex justify-between px-2 pt-2 text-xs font-semibold",
+                },
+                "Next up",
+                h(
+                  "span",
+                  { class: "font-normal tabular-nums text-muted-foreground" },
+                  String(nextUp.length),
+                ),
+              ),
+            GROUPS.map((g) =>
+              group(
+                g.id,
+                g.label,
+                load(inGroup(live, g).length, g.limit),
+                inGroup(cards, g),
+              ),
+            ),
+            !state.needsMe &&
+              group(
+                "done",
+                "Done",
+                h(
+                  "span",
+                  { class: "flex gap-2 font-normal text-muted-foreground" },
+                  h("span", { class: "tabular-nums" }, String(done.length)),
+                  h(
+                    "a",
+                    {
+                      href: "#history",
+                      class:
+                        "rounded text-sky-400 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      onclick: (e) => e.preventDefault(),
+                    },
+                    "History",
+                  ),
+                ),
+                visibleDone(),
+              ),
+          );
+        }
+
+        function field(label, value, wide) {
+          return [
+            h("dt", { class: "text-muted-foreground" }, label),
+            h(
+              "dd",
+              { class: "min-w-0 break-words" + (wide ? " col-span-3" : "") },
+              value,
+            ),
+          ];
+        }
+
+        function bullets(items, none) {
+          return items.length
+            ? h(
+                "ul",
+                { class: "list-disc space-y-0.5 pl-5 text-xs" },
+                items.map((s) => h("li", { class: "break-words" }, s)),
+              )
+            : h("p", { class: "text-xs text-muted-foreground" }, none);
+        }
+
+        const STATE_CLASS = {
+          ticked: "border-emerald-500/50 text-emerald-300",
+          unticked: "border-border text-muted-foreground",
+          untested: "border-amber-500/50 text-amber-300",
+        };
+        const STATE_LABEL = {
+          ticked: "ticked",
+          unticked: "unticked",
+          untested: "UNTESTED",
+        };
+
+        function part(title, body) {
+          return h(
+            "section",
+            { class: "space-y-1.5" },
+            h("h4", { class: "text-xs font-semibold" }, title),
+            body,
+          );
+        }
+
+        function cardPanel(c) {
+          if (c.unreadable)
+            return h(
+              "p",
+              { class: "text-xs text-muted-foreground" },
+              "Nothing to show until the card can be read.",
+            );
+          return h(
+            "div",
+            { class: "space-y-4" },
+            h(
+              "dl",
+              { class: "grid grid-cols-[6rem_1fr] gap-x-3 gap-y-1 text-xs" },
+              h("dt", { class: "text-muted-foreground" }, "Why"),
+              h("dd", null, c.why),
+              h("dt", { class: "text-muted-foreground" }, "Source"),
+              h("dd", null, c.source + (c.gate ? ", gate: " + c.gate : "")),
+            ),
+            part(
+              "Criteria",
+              h(
+                "ul",
+                { class: "space-y-1.5" },
+                c.criteria.map((k) =>
+                  h(
+                    "li",
+                    { class: "flex items-start gap-2 text-xs" },
+                    h(
+                      "span",
+                      {
+                        class:
+                          "shrink-0 rounded border px-1.5 py-0.5 text-[11px] " +
+                          STATE_CLASS[k.state],
+                      },
+                      STATE_LABEL[k.state],
+                    ),
+                    h(
+                      "span",
+                      { class: "min-w-0 flex-1 break-words" },
+                      h(
+                        "span",
+                        { class: "font-mono text-muted-foreground" },
+                        k.id,
+                      ),
+                      " " + k.text,
+                      h(
+                        "span",
+                        { class: "block text-muted-foreground" },
+                        "check: ",
+                        h("code", null, k.check),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            h(
+              "div",
+              { class: "grid grid-cols-3 gap-3" },
+              part("Files in scope", bullets(c.filesInScope, "None listed.")),
+              part("Out of scope", bullets(c.outOfScope, "None listed.")),
+              part("Constraints", bullets(c.constraints, "None listed.")),
+            ),
+            part("Skills", bullets(c.skills, "No skills named.")),
+            part("Decisions", bullets(c.decisions, "No decisions yet.")),
+          );
+        }
+
+        function evidencePanel(c) {
+          return c.unreadable || !c.evidence
+            ? h(
+                "p",
+                { class: "text-xs text-muted-foreground" },
+                "No evidence written yet.",
+              )
+            : h(
+                "pre",
+                {
+                  class:
+                    "overflow-auto whitespace-pre-wrap rounded-md bg-background/60 p-3 text-xs",
+                },
+                c.evidence,
+              );
+        }
+
+        function commitsPanel(c) {
+          return h(
+            "div",
+            { class: "space-y-2" },
+            h(
+              "p",
+              { class: "text-xs text-muted-foreground" },
+              c.column === "done"
+                ? "That touched its file."
+                : "On its branch, not on the default branch.",
+            ),
+            h(
+              "ol",
+              { class: "space-y-1 text-xs" },
+              c.commits.map((k) =>
+                h(
+                  "li",
+                  { class: "flex gap-3" },
+                  h(
+                    "span",
+                    {
+                      class: "w-28 shrink-0 tabular-nums text-muted-foreground",
+                    },
+                    k.at,
+                  ),
+                  h(
+                    "span",
+                    { class: "min-w-0 flex-1 break-words" },
+                    k.subject,
+                    h(
+                      "span",
+                      { class: "ml-1 text-muted-foreground" },
+                      "(" + k.author + ")",
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        const TABS = [
+          { id: "card", label: "Card", panel: cardPanel },
+          { id: "evidence", label: "Evidence", panel: evidencePanel },
+          { id: "commits", label: "Commits", panel: commitsPanel },
+        ];
+
+        function tabKeys(e) {
+          const i = TABS.findIndex((t) => t.id === state.tab);
+          let next = i;
+          if (e.key === "ArrowRight") next = (i + 1) % TABS.length;
+          else if (e.key === "ArrowLeft")
+            next = (i - 1 + TABS.length) % TABS.length;
+          else if (e.key === "Home") next = 0;
+          else if (e.key === "End") next = TABS.length - 1;
+          else return;
+          e.preventDefault();
+          state.tab = TABS[next].id;
+          state.focusTab = true;
+          render();
+        }
+
+        /** What waits on the owner, pinned above the tabs. */
+        function pinned(c) {
+          if (c.unreadable)
+            return h(
+              "section",
+              {
+                role: "note",
+                "aria-label": "Can't be read",
+                class:
+                  "rounded-md border border-rose-500/50 bg-rose-500/10 p-3 text-xs",
+              },
+              h(
+                "p",
+                {
+                  class:
+                    "flex items-center gap-1.5 text-sm font-semibold text-rose-300",
+                },
+                icon("circle-alert", "h-4 w-4"),
+                "CARD.md can't be read",
+              ),
+              h(
+                "p",
+                { class: "mt-1" },
+                "The CARD.md on " +
+                  c.branch +
+                  " isn't in the card template's layout. Fix it on the branch and the board reads it again.",
+              ),
+            );
+          if (awaitsApproval(c))
+            return h(
+              "section",
+              {
+                role: "note",
+                "aria-label": "Needs your approval",
+                class:
+                  "rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs",
+              },
+              h(
+                "p",
+                { class: "text-sm font-semibold text-amber-300" },
+                "Needs your approval",
+              ),
+              h(
+                "p",
+                { class: "mt-1" },
+                "Its gate is \u201cneeds you\u201d: it stays a draft until you mark it ready.",
+              ),
+            );
+          const qs = openQuestions(c);
+          if (!qs.length) return null;
+          return h(
+            "section",
+            {
+              "aria-labelledby": "open-questions",
+              "data-questions": String(qs.length),
+              class:
+                "rounded-md border border-amber-500/50 bg-amber-500/10 p-3",
+            },
+            h(
+              "h4",
+              {
+                id: "open-questions",
+                class: "text-sm font-semibold text-amber-300",
+              },
+              qs.length === 1
+                ? "1 open question"
+                : qs.length + " open questions",
+            ),
+            h(
+              "ol",
+              { class: "mt-1.5 list-decimal space-y-1 pl-5 text-sm" },
+              qs.map((q) => h("li", null, q.text)),
+            ),
+            h(
+              "p",
+              { class: "mt-2 text-xs text-muted-foreground" },
+              "Answered under \u201cQuestions for me\u201d in the card; it stays blocked until then.",
+            ),
+          );
+        }
+
+        function record(c) {
+          const tab = TABS.find((t) => t.id === state.tab);
+          return h(
+            "article",
+            {
+              "aria-labelledby": "record-title",
+              "data-record": c.key,
+              class:
+                "flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+            },
+            h(
+              "header",
+              { class: "shrink-0 space-y-2 border-b border-border p-4" },
+              h(
+                "h3",
+                { id: "record-title", class: "text-base font-semibold" },
+                h(
+                  "span",
+                  { class: "font-mono text-sm text-muted-foreground" },
+                  c.id,
+                ),
+                " " + c.title,
+              ),
+              h(
+                "dl",
+                {
+                  class:
+                    "grid grid-cols-[4.5rem_1fr_4.5rem_1fr] gap-x-3 gap-y-1 text-xs",
+                },
+                field("Status", c.status),
+                field("Held by", c.heldBy || "nobody"),
+                field(
+                  "PR",
+                  c.pr
+                    ? "#" +
+                        c.pr +
+                        (c.column === "done"
+                          ? ", merged"
+                          : c.column === "pr"
+                            ? ", waiting to merge"
+                            : ", draft")
+                    : "none",
+                ),
+                field("Branch", c.branch || "cards/done/"),
+                c.nextStep ? field("Next step", c.nextStep, true) : null,
+              ),
+            ),
+            h(
+              "div",
+              { class: "min-h-0 flex-1 space-y-4 overflow-y-auto p-4" },
+              pinned(c),
+              h(
+                "div",
+                {
+                  role: "tablist",
+                  "aria-label": c.id + " record",
+                  class: "flex gap-4 border-b border-border text-sm",
+                  onkeydown: tabKeys,
+                },
+                TABS.map((t) =>
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      role: "tab",
+                      id: "record-tab-" + t.id,
+                      "aria-selected": String(t.id === state.tab),
+                      "aria-controls": "record-panel",
+                      tabindex: t.id === state.tab ? "0" : "-1",
+                      class:
+                        "-mb-px rounded-t-sm border-b-2 px-1 pb-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
+                        (t.id === state.tab
+                          ? "border-sky-500 text-foreground"
+                          : "border-transparent text-muted-foreground hover:text-foreground"),
+                      onclick: () => {
+                        state.tab = t.id;
+                        state.focusTab = true;
+                        render();
+                      },
+                    },
+                    t.label,
+                  ),
+                ),
+              ),
+              h(
+                "div",
+                {
+                  role: "tabpanel",
+                  id: "record-panel",
+                  "aria-labelledby": "record-tab-" + tab.id,
+                  tabindex: "0",
+                  class:
+                    "rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                },
+                tab.panel(c),
+              ),
+            ),
+          );
+        }
+
+        function pickACard() {
+          return h(
+            "div",
+            {
+              "data-record": "",
+              class:
+                "flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border p-6 text-center",
+            },
+            h("p", { class: "text-sm font-medium" }, "Pick a card"),
+            h(
+              "p",
+              { class: "max-w-xs text-xs text-muted-foreground" },
+              "Its record opens here. Up and Down step through the cards; Escape closes it.",
+            ),
+          );
+        }
+
+        function split() {
+          const c = state.selected ? byKey[state.selected] : null;
+          return h(
+            "div",
+            {
+              "data-view": layout === "list" ? "list" : "split",
+              class:
+                "grid gap-4 " +
+                (layout === "list"
+                  ? "grid-cols-[18rem_1fr]"
+                  : "grid-cols-[14.5rem_1fr]"),
+            },
+            list(layout === "list"),
+            c ? record(c) : pickACard(),
+          );
+        }
+
+        // --- Render -----------------------------------------------------------
+
+        const root = document.getElementById("tasks");
+
+        function fitHeight() {
+          const view = root.firstChild;
+          if (!view || view.getAttribute("data-view") === "board") return;
+          const top =
+            view.getBoundingClientRect().top +
+            document.querySelector("main").scrollTop;
+          view.style.height =
+            Math.max(320, Math.floor(window.innerHeight - top - 25)) + "px";
+        }
+
+        function render() {
+          const pressed = state.needsMe;
+          const filter = document.getElementById("needs-me");
+          filter.setAttribute("aria-pressed", String(pressed));
+          filter.classList.toggle("bg-primary", pressed);
+          filter.classList.toggle("text-primary-foreground", pressed);
+          filter.classList.toggle("border-transparent", pressed);
+          // Pressed, it hovers as the shell's default button does.
+          filter.classList.toggle("hover:bg-primary/90", pressed);
+          filter.classList.toggle("hover:bg-accent", !pressed);
+          filter.classList.toggle("hover:text-accent-foreground", !pressed);
+          const badge = document.getElementById("needs-me-count");
+          badge.className = pressed
+            ? "rounded-full bg-primary-foreground/20 px-1.5 tabular-nums text-primary-foreground"
+            : "rounded-full bg-amber-500/20 px-1.5 tabular-nums text-amber-300";
+
+          document.getElementById("tasks-lede").textContent =
+            layout === "list"
+              ? "Every card by stage, against the line's limits, beside the one you pick. This view only reads."
+              : "Every card where it stands, against the line's limits. Pick one to read it; Escape brings the board back. This view only reads.";
+
+          const view =
+            layout === "board" && !state.selected ? board() : split();
+          root.replaceChildren(view);
+          fitHeight();
+
+          if (state.focusTab) {
+            state.focusTab = false;
+            const t = root.querySelector('[role="tab"][aria-selected="true"]');
+            if (t) t.focus();
+          } else if (state.focusKey) {
+            const k = state.focusKey;
+            state.focusKey = null;
+            const el =
+              k === "rail:next"
+                ? root.querySelector('[data-rail="next"]')
+                : root.querySelector('[data-card][data-key="' + k + '"]');
+            if (el) {
+              if (el.closest("[data-board]")) {
+                root
+                  .querySelectorAll("[data-board] [data-card]")
+                  .forEach((b) =>
+                    b.setAttribute("tabindex", b === el ? "0" : "-1"),
+                  );
+              }
+              el.focus();
+            }
+          }
+        }
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Escape" || !state.selected) return;
+          e.preventDefault();
+          close();
+        });
+        document.getElementById("needs-me").addEventListener("click", () => {
+          state.needsMe = !state.needsMe;
+          render();
+        });
+        window.addEventListener("resize", fitHeight);
+
+        const waiting = live.filter(needsMe).length;
+        document.getElementById("needs-me-count").textContent = String(waiting);
+        const repoBadge = document.getElementById("repo-badge");
+        repoBadge.append(
+          String(waiting),
+          h("span", { class: "sr-only" }, " waiting on you"),
+        );
+        document.querySelectorAll("[data-icon]").forEach((slot) => {
+          slot.replaceWith(icon(slot.getAttribute("data-icon")));
+        });
+
+        if (
+          !getComputedStyle(document.documentElement)
+            .getPropertyValue("--background")
+            .trim()
+        )
+          document.getElementById("no-css").hidden = false;
+
+        render();
+      })();
+    </script>
+  </body>
+</html>

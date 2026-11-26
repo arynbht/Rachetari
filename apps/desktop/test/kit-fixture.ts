@@ -4,7 +4,14 @@
 // card/* branches — checked out, local only, on the origin only, unreadable, and
 // one pushed to the origin after the clone, which only a fetch brings in.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -17,7 +24,69 @@ export interface KitFixture {
   pushToOrigin(id: string, card: string): void;
   /** Commit a file to the origin's main (seen after a fetch). */
   commitOnOrigin(path: string, text: string): void;
+  /**
+   * Commit a file to `develop`: the clone's local branch (made from
+   * origin/develop when there is one, else from main, and left checked out as
+   * it was) or the origin's (made from main; seen after a fetch).
+   */
+  commitOnDevelop(where: "local" | "origin", path: string, text: string): void;
+  /**
+   * Name a file of pids (whitespace-separated, appended to by processes the
+   * test starts): `remove()` waits for them to exit before removing anything.
+   */
+  trackPids(file: string): void;
   remove(): void;
+}
+
+/** Block this thread for `ms` without spinning. */
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function alive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    // EPERM: it exists, but is not ours to signal.
+    return (e as NodeJS.ErrnoException).code === "EPERM";
+  }
+}
+
+/** Wait up to `limitMs` for every pid listed in `files` to exit. */
+function waitForPids(files: string[], limitMs: number): void {
+  const deadline = Date.now() + limitMs;
+  for (;;) {
+    const pids = files
+      .filter((f) => existsSync(f))
+      .flatMap((f) => readFileSync(f, "utf8").split(/\s+/))
+      .map(Number)
+      .filter((n) => Number.isInteger(n) && n > 0);
+    if (!pids.some(alive) || Date.now() >= deadline) return;
+    sleepSync(50);
+  }
+}
+
+/** rmSync, retrying EBUSY and EPERM (a killed process can hold its folder). */
+function removeRetrying(path: string, limitMs = 5_000): void {
+  const deadline = Date.now() + limitMs;
+  let delay = 20;
+  for (;;) {
+    try {
+      rmSync(path, { recursive: true, force: true });
+      return;
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code;
+      if (code !== "EBUSY" && code !== "EPERM") throw e;
+      if (Date.now() >= deadline)
+        throw new Error(
+          `could not remove ${path} after ${limitMs} ms (${code}): ${(e as Error).message}`,
+          { cause: e },
+        );
+      sleepSync(delay);
+      delay = Math.min(delay * 2, 500);
+    }
+  }
 }
 
 export interface CardSpec {
@@ -28,6 +97,8 @@ export interface CardSpec {
   nextStep?: string;
   question?: string;
   pr?: number;
+  /** The Created line's `Gate:` value, e.g. "needs you"; none when unset. */
+  gate?: string;
   /** One criterion per entry: [text, state]. */
   criteria?: [string, "ticked" | "unticked" | "untested"][];
 }
@@ -46,7 +117,9 @@ export function cardText(spec: CardSpec): string {
     "",
     `Status: ${spec.status} <!-- draft | ready | in progress | blocked | done -->`,
     `Branch: card/${spec.id} · Held by: ${spec.heldBy ?? "nobody"}`,
-    `Created: 2026-11-20 · Source: prompt`,
+    `Created: 2026-11-20 · Source: prompt${
+      spec.gate === undefined ? "" : ` · Gate: ${spec.gate}`
+    }`,
     "",
     "## Why",
     "",
@@ -205,6 +278,7 @@ export function kitFixture(): KitFixture {
   const root = mkdtempSync(join(tmpdir(), "rachetari-kit-"));
   const origin = join(root, "origin");
   const repo = join(root, "repo");
+  const pidFiles: string[] = [];
   mkdirSync(origin);
 
   initRepo(origin);
@@ -250,7 +324,12 @@ export function kitFixture(): KitFixture {
   write(
     repo,
     "CARD.md",
-    cardText({ id: "T-0004", title: "feat: dark mode", status: "draft" }),
+    cardText({
+      id: "T-0004",
+      title: "feat: dark mode",
+      status: "draft",
+      gate: "needs you",
+    }),
   );
   commitAll(repo, "chore(card): T-0004");
 
@@ -294,8 +373,40 @@ export function kitFixture(): KitFixture {
       write(origin, path, text);
       commitAll(origin, `docs: update ${path}`);
     },
+    commitOnDevelop(where, path, text) {
+      const cwd = where === "local" ? repo : origin;
+      const back = git(cwd, "rev-parse", "--abbrev-ref", "HEAD").trim();
+      const has = (ref: string) => {
+        try {
+          git(cwd, "rev-parse", "--verify", "--quiet", ref);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      if (has("refs/heads/develop")) git(cwd, "checkout", "-q", "develop");
+      else
+        git(
+          cwd,
+          "checkout",
+          "-q",
+          "--no-track",
+          "-b",
+          "develop",
+          where === "local" && has("refs/remotes/origin/develop")
+            ? "origin/develop"
+            : "main",
+        );
+      write(cwd, path, text);
+      commitAll(cwd, `docs: update ${path} on develop`);
+      git(cwd, "checkout", "-q", back);
+    },
+    trackPids(file) {
+      pidFiles.push(file);
+    },
     remove() {
-      rmSync(root, { recursive: true, force: true });
+      waitForPids(pidFiles, 5_000);
+      removeRetrying(root);
     },
   };
 }

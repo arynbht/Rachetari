@@ -41,7 +41,7 @@ export function Settings({
 
   useEffect(() => {
     let active = true;
-    window.rivetari.settings.load().then(
+    window.rachetari.settings.load().then(
       (v) => active && setView(v),
       (err: unknown) => active && setError(errorMessage(err)),
     );
@@ -51,11 +51,11 @@ export function Settings({
   }, []);
 
   async function patch(
-    changes: Parameters<typeof window.rivetari.settings.save>[0],
+    changes: Parameters<typeof window.rachetari.settings.save>[0],
   ): Promise<void> {
     setError(null);
     try {
-      setView(await window.rivetari.settings.save(changes));
+      setView(await window.rachetari.settings.save(changes));
     } catch (err) {
       setError(errorMessage(err));
     }

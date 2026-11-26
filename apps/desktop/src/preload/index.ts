@@ -7,6 +7,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import {
   ChecklistRequest,
   ChecklistView,
+  CiState,
   DocContent,
   DocList,
   DocsListRequest,
@@ -18,6 +19,15 @@ import {
   IpcChannel,
   MapBlocked,
   MapGetRequest,
+  AnswerApplyRequest,
+  AnswerPreview,
+  AnswerPreviewRequest,
+  AnswerResult,
+  type AnswerSpec,
+  MarkReadyApplyRequest,
+  MarkReadyPreview,
+  MarkReadyPreviewRequest,
+  MarkReadyResult,
   MapView,
   HomeView,
   NowBadges,
@@ -32,6 +42,7 @@ import {
   RepoRemoveRequest,
   SettingsSaveRequest,
   SettingsView,
+  ShellStatus,
   TaskDetail,
   TaskDetailRequest,
   TasksRequest,
@@ -214,6 +225,46 @@ const api = {
     },
   },
 
+  card: {
+    /** The diff mark ready would commit, or why it can't; writes nothing. */
+    async markReadyPreview(repoPath: string, branch: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardMarkReadyPreview,
+        MarkReadyPreviewRequest.parse({ repoPath, branch }),
+      );
+      return MarkReadyPreview.parse(raw);
+    },
+    /** Commit and push the diff the person was shown, or refuse and say why. */
+    async markReadyApply(repoPath: string, branch: string, diff: string) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardMarkReadyApply,
+        MarkReadyApplyRequest.parse({ repoPath, branch, diff }),
+      );
+      return MarkReadyResult.parse(raw);
+    },
+    /** The diff an answer would commit, or why it can't; writes nothing. */
+    async answerPreview(repoPath: string, branch: string, answer: AnswerSpec) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardAnswerPreview,
+        AnswerPreviewRequest.parse({ repoPath, branch, answer }),
+      );
+      return AnswerPreview.parse(raw);
+    },
+    /** Commit and push the answer's diff the person was shown, or refuse and say why. */
+    async answerApply(
+      repoPath: string,
+      branch: string,
+      answer: AnswerSpec,
+      diff: string,
+    ) {
+      const raw: unknown = await ipcRenderer.invoke(
+        IpcChannel.CardAnswerApply,
+        AnswerApplyRequest.parse({ repoPath, branch, answer, diff }),
+      );
+      return AnswerResult.parse(raw);
+    },
+  },
+
   map: {
     /** The repo's floorplan map (or why there's none); fences the map's session to it. */
     async get(repoPath: string) {
@@ -236,6 +287,46 @@ const api = {
     },
   },
 
+  shell: {
+    /** The header's status: the live shell's commit, and the repo on show's fetch. */
+    async status() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.ShellStatus);
+      return ShellStatus.parse(raw);
+    },
+    /** Hears the status after every change; returns an unsubscribe fn. */
+    onStatus(callback: (status: ShellStatus) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = ShellStatus.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.ShellStatusUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.ShellStatusUpdate, listener);
+      };
+    },
+  },
+
+  ci: {
+    /** The repo on show's CI, read through gh; null before its first read. */
+    async state() {
+      const raw: unknown = await ipcRenderer.invoke(IpcChannel.CiState);
+      return CiState.parse(raw);
+    },
+    /** Hears the repo on show's CI after each read; returns an unsubscribe fn. */
+    onState(callback: (state: CiState) => void) {
+      const listener = (_event: unknown, payload: unknown): void => {
+        // A malformed push is dropped rather than thrown into the IPC event loop.
+        const parsed = CiState.safeParse(payload);
+        if (parsed.success) callback(parsed.data);
+      };
+      ipcRenderer.on(IpcChannel.CiStateUpdate, listener);
+      return () => {
+        ipcRenderer.removeListener(IpcChannel.CiStateUpdate, listener);
+      };
+    },
+  },
+
   settings: {
     /** The personal settings. */
     async load() {
@@ -253,7 +344,7 @@ const api = {
   },
 };
 
-/** The shape exposed as `window.rivetari` in the renderer. */
-export type RivetariApi = typeof api;
+/** The shape exposed as `window.rachetari` in the renderer. */
+export type RachetariApi = typeof api;
 
-contextBridge.exposeInMainWorld("rivetari", api);
+contextBridge.exposeInMainWorld("rachetari", api);

@@ -6,19 +6,14 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-1. PR review transplanted: `review --pr` posts COMMENT or REQUEST_CHANGES, never APPROVE, with its tests (T-0004) · from build prompt phase 2
-2. Area skills: the clean, permissively licensed ones into `skills/` with `skills/INDEX.md` · from build prompt phase 3
-3. Shell frame: window, sidebar, fence, tab bar, theme · from build prompt phase 4.1
-4. Shell file source with unit tests on a fixture repo · from build prompt phase 4.2
-5. Shell Now view · from build prompt phase 4.3
-6. Shell Tasks view · from build prompt phase 4.4
-7. Shell Checklist view · from build prompt phase 4.5
-8. Shell History and Docs · from build prompt phase 4.6
-9. Shell Map · from build prompt phase 4.7
-10. Shell Home, badges and notifications · from build prompt phase 4.8
-11. Hand-over: run `/setup`, `/card`, `/park`, `/done`, `/handoff` once on a scratch repo · from build prompt phase 5
-12. Set a coverage floor once the review tests land · from checklist "coverage floor"
-13. Require `ci` on main (repo setting, owner only) · from checklist "ci required on main"
+4. Kit: an installer and a machine version stamp (T-0067, part 1; needs you, see docs/open-questions.md)
+5. Kit: the templates stop naming Rivetari (`CLAUDE-section.md` lines 1 and 29, `skills/park/SKILL.md` line 10, `sections.md` line 3, `comment-report.test.ts` line 43's fixture) (low; T-0067 part 2)
+6. Kit: `/setup` stamps each repo with the kit version it installed, and an update mode proposes the diff to a newer kit as a reviewable branch (T-0067 part 3)
+7. Kit: `/setup`'s gaps from the breathband-console pilot: its branch name and never-push rule vs a draft PR; private free-plan repos where branch-protection APIs return 403; a kept `@AGENTS.md` carrying a contradicting contract; writing `.claude/` headless (T-0067 part 4)
+8. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+9. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+10. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -57,45 +52,151 @@ Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file
 - 2026-11-25 [tool] `/setup`'s "DESIGN.md if there is UI" reads two ways: one run wrote a no-UI DESIGN.md, the other skipped it · seen on T-0015 · `kit/setup/SKILL.md`
 - 2026-11-25 [tool] `/done` says to set `blocked` on any failure, but CLAUDE.md says to stop on a draft card; on a draft the trial session kept `draft` and wrote no evidence · seen on T-0015 · `kit/setup/templates/skills/done/SKILL.md`
 - 2026-11-25 [tool] `/park` doesn't say whether to commit the line; it stays uncommitted until something else commits it · seen on T-0015 · `kit/setup/templates/skills/park/SKILL.md`
+- 2026-11-25 [tool] A test that drives real git hung once on Windows CI: `source.test.ts › only sees a card pushed from another machine after a fetch` hit 30 s on PR #30 (run 45663184235, attempt 1) but takes 515–656 ms locally (20 runs) and 961 ms on the CI re-run; vitest reported the timeout, so the wait was in an async git call (`readLiveCards` or `fetchRepo`, which runs `git fetch --all --prune` with no timeout of its own) · seen on T-0016 · `apps/desktop/src/main/kit/source.ts`
+- 2026-11-25 [checklist] The checklist's "`ci` is required before a merge to main" line still reads failing (404), but `ci` has been required since today; `/setup` hasn't been re-run · seen on T-0016 · `gh api repos/arynbht/Rachetari/branches/main/protection`
+- 2026-11-25 [tool] `/setup` on the default branch creates `chore/kit-setup`, with no rule for a re-run when that branch already exists · seen on T-0017 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] Deleting a "Next up" line makes prettier renumber every line below it, so two cards closing at once both rewrite those lines in BACKLOG.md · seen on T-0017 · `BACKLOG.md`
+- 2026-11-25 [product] A draft with no `Gate:` line raises nothing in Needs you; the kit's `/card` and `cards/TEMPLATE.md` don't write a gate yet · seen on T-0019 · `kit/setup/templates/CARD.md`
+- 2026-11-25 [tool] `BACKLOG.md merge=union` suits the append-only Parked list but stacks an ordered, renumbered list like Next up; Next up may need its own file · seen on T-0017 · `.gitattributes`
+- 2026-11-25 [product] Needs you runs several questions for one card together on one line; each question should be its own row · seen on the line · `apps/desktop/src/main/engine/now.ts`
+- 2026-11-25 [product] The Docs viewer's ☑ draws as a colour emoji on Windows (Segoe UI Emoji picks it up), while ☐ stays a plain text glyph, so ticked and unticked boxes differ in size and colour; a U+FE0E text selector or a font choice would even them · seen on T-0020 · `apps/desktop/src/renderer/lib/markdown.ts`
+- 2026-11-25 [tool] `skills/INDEX.md`'s "Used on a real task" column cites Rivetari's card ids (`animate`: "routed on T-0026, abandoned before build"), which collide with this repo's own ids · seen on T-0026 · `skills/INDEX.md`
+- 2026-11-25 [product] An empty `Gate:` (no value) parses as null and raises nothing, though a gate line is written; it arguably should ask, like any gate that is not `low` · seen on T-0019 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `playwright-cli` suggests an unpinned global install, `npm install -g @playwright/cli@latest`, when the CLI is missing; a pinned version installed ahead of time would keep runs reproducible · seen on T-0022 · `skills/testing/playwright-cli/SKILL.md:415`
+- 2026-11-25 [product] `playwright-cli` bootstraps a missing Playwright install with the unpinned scaffolder `npm init playwright@latest` · seen on T-0022 · `skills/testing/playwright-cli/references/test-generation.md:159`
+- 2026-11-25 [tool] GitHub ignores `BACKLOG.md merge=union`, so a card PR whose Parked lines meet the day branch's shows CONFLICTING though `git merge-tree` and the foreman's local merge are clean (PR #37) · seen on the line · `.gitattributes`
+- 2026-11-25 [tool] `/setup`'s "Different file: write the kit's version beside it as `name.kit.md`" rule has no form for a file that isn't Markdown, such as `done/comment-report.mjs` after T-0025 · seen on T-0027 drafting · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] `rmSync`'s `maxRetries` didn't retry EBUSY on Node 22.23 / Windows, and `kitFixture().remove()` has no wait, so a fixture that a cut-off git process still runs in can't be removed right away · seen on T-0024 · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- <file>` passes `--` on to playwright, which then runs the whole e2e suite, not just `<file>` · seen on T-0024 · `apps/desktop/package.json`
+- 2026-11-25 [product] The engine's `killTree` signals only the direct child on POSIX (its header says it kills "the call's whole process tree"), so a timed-out `claude` call's own children outlive it there; a detached spawn and `process.kill(-pid)` would take the group, as T-0024 does for git · seen on T-0024 · `packages/engine/src/ai/call-limit.ts:131`
+- 2026-11-25 [product] The parser reads only a question's first line, so a question written over several lines (T-0020's numbered options) loses its options in Needs you and the Questions panel · seen on T-0026 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `- [ ] None.` (T-0017) is read as an open question; only `(none)` and `<…>` are skipped as placeholders · seen on T-0026 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] The salvaged fence test's "climbed" path (`join(repo, "..", basename(other))`) no longer reaches the real other folder under `kitFixture`'s layout, so a fence that refused any missing path would also pass; `join(repo, relative(repo, other))` would restore it · seen on T-0021 inspection · `apps/desktop/e2e/registered-repos.e2e.ts:108`
+- 2026-11-25 [product] `vitest.config.ts`'s comment above `include` still says it discovers tests "across all workspace packages", but `kit/**/*.test.ts` isn't a package; the card's scope allowed the `include` line only · seen on T-0023 · `vitest.config.ts:15`
+- 2026-11-25 [product] The line's limits are constants in the shell (`renderer/lib/line.ts`, T-0032); a `line:` block in a repo file, read by the watcher, would let the foreman change them on `develop` without a code change · seen on T-0032 · `apps/desktop/src/main/kit/source.ts`
+- 2026-11-25 [product] `history.ts`'s header comment says done cards and nights are read "on the default branch"; after T-0031 they come from the display branch, and the file is outside its scope · seen on T-0031 drafting · `apps/desktop/src/main/engine/history.ts:1`
+- 2026-11-25 [tool] An installed personal `~/.claude/skills/setup` shadows a repo's own `.claude/skills/setup`, so headless `/setup` in the kit-trial scratch repo ran the old installed copy ($0.98 spent); the trial reran the new one renamed `setup-trial` · seen on T-0029 · `claude -p "/setup"`
+- 2026-11-25 [tool] `scripts/kit-trial.mjs` makes its first scratch commit with `--no-verify` (the scratch repo has no hooks, so it does nothing, but the line rules forbid the flag) · seen on T-0029 · `scripts/kit-trial.mjs:70`
+- 2026-11-25 [tool] `pnpm --filter @arynbht/rivetari-desktop e2e -- questions.e2e.ts` runs the whole e2e suite, not the one file: pnpm passes the `--` on to `playwright test` as an argument; `pnpm --filter … exec playwright test questions.e2e.ts` (after a build) runs one · seen on T-0026 · `apps/desktop/package.json`
+- 2026-11-25 [checklist] `DESIGN.md` still says there is no UI and `apps/desktop` is empty, though the shell has landed; a `/setup` re-run would draft its tokens and components · seen on T-0028 · `DESIGN.md`
+- 2026-11-25 [tool] §The line gives two inspection caps: "Waiting for inspection at most 2" under Limits and "the inspection cap is 3" under Inspection · seen on T-0028 · `docs/queue-2026-11-25.md`
+- 2026-11-25 [tool] `ci-scope.mjs`'s `isDocs` (and `ci.yml`'s `code` filter) count only root `*.md` as docs, so a docs-only card PR that `/done` moves to `cards/done/<id>.md` is scoped to every package · seen on T-0028 · `scripts/ci-scope.mjs:16`
+- 2026-11-25 [tool] `review --pr` hit "request timed out after 600000ms" on PR #43, exited 0 and posted nothing; only the retry posted the review · seen on T-0028 inspection · `packages/cli/src/commands/review.ts`
+- 2026-11-25 [tool] The `CHECKLIST.md` template's `unchecked:` line has no place for the catalog id; the first live run put it after `unchecked:` on all 11 such lines (``- [ ] unchecked: `<id>` <title>``), so a re-run's id lookup has to know that position · seen on T-0033 · `kit/setup/templates/CHECKLIST.md`
+- 2026-11-25 [tool] `/setup` step 4 says to move old checklist lines "as they are" but not whether one that matches a catalog control takes its id: the live run gave 8 of 22 moved lines an id (`quality.tests.pass` on "Tests exist and pass") and left 14 without, and it placed them first in some sections and last in others · seen on T-0033 · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] `/setup` leaves out catalog controls it judges not to apply without writing them down (no ``- n/a: `<id>` `` line), so a re-run has to judge them again and may add them; the template's drop form went unused · seen on T-0033 · `kit/setup/templates/CHECKLIST.md`
+- 2026-11-25 [checklist] "Every shell view passes axe" is marked failed from reading `axe.e2e.ts` (Docs isn't covered) though `/setup` didn't run the test; a failed mark from reading rather than running · seen on T-0033 · `CHECKLIST.md`
+- 2026-11-25 [tool] What `/setup` would have written here, not written (T-0033's scope): `BACKLOG.kit.md`, `.claude/skills/done.kit.md` and `park.kit.md` (both differ from the kit) and the `## Slop` section as `CONSTRAINTS.kit.md`; `CLAUDE.md` already has the section · seen on T-0033 · `claude -p "/setup"`
+- 2026-11-25 [tool] Headless `/setup` under T-0033's permissions was refused three commands: logging checks to `/tmp`, listing `~/.claude/kit-skills/`, and writing `BACKLOG.md.tmp`; it worked around each · seen on T-0033 · `claude -p "/setup"`
+- 2026-11-25 [tool] `call-limit.test.ts › still reports a failed call by its stderr` timed out at 30 s on Windows CI (PR #41, run 45693636977 attempt 1) and passed on the re-run; a third Windows process-test hang today, after the fetch test and r28 · seen on T-0024 · `packages/engine/src/ai/call-limit.test.ts`
+- 2026-11-25 [product] `live-shell.mjs`'s Linux stop path (each child in its own process group, SIGTERM then SIGKILL after 2 s) was only tried on Windows; try Ctrl+C and the window close on Ubuntu · seen on T-0030 · `apps/desktop/scripts/live-shell.mjs`
+- 2026-11-25 [product] `live-shell.mjs`: a hung install, build or test stops the 30 s loop for good with no new status (needs a time limit like the fetch); re-check the live worktree for changes just before the checkout; print the dev-mode warning at start, not only in --help · seen on T-0030 inspection · `apps/desktop/scripts/live-shell.mjs`
+- 2026-11-25 [checklist] Two CHECKLIST.md lines read the repo wrongly: `ux.responsive.breakpoints` says there is no `@media` (index.css:62 has a reduced-motion query) and `a11y.target.stated` says only EXTRACTED.md mentions WCAG (index.css does too); the LF line's check prints `nights/.gitkeep` without `| grep -v i/none` · seen on T-0033 inspection · `CHECKLIST.md`
+- 2026-11-25 [tool] `/setup` edited the check (not the claim) on three of the owner's moved lines; the kit doesn't say whether a re-run may update an owner line's check · seen on T-0033 · `kit/setup/SKILL.md`
+- 2026-11-25 [product] `/done`'s template doesn't say its draft PR targets the integration branch (`develop`); left for after T-0027, which holds the file · seen on T-0037 · `kit/setup/templates/skills/done/SKILL.md`
+- 2026-11-25 [tool] Once T-0037 merges, this repo's `CLAUDE.md` and `.claude/skills/{card,handoff}/SKILL.md` need re-installing from the kit to pick up the integration branch (agent config, needs you) · seen on T-0037 · `kit/setup/templates/`
+- 2026-11-25 [checklist] The Parked line "Nothing requires `ci` before a merge to main" is stale: `main` now requires a PR and `ci`, admins included · seen on T-0037 · `gh api repos/arynbht/Rachetari/branches/main/protection`
+- 2026-11-25 [product] The shell reads the stage and checklist from BACKLOG.md's "Repo checklist", which T-0033 moved to CHECKLIST.md on `develop`; once T-0031 shows `develop`, this repo's Checklist tab says there's no checklist and Now's health has no stage until the shell reads CHECKLIST.md · seen on T-0031 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `history.ts` calls `readDoneCards`, `readNights` and `readNightText` without the display branch, so each resolves it again (three extra git reads; a ref can move between them); pass one branch through · seen on T-0031 inspection · `apps/desktop/src/main/engine/history.ts`
+- 2026-11-25 [tool] In Git Bash, `claude -p "/done …"` reaches Claude as `C:/Program Files/Git/done …` (MSYS path conversion), so the skill isn't invoked as a command; prefix `MSYS_NO_PATHCONV=1` on the `claude` call only (exporting it breaks `git -C /c/…` and `node /c/…` paths) · seen on T-0027 · `scripts/kit-trial.mjs`
+- 2026-11-25 [tool] The kit-trial scratch repo's `lint` script is `node --check src/add.js`, so a trial card's new files are never linted and its `/done` always parks that gap · seen on T-0027 · `scripts/kit-trial.mjs`
+- 2026-11-25 [tool] `/done` step 4 runs `git diff --stat` against the base, which counts uncommitted working-tree files, while step 1 uses `git diff <base>...HEAD`; a dirty file outside scope blocks the card though it isn't on the branch · seen on T-0027 trial · `kit/setup/templates/skills/done/SKILL.md`
+- 2026-11-25 [product] The comment report (`diff.no-new-comments`) misses trailing comments after code, JSX `{/* */}` comments and Python docstrings, and skips `.vue` and `.css` files · seen on T-0025 · `kit/setup/templates/skills/done/comment-report.mjs`
+- 2026-11-25 [product] `comment-report.mjs` passes `${base}...HEAD` to git unguarded, so a base starting with `-` is read as an option (`--output=x` wrote a file); add `--end-of-options` or reject a leading `-` · seen on T-0025 inspection · `kit/setup/templates/skills/done/comment-report.mjs`
+- 2026-11-25 [product] `comment-report.mjs` skips files whose paths git quotes (spaces, non-ASCII) without saying so, and a repo's `diff.srcPrefix`/`mnemonicPrefix` breaks its `b/` strip; pass `-c core.quotePath=false` and `--src-prefix=a/ --dst-prefix=b/`; its temp-repo test should set `commit.gpgsign false` · seen on T-0025 inspection · `kit/setup/templates/skills/done/comment-report.mjs`
+- 2026-11-25 [product] Now's Needs you badge counts a held night row whose card has no live branch (T-0009 in the fixture: 4), while Tasks' Needs me can only show cards (3), so the two counts differ · seen on T-0032 · `apps/desktop/src/main/engine/now.ts`
+- 2026-11-25 [tool] Headless `/setup` hits permission denials on compound Bash commands that write to `/tmp` (build, test, lint batches) and on reading `~/.claude/kit-skills/INDEX.md`, so area skills go unchecked; the run recovered by re-running the checks one by one · seen on T-0039 · the card's `claude -p` allowlist
+- 2026-11-25 [product] `CHECKLIST.md`'s "The kit is installed on each machine" stays `[ ]` (fail) though T-0039's `/setup` didn't re-run its check; a line not re-run should be `[ ] unchecked:` or keep its old result · seen on T-0039 · `kit/setup/SKILL.md` step 4
+- 2026-11-25 [product] `/setup`'s own commit (`chore(kit): set up the direction kit`) carries no `Card:` trailer when run on a card's branch · seen on T-0039 · `kit/setup/SKILL.md` step 7
+- 2026-11-25 [product] `/done`'s deslop step: `git merge-base HEAD <target>` may use a stale local branch (use `origin/<target>`); the revert commit has no conventional message and isn't limited to the reverted files; a deslop commit a hook rejects isn't handled (restore the files, report it) · seen on T-0027 inspection · `kit/setup/templates/skills/done/SKILL.md`
+- 2026-11-25 [tool] A coverage ratchet: raise the floor in `vitest.config.ts` when coverage climbs, as Rivetari's quality.json did · seen on T-0040 (owner) · `vitest.config.ts`
+- 2026-11-25 [product] Tasks board: Escape is handled on the Tasks root, so it does nothing once focus leaves it and catches Escape from inside the record; `needs` items are keyed by `kind` (two held night rows for one card collide); column limits are constants in `lib/line.ts`, not read from settings · seen on T-0032 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
+- 2026-11-25 [kit] The CHECKLIST.md template doesn't fix the catalog id's place on an `unchecked:` line (before or after `unchecked:`); the shell reads both, but the template should say one (after the marker, before `unchecked:`) · seen on T-0034 · `kit/setup/templates/CHECKLIST.md`
+- 2026-11-25 [product] The old BACKLOG.md checklist reader strips a check's backticks only at its ends, so a check mixing prose and code (`` `ls e2e` (none) ``) shows a stray backtick; CHECKLIST.md checks are kept as Markdown and shown with their code spans · seen on T-0034 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] Checklist by section: the Alphabetical toggle looks the same pressed and unpressed (History/Tasks switch the variant on `aria-pressed`); the Stage card shows stageWhy with raw backticks; a section with its own n/a and also lines hides its lines and counts; a check ending in the word "new" is read as the new mark (`parse.ts:354`); the `[kit]` Parked tag isn't in the Format line · seen on T-0034 inspection · `apps/desktop/src/renderer/components/Checklist.tsx`
+- 2026-11-25 [product] `Tasks.tsx` is 1484 lines after T-0035 (about 1400 without blanks and comments), over the max-lines 1250 that T-0043 recommends; the record (`TaskRecord`, its tabs, the pinned questions) could move to a file of its own · seen on T-0035 · `apps/desktop/src/renderer/components/Tasks.tsx`
+- 2026-11-25 [product] The Tasks record's pinned questions show a card's code spans with raw backticks, where Now's Questions panel sets them as code (`Inline` lives in `Now.tsx`, not shared) · seen on T-0035 · `apps/desktop/src/renderer/components/Tasks.tsx`
+- 2026-11-25 [tool] On a loaded Windows CI runner a test hit T-0024's 10 s read limit ("git log timed out after 10 s", PR #56 run 45704718735 attempt 2, test windows 3/3, with "the child never wrote its pid"); the read limit may be too tight for CI, or the test should set a longer one · seen on T-0042 · `apps/desktop/src/main/kit/source.ts`
+- 2026-11-25 [kit] CONSTRAINTS.md Style section lists the ESLint rule sets but not the size limits T-0043 set (`complexity` 20, `max-lines` 500, tests 800 and no complexity limit, named exceptions) · seen on T-0043 · `CONSTRAINTS.md`
+- 2026-11-25 [kit] CHECKLIST.md Stage line (line 3) still names "Complexity and file-length limits are set" among the failing foundation lines; T-0043 ticks it · seen on T-0043 · `CHECKLIST.md`
+- 2026-11-25 [tool] A temporary `.ts` file under `packages/*/src` (T-0043's A3 check) is compiled into `dist/` by any `tsc --build` running meanwhile and stays there after the file is deleted; such checks should sit outside a tsconfig include, or clean `dist/` after · seen on T-0043 · `tsconfig.json`
+- 2026-11-25 [product] A failed fetch now shows twice: App.tsx's on-open "Couldn't fetch this repo" box (an alert, which `fetch-timeout.e2e.ts` asserts) and the header's "fetch failed"; the box could go, with that test moved to the header, and the header could shorten git's stderr to its first `fatal:` line · seen on T-0036 · `apps/desktop/src/renderer/App.tsx`
+- 2026-11-25 [tool] Running several e2e files with one SCREENSHOT_DIR writes every file's screenshots there (display-branch.e2e.ts left `showing-develop.png` in T-0036's folder); a per-file subfolder or a filter would keep a card's folder to its own shots · seen on T-0036 · `apps/desktop/e2e/helpers.ts`
+- 2026-11-25 [product] The Tasks record shows raw backticks in Files in scope and Skills (from the existing `List`), and pinned questions too; render inline code as on Now; the tasks.e2e.ts:303 comment still says "Evidence is collapsed" · seen on T-0035 inspection · `apps/desktop/src/renderer/components/Tasks.tsx`
+- 2026-11-25 [product] `SCOPE.md` still says small questions are "held rather than guessed" (line ~126) and "Night mode has one level: hold when unsure" (~206), which now contradicts the owner's decide-and-log rule at night; `docs/army-mode.md` (~91, ~98) still quotes the old two-session cap and rebase as current; and `SCOPE.md` is prettier-ignored, so its prettier check checks nothing · seen on T-0042 inspection · `SCOPE.md`
 
-## Repo checklist
+- [tool] `desktop-e2e` is not in the `ci` job's needs, so a red desktop e2e still gives a green `ci` on PRs (PR #60, run 45709065400); the line treats desktop-e2e as gating inspection by hand · foreman, 2026-11-25
 
-What must stay true for this repo. It grows as the repo grows; a `[checklist]` line in
-Parked is a proposal to add one. Each line names how to check it.
+- 2026-11-25 [product] Keep the live status cleared after the shell stops and reopens (`index.ts:371`) · inspector, T-0036
 
-Stage: Foundation — decided by "tests exist and pass" (no test files yet) and "`ci` is required on main" (no protection). Every other Foundation line passes.
-Last `/setup`: 2026-11-25, on card/T-0003.
+- 2026-11-25 [product] `Part`'s unused `aside` prop in `tasks/RecordTabs.tsx` (already there before T-0046) · inspector, T-0046
 
-### Foundation
+- 2026-11-25 [tool] `tools` can't narrow Bash per command, so every role can still run `gh pr merge` or push to `develop`; only `permissions.deny` in `.claude/settings.json` can block those, and it applies to the foreman too: an owner decision (answer individually) · seen on T-0049 · `.claude/settings.json`
+- 2026-11-25 [tool] The `Bash(...)` deny rules don't cover the PowerShell tool (the docs say a Bash rule isn't a boundary around the program), so on Windows a session could still run `gh pr merge` through PowerShell; matching `PowerShell(gh pr merge *)` / `PowerShell(gh pr ready *)` denies would close it, an owner decision (answer individually) · seen on T-0049 · `.claude/settings.json`
+- 2026-11-25 [tool] Role files: inspector.md step 1 says `git pull --ff-only`, which fails in a detached worktree (fetch and check out the PR head instead); builder.md's `--base develop` needs "unless in shell chain mode"; builder.md holds the card for "this session" where CLAUDE.md says "this machine" · inspector, T-0049
 
-- [x] It builds · check: `pnpm build`
-- [x] Typecheck is clean · check: `pnpm typecheck`
-- [x] Lint is clean · check: `pnpm lint`
-- [x] Format is clean · check: `pnpm format`
-- [x] Module boundaries hold · check: `pnpm boundaries`
-- [ ] Tests exist and pass · check: `pnpm exec vitest run --coverage.enabled=false` (today: "No test files found", exit 1)
-- [x] CI runs lint, typecheck and tests on every PR, on Ubuntu and Windows · check: `gh pr checks 1`
-- [ ] `ci` is required before a merge to main · check: `gh api repos/arynbht/Rachetari/branches/main/protection` (today: 404, not protected)
-- [x] No secrets in the repo · check: `gitleaks git --redact .` and `gitleaks dir --redact .`
-- [x] Dependencies are locked · check: `pnpm install --frozen-lockfile`
-- [x] LF line endings in every tracked text file · check: `git ls-files --eol | grep -v "i/lf" | grep -v "i/-text"` prints nothing
-- [x] README says how to install it · check: read `README.md`, "Install on a machine"
-- [ ] unchecked: main's full CI (`build-test`) is green on both OSes · check: `gh run list --branch main --workflow CI` (no run yet)
+- 2026-11-25 [debt] The section order (most gaps, then more fails, then A to Z) is written twice: `byGaps` in `Checklist.tsx` and `checklistSections` in `now.ts`; one shared helper would keep them from drifting · seen on T-0041 · `apps/desktop/src/main/engine/now.ts`
+- 2026-11-25 [product] Now's Health strip could show the worst section too, and Home's "Most gaps" fact could open the Checklist tab on that section · seen on T-0041 · `apps/desktop/src/renderer/components/Home.tsx`
+- 2026-11-25 [tool] With local desktop e2e off, a card's screenshot can't be made: CI's desktop-e2e doesn't set `SCREENSHOT_DIR` or upload what it writes; an uploaded artifact would let a card link its shot · seen on T-0041 · `.github/workflows/ci.yml`
 
-### Building
+The checklist is in [CHECKLIST.md](CHECKLIST.md).
 
-- [ ] `review --pr` posts COMMENT or REQUEST_CHANGES and never APPROVE · check: the never-APPROVE test, and one real review on a PR here
-- [x] Every file copied from Rivetari is in `EXTRACTED.md` with its cut · check: compare each verbatim commit's file list with `EXTRACTED.md` (6c4d067: 27 of 27)
-- [ ] Area skills are plain folders with `skills/INDEX.md` · check: `test -f skills/INDEX.md`
-- [ ] The shell's views read only the kit files, through one module · check: the shell's unit tests on a fixture repo
-- [ ] The kit is installed on each machine · check: `diff -r kit/setup ~/.claude/skills/setup` (this machine: pass; the second machine: unchecked)
-
-### Hardening
-
-- [ ] A coverage floor is set and met · check: `pnpm test` with thresholds in `vitest.config.ts`
-- [ ] Every shell view passes axe · check: the shell's axe e2e test
-- [ ] The shell keeps context isolation, sandbox, the CSP and zod on every IPC request and reply · check: the shell's tests
-
-### Live
-
-- n/a: nothing is deployed; the kit and the shell run locally on two machines
+- 2026-11-25 [tool] `ci.yml`'s comment above `build-test` says "Main and nightly", but it also runs on every push to `develop` · seen on T-0047 · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] `docs/queue-2026-11-25.md` §Branches says "`ci` runs on every push to `develop`", but the `ci` job is PR-only; a push runs `build-test` · seen on T-0047 · `docs/queue-2026-11-25.md`
+- 2026-11-25 [tool] `desktop-e2e` isn't in the `ci` job's `needs`, so a red `desktop-e2e` doesn't turn `ci` red · seen on T-0047 · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] A Windows leg that ends `cancelled` rather than `failure` can still turn `ci` red on a PR · seen on T-0047 inspection · `.github/workflows/ci.yml`
+- 2026-11-25 [product] A question whose options are a nested list under it (T-0020's shape) still shows without them; folding nested lists edits `questions.test.ts`'s T-0020 case, so it needs the owner · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [tool] `docs/open-questions.md` paraphrases a card's question (T-0044's section at `16384b3` differs from the card), so the file and Copy all disagree; the foreman could paste Copy all's text instead · seen on T-0048 · `docs/open-questions.md`
+- 2026-11-25 [tool] A focused run (`pnpm exec vitest run <file> -t "<name>"`) exits 1 even when its test passes: coverage is on by default and the global thresholds apply to the one file; criteria that name such a command need `--coverage.enabled=false` · seen on T-0048 · `vitest.config.ts`
+- 2026-11-25 [product] Acceptance criteria are read first-line-only, as questions were: a criterion wrapped over several lines loses its `· check:` and its UNTESTED mark when they sit on a later line · seen on T-0048 · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `questionsOf` folds any non-blank line after `- [ ] (none)` into it, so `(none)` followed by a comment line becomes a phantom open question · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [product] `questionsOf` folds a following code fence or `>` line into a question, and wrapped prose starting like `2026. ` ends one early · seen on T-0048 inspection · `apps/desktop/src/main/kit/parse.ts`
+- 2026-11-25 [tool] The desktop typecheck doesn't cover `apps/desktop/e2e/` (`tsconfig.node.json` includes `src/` only), so an e2e type error shows only when Playwright runs it · seen on T-0044 · `apps/desktop/tsconfig.node.json`
+- 2026-11-25 [product] T-0044's three screenshots under `docs/screenshots/T-0044/` were never made (no local desktop e2e); same fix as T-0041's open question · seen on T-0044 inspection · `docs/screenshots/T-0044/`
+- 2026-11-25 [product] `gh.ts` caps `gh`'s stdout but not its stderr, and a `git config` timeout is reported as "gh timed out" · seen on T-0044 inspection · `apps/desktop/src/main/kit/gh.ts`
+- 2026-11-25 [product] A card's PR CI state comes from the repo's last 100 runs only, so a quiet card's PR can show no CI on a busy repo · seen on T-0044 inspection · `apps/desktop/src/main/engine/ci.ts`
+- 2026-11-25 [product] The Tasks board renders the CI badge's padded wrapper even when the card has no PR, leaving a small gap · seen on T-0051 inspection · `apps/desktop/src/renderer/components/tasks/Board.tsx:278`
+- 2026-11-25 [product] Each RunningRow in Now calls `useCiState`, so every row adds its own listener and IPC read; one shared prop would do · seen on T-0051 inspection · `apps/desktop/src/renderer/components/Now.tsx:228`
+- 2026-11-25 [tool] T-0051's card record was filed unfinished: empty Evidence, "Draft PR opened: #" with no number, A1–A4 unticked though CI's desktop-e2e passed · seen on T-0051 inspection · `cards/done/T-0051.md`
+- 2026-11-25 [tool] An orphaned `grep -o` with `{0,1500}` repeats on both sides of `63`, run over the earlier foreman session's transcript (`~/.claude/projects/…/90384377-….jsonl`, started 17:14 local, parent gone), held 25.8 GB private and starved the machine; T-0045's run 2 stalled under it. Killed at the owner's word; the role files now forbid bare recursive grep, large repeat counts, and searching worktrees, node_modules, .scratch or transcripts · seen on the line · `.claude/agents/*.md`
+- 2026-11-25 [tool] `kit/**` is in `.prettierignore`, so a card's `prettier --check` on kit files passes whatever they hold; checks need `--ignore-path=` · seen on T-0052 inspection · `.prettierignore`
+- 2026-11-25 [product] Rule 3 in `CLAUDE-section.md` (line 13) and step 5 in `handoff/SKILL.md` (line 21) run past the wrap width the rest of each file keeps · seen on T-0052 inspection · `kit/setup/templates/`
+- 2026-11-25 [tool] Builders keep filing cards with the Done box "Draft PR opened: #" unticked and no number (T-0051, T-0052) · seen on T-0052 inspection · `cards/done/`
+- 2026-11-25 [tool] `SCREENSHOT_DIR` is set twice in the `desktop-e2e` job (ci.yml:256 and the e2e step); a job-level `env` would be tidier · seen on T-0056 inspection · `.github/workflows/ci.yml`
+- 2026-11-25 [tool] T-0056's evidence says the artifact held 23 PNGs; the inspector's download of the same run held 22 · seen on T-0056 inspection · `cards/done/T-0056.md`
+- 2026-11-25 [tool] `cards/done/T-0041.md` still says its screenshot "needs one local run" (Next step) and lists A3 as UNTESTED (Done line), though T-0057 made the shot and ticked A3 · seen on T-0057 inspection · `cards/done/T-0041.md`
+- 2026-11-25 [tool] The review can't view PNGs, so a screenshot-only card gets "needs-human" from it; the inspector's hash and look are the check · seen on T-0057 inspection · `review --pr 71`
+- 2026-11-25 [product] `kit/setup/SKILL.md` lines 100–103 run past 90 columns (line 103 is 108 after T-0058); rewrap them · seen on T-0058 inspection · `kit/setup/SKILL.md`
+- 2026-11-25 [tool] T-0058's Done box for tests, lint and typecheck is ticked though they were UNTESTED locally (CI ran them) · seen on T-0058 inspection · `cards/done/T-0058.md`
+- 2026-11-26 [tool] The fixture's worst-case cleanup (about 5 s waiting for pids plus about 5 s of EBUSY retries, ~10.5 s) sits just over Vitest's default 10 s hookTimeout, so a run that hits both limits reports a hook timeout · seen on T-0059 inspection · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-26 [tool] Nothing shows T-0059's EBUSY retry path ever ran; its 40 local runs passed without hitting it · seen on T-0059 inspection · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-26 [product] `tier2-prompt.ts` now exports RUBRIC, GATE, the zod schemas, gatePrompt, reviewPrompt and applyTier1 for its siblings; `tier2.ts` doesn't re-export them and the package root only exposes `.`, so nothing public grew, but they read as public · seen on T-0055 inspection · `packages/runtime/src/judge/tier2-prompt.ts`
+- 2026-11-26 [tool] A criterion that greps for `eslint-disable` over the diff matches the card's own text; scope such greps to code paths (`packages/`, `apps/`) · seen on T-0055 inspection · `cards/done/T-0055.md`
+- 2026-11-26 [product] On the no-checkout path, `card-commit.ts` commits without a working tree, so the repo's commit hooks don't run; in a clean worktree they do · seen on T-0053 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [product] A prunable or missing worktree makes `card-commit.ts`'s `plan()` throw instead of refusing · seen on T-0053 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [product] After a refused push, retrying mark ready is refused as "status is ready", though the commit never reached origin; the shell needs a "push the local commit" path · seen on T-0053 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [tool] `pnpm lint` from the main checkout also lints every `.claude/worktrees/*` copy (844 errors from old worktrees); eslint's ignores should cover `.claude/**` · seen on the line · `eslint.config.js`
+- 2026-11-26 [tool] Card checks name `pnpm --filter desktop test`, which matches no project; the tests run from the root · seen on T-0053, T-0060 · `package.json`
+- 2026-11-25 [tool] `call-limit.test.ts` gives its hanging node child 0.3 s (0.005 min; the tree test 0.6 s) to start and write its pid before the kill. On a loaded Windows runner node starts later than that: "the child never wrote its pid" (PR #56, run 45704718735 attempt 2, `a budget ends the call in flight…`, 6077 ms). Follow-on card, `needs you`: raise the limits to 0.05 min together with the expected `minutes` and message (recommended), or take the pid from `spawn` instead of the child's file · seen on T-0045 drafting · `packages/engine/src/ai/call-limit.test.ts`
+- 2026-11-25 [product] A2 confirms the inherited-pipe wait: on Windows a child's `close` can wait ~5 s on an unrelated child started from another thread (94 of 400 in one process, none across two). `git()` in `source.ts` and `spawnWithLimit` in `call-limit.ts` settle on `close`, so in the shell a read beside a fetch could hit its limit the same way. Fix: settle on `exit` plus a short wait for the pipes · seen on T-0045 · `apps/desktop/src/main/kit/source.ts`, `packages/engine/src/ai/call-limit.ts`
+- 2026-11-25 [tool] `source-timeout.test.ts › a git read that hangs…` failed on PR #60 (run 45710215889 attempt 1) with "expected 0 to be greater than 0": under load the 2 s read limit ran out before git's lazy fetch reached the silent remote, so `connections` was 0. The single fork lightens the load but doesn't remove the race; a fix (a longer test limit, or not asserting a connection) changes the test, so it needs the owner · seen on T-0045 · `apps/desktop/src/main/kit/source-timeout.test.ts`
+- 2026-11-25 [tool] `kit-fixture.ts`'s `execFileSync("git", …)` has no timeout, so a git that stalls in a fixture holds a `beforeAll` far past `hookTimeout` (859 s in A4's run 2) · seen on T-0045 · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-25 [tool] A background loop that Claude Code killed for low memory left its bash shell and vitest running, and the shell went on starting runs; this session killed them by pid · seen on T-0045 · Claude Code background shells on Windows
+- 2026-11-25 [tool] After merging origin/develop (f1266e0), PR #66's CI fails `Format check`: `prettier --check .` warns on `.claude/settings.json` (develop's file), so lint/typecheck/test jobs are cancelled and `ci` is red; not this card's file · seen on T-0045 · `.claude/settings.json`
+- 2026-11-26 [tool] T-0045's before and after loops ran on different develop code (A1 on f3474bd with T-0059's fixture fix, A4 before it), so the timings compare the config change only roughly · seen on T-0045 inspection · `cards/done/T-0045.md`
+- 2026-11-26 [tool] No test covers `registerCardWrites` or the mark-ready IPC channels end to end; a fake-ipc test would show both stay registered · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
+- 2026-11-26 [product] `answer.ts` copies `parse.ts`'s rule for where a question ends, so the two can drift; one shared helper would keep them together · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
+- 2026-11-26 [tool] The answer path has no failed-commit rollback test of its own; it relies on T-0053's in `card-commit.test.ts` · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.test.ts`
+- 2026-11-26 [tool] T-0061's card put its "### Evidence" block under "## Parked", not "## Done", so the shell reads its Evidence as empty · seen on T-0061 inspection · `cards/done/T-0061.md`
+- 2026-11-26 [product] `RIVETARI_GIT_FETCH_LIMIT_MS` now also sets the write path's limit (card-commit uses git-run's "fetch" kind); a separate "write" kind would keep the two apart · seen on T-0063 inspection · `apps/desktop/src/main/kit/git-run.ts`
+- 2026-11-26 [product] Write-path refusal reasons now carry the full git command line and a trailing newline; trim them for the dialog · seen on T-0063 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [tool] `git-run.ts`'s header still calls it read-only plumbing, though the write path runs through it now · seen on T-0063 inspection · `apps/desktop/src/main/kit/git-run.ts`
+- 2026-11-26 [product] In the mark-ready dialog, Shift+Tab can move focus out while apply is running, and focus is lost after a successful commit (it should return to the record) · seen on T-0062 inspection · `apps/desktop/src/renderer/components/tasks/MarkReady.tsx`
+- 2026-11-26 [tool] T-0062's A3 e2e finds "ready" anywhere in the record, not in the Status field itself · seen on T-0062 inspection · `apps/desktop/e2e/mark-ready.e2e.ts`
+- 2026-11-26 [product] A mark-ready button in Now's Needs-you rows, now that T-0062's dialog exists (parked by T-0062's drafter) · seen on T-0062 · `apps/desktop/src/renderer/components/Now.tsx`
+- 2026-11-26 [tool] `ChecklistParts.tsx` exports six helpers used only inside it; only ChecklistBody and Subtitle need exporting · seen on T-0065 inspection · `apps/desktop/src/renderer/components/ChecklistParts.tsx`
+- 2026-11-26 [tool] CI's desktop-e2e hangs in "Install Electron runtime libraries + xvfb" (`apt-get`) until the job's 15-minute limit, three times today (develop 66321e8, PR #79 twice, PR #82); the step has no timeout or retry of its own · seen on the line · `.github/workflows/ci.yml`
+- 2026-11-26 [product] The Questions panel takes a card's held state from local cards only (`Now.tsx:450`), so a card held only on origin shows enabled answer controls; the write path still refuses it · seen on T-0064 inspection · `apps/desktop/src/renderer/components/Now.tsx`
+- 2026-11-26 [product] `AnswerQuestion` is keyed by question number, so typed text could carry over to another question if a card's questions renumber · seen on T-0064 inspection · `apps/desktop/src/renderer/components/AnswerControls.tsx`
+- 2026-11-26 [tool] T-0064's held-card e2e covers only the free-text Answer (its fixture card has no recommendation), and A4's refusal test uses a dirty worktree, not a held card · seen on T-0064 inspection · `apps/desktop/e2e/answer.e2e.ts`
+- 2026-11-26 [tool] T-0068 (desktop-e2e install time limit + retry, PR #85) paused unfinished at the owner's "finish now": apt stalls fetching package lists and a timed-out attempt left apt-get holding the lock; next try: apt network timeouts plus killing the attempt's whole process group · seen on the line · `.github/workflows/ci.yml`

@@ -24,8 +24,8 @@ type Notices = { repoPath: string; id: string; title: string }[];
 const notices = () =>
   launched.app.evaluate(
     () =>
-      (globalThis as unknown as { rivetariE2E: { notices: Notices } })
-        .rivetariE2E.notices,
+      (globalThis as unknown as { rachetariE2E: { notices: Notices } })
+        .rachetariE2E.notices,
   );
 
 test("Home shows each repo's live cards, what needs you, its stage and last night", async () => {
@@ -57,7 +57,12 @@ test("the sidebar counts what waits, and a new item raises a notification that o
   // Another machine pushes a new draft; the next fetch brings it in.
   fx.pushToOrigin(
     "T-0013",
-    cardText({ id: "T-0013", title: "feat: from the laptop", status: "draft" }),
+    cardText({
+      id: "T-0013",
+      title: "feat: from the laptop",
+      status: "draft",
+      gate: "needs you",
+    }),
   );
   execFileSync("git", ["fetch", "-q"], { cwd: fx.repo });
 
@@ -75,8 +80,8 @@ test("the sidebar counts what waits, and a new item raises a notification that o
   // Clicking it opens the repo on Now with the item in view.
   await launched.app.evaluate(() =>
     (
-      globalThis as unknown as { rivetariE2E: { click: (i: number) => void } }
-    ).rivetariE2E.click(0),
+      globalThis as unknown as { rachetariE2E: { click: (i: number) => void } }
+    ).rachetariE2E.click(0),
   );
   await expect(page.locator("#now-item-T-0013")).toBeFocused();
 });

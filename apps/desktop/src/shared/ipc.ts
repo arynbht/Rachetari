@@ -1,7 +1,7 @@
 // The IPC contract shared by main, preload, and renderer. Every channel has a
 // zod schema validated on BOTH sides: the main process re-validates each request
 // it receives, and the preload re-validates each response before handing it to
-// the renderer. The renderer only ever sees the typed `window.rivetari` surface
+// the renderer. The renderer only ever sees the typed `window.rachetari` surface
 // (see preload) — never ipcRenderer, fs, git, or the network directly.
 import { z } from "zod";
 
@@ -38,6 +38,23 @@ export const IpcChannel = {
   MapGet: "map:get",
   /** Push channel (main → renderer): requests the map's session cancelled. */
   MapBlocked: "map:blocked",
+  /** The shell's own state for the header: the live shell and the repo's fetch. */
+  ShellStatus: "shell:status",
+  /** Push channel (main → renderer): the shell's status after a change. */
+  ShellStatusUpdate: "shell:statusUpdate",
+  /** Mark ready, step one: the diff of CARD.md (draft to ready); writes nothing. */
+  CardMarkReadyPreview: "card:markReadyPreview",
+  /** Mark ready, step two: commit and push that diff, or refuse and say why. */
+  CardMarkReadyApply: "card:markReadyApply",
+  /** Answer a question, step one: the diff of CARD.md; writes nothing. */
+  CardAnswerPreview: "card:answerPreview",
+  /** Answer a question, step two: commit and push that diff, or refuse and say why. */
+  CardAnswerApply: "card:answerApply",
+
+  /** CI for the repo on show, read through the gh CLI (read-only). */
+  CiState: "ci:state",
+  /** Push channel (main → renderer): the repo on show's CI after a read. */
+  CiStateUpdate: "ci:stateUpdate",
 } as const;
 
 export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel];
@@ -92,6 +109,20 @@ export type SettingsSaveRequest = z.infer<typeof SettingsSaveRequest>;
 // health of the repo, what waits on the owner, the cards in progress, and
 // what just happened. The watcher pushes a new state on every change.
 export const NowRepoRequest = z.object({ repoPath: z.string().min(1) });
+
+/**
+ * The branch the shell shows a repo's kit files from: `develop`, from the
+ * newer of local `develop` and `origin/develop`, else the default branch.
+ */
+export const DisplayBranch = z.object({
+  /** What the header names: "develop", or the default branch, e.g. "main". */
+  name: z.string(),
+  /** The ref it was read from, e.g. refs/heads/develop. */
+  ref: z.string(),
+  /** Local develop and origin/develop have diverged: local is shown. */
+  diverged: z.boolean(),
+});
+export type DisplayBranch = z.infer<typeof DisplayBranch>;
 export const NowSelectRequest = z.object({
   repoPath: z.string().min(1).nullable(),
 });
@@ -122,6 +153,20 @@ export const NowHealth = z.object({
       blocked: z.number(),
     })
     .nullable(),
+  /**
+   * The checklist's sections, from CHECKLIST.md: the one with the most gaps
+   * (fail + unchecked lines; ties: more fails, then A to Z), or null when no
+   * section has a gap. Null when the checklist is BACKLOG.md's, or there is
+   * none. Optional in the type only: the engine always sets it.
+   */
+  sections: z
+    .object({
+      worst: z
+        .object({ name: z.string(), fail: z.number(), unchecked: z.number() })
+        .nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 export type NowHealth = z.infer<typeof NowHealth>;
 
@@ -170,6 +215,26 @@ export const NowCardLine = z.object({
 });
 export type NowCardLine = z.infer<typeof NowCardLine>;
 
+/** One open question on a card, split into the template's parts. */
+export const NowQuestion = z.object({
+  /** Its place among the card's open questions, from 1. */
+  n: z.number().int().positive(),
+  ask: z.string(),
+  /** What the card recommends, or null when it doesn't say. */
+  recommended: z.string().nullable(),
+  options: z.array(z.string()),
+});
+export type NowQuestion = z.infer<typeof NowQuestion>;
+
+/** A live card with at least one open question, and those questions. */
+export const NowQuestionGroup = z.object({
+  id: z.string(),
+  title: z.string(),
+  branch: z.string(),
+  questions: z.array(NowQuestion),
+});
+export type NowQuestionGroup = z.infer<typeof NowQuestionGroup>;
+
 export const NowState = z.object({
   repoPath: z.string(),
   ready: z.boolean(),
@@ -179,8 +244,16 @@ export const NowState = z.object({
   cards: z.array(NowCardLine),
   health: NowHealth,
   needsYou: z.array(NeedsYouItem),
+  /** Each live card's open questions, in card-id order. */
+  questions: z.array(NowQuestionGroup),
   running: z.array(NowRunning),
   recent: z.array(RecentEvent),
+  /**
+   * The branch it was read from, null before the first read. Optional in the
+   * type only, so a NowState built by hand without it still checks; the
+   * engine always sets it.
+   */
+  display: DisplayBranch.nullable().optional(),
 });
 export type NowState = z.infer<typeof NowState>;
 
@@ -235,6 +308,19 @@ export const TaskItem = z.object({
   unreadable: z.boolean(),
   /** Where it was read: a card branch, cards/done/, or "Next up" in BACKLOG.md. */
   source: z.enum(["card", "done", "next-up"]),
+  /**
+   * What it waits on the owner for, from the same items as Now's Needs you
+   * (matched by branch): empty when nothing waits on the owner.
+   */
+  needs: z.array(
+    z.object({
+      kind: NeedsYouItem.shape.kind,
+      /** Short, for the board: "Needs your approval", "1 open question". */
+      label: z.string(),
+      /** Exactly what to do, and where, as Needs you says it. */
+      todo: z.string(),
+    }),
+  ),
 });
 export type TaskItem = z.infer<typeof TaskItem>;
 
@@ -243,6 +329,8 @@ export const TasksState = z.object({
   ready: z.boolean(),
   error: z.string().nullable(),
   items: z.array(TaskItem),
+  /** The branch it was read from, null before the first read. */
+  display: DisplayBranch.nullable(),
 });
 export type TasksState = z.infer<typeof TasksState>;
 
@@ -286,18 +374,24 @@ export const TaskDetail = z.object({
   card: TaskCard.nullable(),
   error: z.string().nullable(),
   commits: z.array(RecentEvent),
+  /**
+   * The card's open questions, split as Now's Questions panel shows them;
+   * empty for a Next up line, a branch being drafted and an unreadable card.
+   */
+  openQuestions: z.array(NowQuestion),
 });
 export type TaskDetail = z.infer<typeof TaskDetail>;
 
-// Checklist — the repo checklist in BACKLOG.md on the default branch: the
-// stage and what decides it, and each line with its status and its check, as
-// /setup last recorded them. Read on demand; nothing here runs a check.
+// Checklist — the repo checklist on the display branch, from CHECKLIST.md
+// (by section) or else BACKLOG.md's "Repo checklist" (by stage): the stage and
+// what decides it, and each line with its status and its check, as /setup last
+// recorded them. Read on demand; nothing here runs a check.
 export const ChecklistStatus = z.enum(["pass", "fail", "unchecked", "n/a"]);
 export type ChecklistStatus = z.infer<typeof ChecklistStatus>;
 
 export const ChecklistView = z.object({
   repoPath: z.string(),
-  /** Whether the default branch has a BACKLOG.md at all. */
+  /** Whether the display branch has a BACKLOG.md at all. */
   hasBacklog: z.boolean(),
   stage: z.string().nullable(),
   stageWhy: z.string().nullable(),
@@ -311,10 +405,20 @@ export const ChecklistView = z.object({
           status: ChecklistStatus,
           check: z.string().nullable(),
           isNew: z.boolean(),
+          /** The catalog id (CHECKLIST.md only), or null. */
+          id: z.string().nullable(),
+          /** The `stage:` tag (CHECKLIST.md only), or null. */
+          stage: z.string().nullable(),
         }),
       ),
+      /** Why the whole section doesn't apply (CHECKLIST.md only), or null. */
+      na: z.string().nullable(),
     }),
   ),
+  /** The branch it was read from, null before the first read. */
+  display: DisplayBranch.nullable(),
+  /** The file the checklist was read from: CHECKLIST.md, else BACKLOG.md. */
+  source: z.enum(["CHECKLIST.md", "BACKLOG.md"]).nullable(),
 });
 export type ChecklistView = z.infer<typeof ChecklistView>;
 
@@ -379,7 +483,7 @@ export type HistoryNight = z.infer<typeof HistoryNight>;
 // webview whose session cancels every request outside floorplan/.
 
 /** The map webview's session, which main guards; the renderer's webview names it. */
-export const MAP_PARTITION = "rivetari-map";
+export const MAP_PARTITION = "rachetari-map";
 
 export const MapGetRequest = z.object({ repoPath: z.string().min(1) });
 
@@ -398,3 +502,132 @@ export const MapBlocked = z.object({
   urls: z.array(z.string()),
 });
 export type MapBlocked = z.infer<typeof MapBlocked>;
+
+// Shell status — what the header says about the shell itself: the commit the
+// live shell runs and whether it's behind develop (from RACHETARI_LIVE_STATUS),
+// and the background fetch of the repo on show.
+export const ShellStatus = z.object({
+  /** Only when the shell runs live (T-0030), else null. */
+  live: z
+    .object({
+      /** The running commit, short (7). */
+      running: z.string(),
+      /** Why the live shell is behind develop, or null when it isn't. */
+      behind: z.string().nullable(),
+    })
+    .nullable(),
+  /** The repo on show's background fetch, or null with no repo on show. */
+  fetch: z
+    .object({
+      repoPath: z.string(),
+      /** The last fetch that succeeded (ISO), or null before one has. */
+      fetchedAt: z.string().nullable(),
+      /** The last fetch's message when it failed; null once one succeeds. */
+      error: z.string().nullable(),
+    })
+    .nullable(),
+});
+export type ShellStatus = z.infer<typeof ShellStatus>;
+
+// Mark ready — a draft card's Status flipped to ready as a plain commit on its
+// branch. The preview shows the diff; the apply writes only that diff.
+export const MarkReadyPreviewRequest = z.object({
+  repoPath: z.string().min(1),
+  /** The card's branch, e.g. card/T-0053. */
+  branch: z.string().min(1),
+});
+export type MarkReadyPreviewRequest = z.infer<typeof MarkReadyPreviewRequest>;
+
+export const MarkReadyApplyRequest = MarkReadyPreviewRequest.extend({
+  /** The diff the person was shown; nothing is written if the card has since changed. */
+  diff: z.string(),
+});
+export type MarkReadyApplyRequest = z.infer<typeof MarkReadyApplyRequest>;
+
+export const MarkReadyPreview = z.discriminatedUnion("ok", [
+  z.object({ ok: z.literal(true), diff: z.string() }),
+  z.object({ ok: z.literal(false), reason: z.string() }),
+]);
+export type MarkReadyPreview = z.infer<typeof MarkReadyPreview>;
+
+export const MarkReadyResult = z.discriminatedUnion("ok", [
+  z.object({
+    ok: z.literal(true),
+    commit: z.string(),
+    where: z.enum(["worktree", "branch"]),
+    pushed: z.boolean(),
+  }),
+  z.object({ ok: z.literal(false), reason: z.string() }),
+]);
+export type MarkReadyResult = z.infer<typeof MarkReadyResult>;
+
+// Answer a question — a card's open question ticked and answered as a plain
+// commit on its branch, through the same preview-then-apply write path.
+export const AnswerSpec = z.discriminatedUnion("kind", [
+  /** Take the card's "Recommended:" for one question (named by its full text). */
+  z.object({ kind: z.literal("accept"), question: z.string().min(1) }),
+  /** Take the recommendation for every open question that has one. */
+  z.object({ kind: z.literal("acceptAll") }),
+  /** A free-text answer to one question. */
+  z.object({
+    kind: z.literal("text"),
+    question: z.string().min(1),
+    text: z.string().min(1),
+  }),
+]);
+export type AnswerSpec = z.infer<typeof AnswerSpec>;
+
+export const AnswerPreviewRequest = MarkReadyPreviewRequest.extend({
+  answer: AnswerSpec,
+});
+export type AnswerPreviewRequest = z.infer<typeof AnswerPreviewRequest>;
+
+export const AnswerApplyRequest = AnswerPreviewRequest.extend({
+  /** The diff the person was shown; nothing is written if the card has since changed. */
+  diff: z.string(),
+});
+export type AnswerApplyRequest = z.infer<typeof AnswerApplyRequest>;
+
+export const AnswerPreview = MarkReadyPreview;
+export type AnswerPreview = MarkReadyPreview;
+export const AnswerResult = MarkReadyResult;
+export type AnswerResult = MarkReadyResult;
+
+// CI state — the repo on show's CI, read through the gh CLI on the person's own
+// sign-in (no token ever crosses here): its display branch's last run, and the
+// state of each open card/* PR's checks. Null with no repo on show or before
+// its first read.
+export const CiState = z
+  .object({
+    repoPath: z.string(),
+    /** How the read ended: missing / signed-out mean gh can't be used. */
+    gh: z.enum(["ok", "missing", "signed-out", "no-github", "error"]),
+    /** gh's first line, on `error`; else null. */
+    message: z.string().nullable(),
+    /** When the read settled (ISO). */
+    readAt: z.string(),
+    /** The display branch and its last run (null: no runs yet); null unless ok. */
+    branch: z
+      .object({
+        name: z.string(),
+        run: z
+          .object({
+            state: z.enum(["passed", "failed", "running", "cancelled"]),
+            sha7: z.string(),
+            url: z.string(),
+          })
+          .nullable(),
+      })
+      .nullable(),
+    /** Each open PR from a card/* branch; empty unless ok. */
+    prs: z.array(
+      z.object({
+        branch: z.string(),
+        number: z.number().int().positive(),
+        state: z.enum(["passed", "failed", "running", "none"]),
+        url: z.string(),
+      }),
+    ),
+  })
+  .nullable();
+export type CiState = z.infer<typeof CiState>;

@@ -3,68 +3,31 @@
 // skills/INDEX.md and floorplan/ — through git, and never writes to the repo.
 // Its one write is fetchRepo, which only updates remote-tracking refs, so the
 // other machine's branches appear; nothing here runs it on a timer.
-import { execFile } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { promisify } from "node:util";
 
+import type { DisplayBranch } from "../../shared/ipc";
+import { defaultBranch, displayBranch, git, orNone, show } from "./git-run";
 import {
   type Backlog,
   type Card,
   type NightCounts,
   parseBacklog,
   parseCard,
+  parseChecklist,
   parseNight,
   parseSkills,
   type SkillRow,
 } from "./parse";
 
-const run = promisify(execFile);
+export { defaultBranch, displayBranch, killTree } from "./git-run";
 
-/** Read-only git: no shell, no prompts, no pager. */
-async function git(repo: string, args: string[]): Promise<string> {
-  const { stdout } = await run("git", args, {
-    cwd: repo,
-    encoding: "utf8",
-    maxBuffer: 16 * 1024 * 1024,
-    windowsHide: true,
-    env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_OPTIONAL_LOCKS: "0" },
-  });
-  return stdout;
-}
-
-/** A file's text at a ref, or null when it isn't there. */
-async function show(
+/** The display branch as given, or read now when it wasn't. */
+async function shown(
   repo: string,
-  ref: string,
-  path: string,
-): Promise<string | null> {
-  return git(repo, ["show", `${ref}:${path}`]).catch(() => null);
-}
-
-/** The default branch: origin's HEAD, else main or master, else the current branch. */
-export async function defaultBranch(repo: string): Promise<string> {
-  const head = await git(repo, [
-    "symbolic-ref",
-    "--quiet",
-    "--short",
-    "refs/remotes/origin/HEAD",
-  ])
-    .then((s) => s.trim())
-    .catch(() => "");
-  if (head) return head;
-  for (const name of ["main", "master"]) {
-    const ok = await git(repo, [
-      "rev-parse",
-      "--verify",
-      "--quiet",
-      `refs/heads/${name}`,
-    ])
-      .then(() => true)
-      .catch(() => false);
-    if (ok) return name;
-  }
-  return (await git(repo, ["rev-parse", "--abbrev-ref", "HEAD"])).trim();
+  display?: DisplayBranch | null,
+): Promise<DisplayBranch> {
+  return display ?? displayBranch(repo);
 }
 
 export interface LiveCard {
@@ -73,14 +36,60 @@ export interface LiveCard {
   /** Where it was read: the working tree, a local branch, or only the remote. */
   where: "checked-out" | "local" | "remote";
   card: Card | null;
-  /** Set when the card can't be read, e.g. "unreadable: no card header". */
+  /** Set when no CARD.md has ever been committed on the branch: it is being drafted. */
+  drafting?: true;
+  /** Set when the card can't be read, e.g. "unreadable: CARD.md doesn't parse …". */
   error?: string;
   /** When the branch last had a commit (ISO time), or null. */
   lastCommitAt: string | null;
 }
 
-/** Every live card: CARD.md in the working tree and on each card/* branch. */
-export async function readLiveCards(repo: string): Promise<LiveCard[]> {
+/** A local card/* branch, or a remote-tracking one: the name after the remote. */
+function branchOf(ref: string): { name: string; local: boolean } | null {
+  const local = /^refs\/heads\/(card\/.+)$/.exec(ref)?.[1];
+  const remote = /^refs\/remotes\/[^/]+\/(card\/.+)$/.exec(ref)?.[1];
+  const name = local ?? remote;
+  return name ? { name, local: local !== undefined } : null;
+}
+
+/** The file names in cards/done/ at a ref; none when it has no such folder. */
+async function doneNames(repo: string, ref: string): Promise<string[]> {
+  return (
+    await git(repo, ["ls-tree", "--name-only", `${ref}:cards/done`]).catch(
+      orNone(""),
+    )
+  )
+    .split("\n")
+    .filter((n) => n.endsWith(".md"));
+}
+
+/**
+ * The refs cards/done/ is read from: the display branch first, then the
+ * default branch (once, when they're the same).
+ */
+async function doneRefs(
+  repo: string,
+  display?: DisplayBranch | null,
+): Promise<string[]> {
+  const [{ ref }, base] = await Promise.all([
+    shown(repo, display),
+    defaultBranch(repo),
+  ]);
+  return ref === base ? [ref] : [ref, base];
+}
+
+/** A card/* branch as listed, with its CARD.md's text and the card it parses to. */
+interface CardBranch {
+  branch: string;
+  ref: string;
+  at: string;
+  where: LiveCard["where"];
+  text: string | null;
+  card: Card | null;
+}
+
+/** Every card/* branch and its CARD.md (from the working tree when checked out). */
+async function readCardBranches(repo: string): Promise<CardBranch[]> {
   const current = (
     await git(repo, ["rev-parse", "--abbrev-ref", "HEAD"])
   ).trim();
@@ -104,14 +113,16 @@ export async function readLiveCards(repo: string): Promise<LiveCard[]> {
     { ref: string; at: string; where: LiveCard["where"] }
   >();
   for (const { ref, at } of refs) {
-    const local = /^refs\/heads\/(card\/.+)$/.exec(ref)?.[1];
-    const remote = /^refs\/remotes\/[^/]+\/(card\/.+)$/.exec(ref)?.[1];
-    const branch = local ?? remote;
-    if (!branch) continue;
-    const seen = byBranch.get(branch);
+    const card = branchOf(ref);
+    if (!card) continue;
+    const seen = byBranch.get(card.name);
     // A local branch wins over its remote-tracking copy.
-    if (!seen || (local && seen.where === "remote"))
-      byBranch.set(branch, { ref, at, where: local ? "local" : "remote" });
+    if (!seen || (card.local && seen.where === "remote"))
+      byBranch.set(card.name, {
+        ref,
+        at,
+        where: card.local ? "local" : "remote",
+      });
   }
   if (current.startsWith("card/") && !byBranch.has(current))
     byBranch.set(current, {
@@ -120,35 +131,96 @@ export async function readLiveCards(repo: string): Promise<LiveCard[]> {
       where: "local",
     });
 
-  const cards: LiveCard[] = [];
+  const branches: CardBranch[] = [];
   for (const [branch, { ref, at, where }] of byBranch) {
     const checkedOut = branch === current;
     const text = checkedOut
       ? await readFile(join(repo, "CARD.md"), "utf8").catch(() => null)
       : await show(repo, ref, "CARD.md");
-    const card = text === null ? null : parseCard(text);
-    cards.push({
+    branches.push({
       branch,
+      ref,
+      at,
       where: checkedOut ? "checked-out" : where,
-      card,
-      ...(card
-        ? {}
-        : {
+      text,
+      card: text === null ? null : parseCard(text),
+    });
+  }
+  return branches;
+}
+
+/**
+ * Every live card: CARD.md in the working tree and on each card/* branch. A
+ * branch with no readable CARD.md is, in this order: done (its id is in
+ * cards/done/ on the display or default branch), and then not a live card at
+ * all; drafting (no CARD.md has ever been committed on it); or broken.
+ */
+export async function readLiveCards(
+  repo: string,
+  display?: DisplayBranch | null,
+): Promise<LiveCard[]> {
+  const branches = await readCardBranches(repo);
+
+  // The done ids are read once per read, and only when a branch needs them.
+  let doneIds: Promise<Set<string>> | null = null;
+  const isDone = async (branch: string): Promise<boolean> => {
+    const id = /T-\d{4,}/.exec(branch)?.[0];
+    if (!id) return false;
+    doneIds ??= doneRefs(repo, display)
+      .then((refs) => Promise.all(refs.map((r) => doneNames(repo, r))))
+      .then(
+        (names) => new Set(names.flat().map((n) => n.replace(/\.md$/, ""))),
+      );
+    return (await doneIds).has(id);
+  };
+
+  const cards: LiveCard[] = [];
+  for (const { branch, ref, at, where, text, card } of branches) {
+    const live = { branch, where, card, lastCommitAt: at || null };
+    if (card) {
+      cards.push(live);
+      continue;
+    }
+    if (await isDone(branch)) continue;
+    const committed = (
+      await git(repo, ["log", "-1", "--format=%H", ref, "--", "CARD.md"]).catch(
+        orNone(""),
+      )
+    ).trim();
+    cards.push(
+      committed
+        ? {
+            ...live,
             error:
               text === null
-                ? "unreadable: there is no CARD.md on this branch"
-                : "unreadable: CARD.md has no `# T-NNNN · title` and `Status:` line",
-          }),
-      lastCommitAt: at || null,
-    });
+                ? "unreadable: CARD.md was removed from this branch, but the card isn't in cards/done/"
+                : "unreadable: CARD.md doesn't parse: it has no `# T-NNNN · title` and `Status:` line",
+          }
+        : { ...live, drafting: true },
+    );
   }
   return cards.sort((a, b) => a.branch.localeCompare(b.branch));
 }
 
-/** The backlog on the default branch, or null when there is none. */
-export async function readBacklog(repo: string): Promise<Backlog | null> {
-  const text = await show(repo, await defaultBranch(repo), "BACKLOG.md");
-  return text === null ? null : parseBacklog(text);
+/**
+ * The backlog on the display branch, or null when there is none. Its
+ * checklist comes from CHECKLIST.md when the branch has one, else from
+ * BACKLOG.md's "Repo checklist" (a repo /setup hasn't moved yet).
+ */
+export async function readBacklog(
+  repo: string,
+  display?: DisplayBranch | null,
+): Promise<Backlog | null> {
+  const { ref } = await shown(repo, display);
+  const [text, checklist] = await Promise.all([
+    show(repo, ref, "BACKLOG.md"),
+    show(repo, ref, "CHECKLIST.md"),
+  ]);
+  if (text === null) return null;
+  const backlog = parseBacklog(text);
+  return checklist === null
+    ? backlog
+    : { ...backlog, checklist: parseChecklist(checklist) };
 }
 
 export interface DoneCard {
@@ -156,41 +228,43 @@ export interface DoneCard {
   title: string;
   status: string;
   pr: number | null;
-  /** When the file landed on the default branch (ISO time), or null. */
+  /** When the file landed on the branch it was read from (ISO time), or null. */
   closedAt: string | null;
   path: string;
 }
 
-/** The finished cards in cards/done/ on the default branch, newest first. */
-export async function readDoneCards(repo: string): Promise<DoneCard[]> {
-  const ref = await defaultBranch(repo);
-  const names = (
-    await git(repo, ["ls-tree", "--name-only", `${ref}:cards/done`]).catch(
-      () => "",
-    )
-  )
-    .split("\n")
-    .filter((n) => n.endsWith(".md"));
+/**
+ * The finished cards in cards/done/ on the display branch and the default
+ * branch, newest first. A file on both is read from the display branch.
+ */
+export async function readDoneCards(
+  repo: string,
+  display?: DisplayBranch | null,
+): Promise<DoneCard[]> {
+  const seen = new Set<string>();
   const done: DoneCard[] = [];
-  for (const name of names) {
-    const path = `cards/done/${name}`;
-    const text = await show(repo, ref, path);
-    const card = text === null ? null : parseCard(text);
-    const closedAt =
-      (
-        await git(repo, ["log", "-1", "--format=%cI", ref, "--", path]).catch(
-          () => "",
-        )
-      ).trim() || null;
-    done.push({
-      id: card?.id ?? name.replace(/\.md$/, ""),
-      title: card?.title ?? "(unreadable)",
-      status: card?.status ?? "unreadable",
-      pr: card?.pr ?? null,
-      closedAt,
-      path,
-    });
-  }
+  for (const ref of await doneRefs(repo, display))
+    for (const name of await doneNames(repo, ref)) {
+      const path = `cards/done/${name}`;
+      if (seen.has(path)) continue;
+      seen.add(path);
+      const text = await show(repo, ref, path);
+      const card = text === null ? null : parseCard(text);
+      const closedAt =
+        (
+          await git(repo, ["log", "-1", "--format=%cI", ref, "--", path]).catch(
+            orNone(""),
+          )
+        ).trim() || null;
+      done.push({
+        id: card?.id ?? name.replace(/\.md$/, ""),
+        title: card?.title ?? "(unreadable)",
+        status: card?.status ?? "unreadable",
+        pr: card?.pr ?? null,
+        closedAt,
+        path,
+      });
+    }
   return done.sort((a, b) => b.id.localeCompare(a.id));
 }
 
@@ -199,11 +273,16 @@ export interface Night extends NightCounts {
   path: string;
 }
 
-/** The night reports in nights/ on the default branch, newest first. */
-export async function readNights(repo: string): Promise<Night[]> {
-  const ref = await defaultBranch(repo);
+/** The night reports in nights/ on the display branch, newest first. */
+export async function readNights(
+  repo: string,
+  display?: DisplayBranch | null,
+): Promise<Night[]> {
+  const { ref } = await shown(repo, display);
   const names = (
-    await git(repo, ["ls-tree", "--name-only", `${ref}:nights`]).catch(() => "")
+    await git(repo, ["ls-tree", "--name-only", `${ref}:nights`]).catch(
+      orNone(""),
+    )
   )
     .split("\n")
     .filter((n) => n.endsWith(".md"));
@@ -220,9 +299,13 @@ export async function readNights(repo: string): Promise<Night[]> {
   return nights.sort((a, b) => b.date.localeCompare(a.date));
 }
 
-/** The skills listed in skills/INDEX.md on the default branch. */
-export async function readSkills(repo: string): Promise<SkillRow[]> {
-  const text = await show(repo, await defaultBranch(repo), "skills/INDEX.md");
+/** The skills listed in skills/INDEX.md on the display branch. */
+export async function readSkills(
+  repo: string,
+  display?: DisplayBranch | null,
+): Promise<SkillRow[]> {
+  const { ref } = await shown(repo, display);
+  const text = await show(repo, ref, "skills/INDEX.md");
   return text === null ? [] : parseSkills(text);
 }
 
@@ -243,10 +326,14 @@ export interface RepoEvent {
   cardId: string | null;
 }
 
-/** Up to `limit` commits on card/* branches or touching cards/ or nights/, newest first. */
+/**
+ * Up to `limit` commits touching cards/ or nights/ on the display branch, or
+ * on card/* branches and not on it, newest first.
+ */
 export async function readEvents(
   repo: string,
   limit = 50,
+  display?: DisplayBranch | null,
 ): Promise<RepoEvent[]> {
   const format = "--format=%H%x09%cI%x09%an%x09%s%x09%D";
   const parse = (out: string, branchId: string | null): RepoEvent[] =>
@@ -264,7 +351,7 @@ export async function readEvents(
         };
       });
 
-  const ref = await defaultBranch(repo);
+  const { ref } = await shown(repo, display);
   const events = new Map<string, RepoEvent>();
   const onDefault = await git(repo, [
     "log",
@@ -274,11 +361,12 @@ export async function readEvents(
     "--",
     "cards",
     "nights",
-  ]).catch(() => "");
+  ]).catch(orNone(""));
   for (const e of parse(onDefault, null)) events.set(e.sha, e);
 
-  const cards = await readLiveCards(repo);
-  for (const c of cards) {
+  // Every card branch, done or not: a done branch's commits are still events.
+  const branches = await readCardBranches(repo);
+  for (const c of branches) {
     const branchRef =
       c.where === "remote" ? await remoteRef(repo, c.branch) : c.branch;
     if (!branchRef) continue;
@@ -288,7 +376,7 @@ export async function readEvents(
       format,
       branchRef,
       `^${ref}`,
-    ]).catch(() => "");
+    ]).catch(orNone(""));
     const id = c.card?.id ?? /T-\d{4,}/.exec(c.branch)?.[0] ?? null;
     for (const e of parse(out, id))
       if (!events.has(e.sha)) events.set(e.sha, e);
@@ -320,25 +408,43 @@ async function remoteRef(repo: string, branch: string): Promise<string | null> {
  * one git write: it only updates remote-tracking refs, never a branch or a file.
  */
 export async function fetchRepo(repo: string): Promise<void> {
-  await git(repo, ["fetch", "--all", "--prune", "--quiet"]);
+  await git(repo, ["fetch", "--all", "--prune", "--quiet"], "fetch");
 }
 
 /**
- * The commits on a card's branch that aren't on the default branch, newest
- * first; for a card read from cards/done/, the commits that touched its file.
+ * The commits on a card's branch that aren't on the display branch, newest
+ * first; for a card read from cards/done/, the commits that touched its file
+ * on the display branch (on the default branch when it has none).
  */
 export async function readCardCommits(
   repo: string,
   at: { ref: string } | { path: string },
   limit = 50,
+  display?: DisplayBranch | null,
 ): Promise<RepoEvent[]> {
-  const base = await defaultBranch(repo);
+  const [{ ref: base }, fallback] = await Promise.all([
+    shown(repo, display),
+    "path" in at ? defaultBranch(repo) : null,
+  ]);
   const format = "--format=%H%x09%cI%x09%an%x09%s";
-  const args =
+  const touching = (ref: string) =>
+    "path" in at
+      ? git(repo, ["log", `-n${limit}`, format, ref, "--", at.path]).catch(
+          orNone(""),
+        )
+      : "";
+  let out =
     "ref" in at
-      ? ["log", `-n${limit}`, format, at.ref, `^${base}`]
-      : ["log", `-n${limit}`, format, base, "--", at.path];
-  const out = await git(repo, args).catch(() => "");
+      ? await git(repo, [
+          "log",
+          `-n${limit}`,
+          format,
+          at.ref,
+          `^${base}`,
+        ]).catch(orNone(""))
+      : await touching(base);
+  if (fallback && fallback !== base && !out.trim())
+    out = await touching(fallback);
   return out
     .split("\n")
     .filter(Boolean)
@@ -354,12 +460,20 @@ export async function readCardCommits(
     });
 }
 
-/** A finished card's file on the default branch, parsed; null when it isn't a card. */
+/**
+ * A finished card's file on the display branch, else on the default branch,
+ * parsed; null when it isn't a card.
+ */
 export async function readDoneCard(
   repo: string,
   path: string,
+  display?: DisplayBranch | null,
 ): Promise<Card | null> {
-  const text = await show(repo, await defaultBranch(repo), path);
+  let text: string | null = null;
+  for (const ref of await doneRefs(repo, display)) {
+    text = await show(repo, ref, path);
+    if (text !== null) break;
+  }
   return text === null ? null : parseCard(text);
 }
 
@@ -371,10 +485,12 @@ export async function cardRef(
   return card.where === "remote" ? remoteRef(repo, card.branch) : card.branch;
 }
 
-/** A night report's text on the default branch, or null when there's none. */
+/** A night report's text on the display branch, or null when there's none. */
 export async function readNightText(
   repo: string,
   date: string,
+  display?: DisplayBranch | null,
 ): Promise<string | null> {
-  return show(repo, await defaultBranch(repo), `nights/${date}.md`);
+  const { ref } = await shown(repo, display);
+  return show(repo, ref, `nights/${date}.md`);
 }

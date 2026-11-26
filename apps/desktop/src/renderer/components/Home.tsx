@@ -10,10 +10,10 @@ import type { HomeRepo, HomeView, RepoEntry } from "../../shared/ipc";
 
 // Home: the landing view before a repo is picked, one card per registered
 // repo. Each says which cards are live and who holds them, what needs the
-// owner, the stage the checklist puts it at, and how its last night went,
-// all read by main from the repo's kit files. Everything follows the Now
-// watchers as they change. Nothing here acts: opening a repo is where things
-// get done.
+// owner, the stage the checklist puts it at and its section with the most
+// gaps, and how its last night went, all read by main from the repo's kit
+// files. Everything follows the Now watchers as they change. Nothing here
+// acts: opening a repo is where things get done.
 
 /** The first few things a repo waits on; its Now view has the rest. */
 const NEEDS_SHOWN = 3;
@@ -24,6 +24,38 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
       <dt className="font-medium">{label}</dt>
       <dd className="space-y-0.5">{children}</dd>
     </div>
+  );
+}
+
+/**
+ * The checklist section with the most gaps, beside the stage: only a
+ * CHECKLIST.md checklist has sections; BACKLOG.md's is by stage.
+ */
+function MostGaps({ now }: { now: HomeRepo["now"] }) {
+  const sections = now.health.sections ?? null;
+  if (!now.ready) return <p className="text-muted-foreground">Reading…</p>;
+  if (!now.health.hasBacklog)
+    return <p className="text-muted-foreground">no checklist yet</p>;
+  if (!sections)
+    return (
+      <p className="text-muted-foreground">
+        no sections yet: the checklist is in BACKLOG.md
+      </p>
+    );
+  const worst = sections.worst;
+  if (!worst) return <p className="text-muted-foreground">no gaps</p>;
+  return (
+    <p className="tabular-nums">
+      <span className="font-medium">{worst.name}</span>
+      <span className={worst.fail > 0 ? "text-rose-300" : undefined}>
+        {" "}
+        · {worst.fail} failing
+      </span>
+      <span className={worst.unchecked > 0 ? "text-amber-300" : undefined}>
+        {" "}
+        · {worst.unchecked} unchecked
+      </span>
+    </p>
   );
 }
 
@@ -103,6 +135,9 @@ function RepoCard({ repo, onOpen }: { repo: HomeRepo; onOpen: () => void }) {
             </p>
           )}
         </Fact>
+        <Fact label="Most gaps">
+          <MostGaps now={now} />
+        </Fact>
         <Fact label="Last night">
           {!now.ready ? (
             <p className="text-muted-foreground">Reading…</p>
@@ -136,7 +171,7 @@ export function Home({
     setLoading(true);
     setError(null);
     try {
-      setView(await window.rivetari.home.get());
+      setView(await window.rachetari.home.get());
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -150,7 +185,7 @@ export function Home({
 
   // Each repo follows its watcher between reads.
   useEffect(() => {
-    return window.rivetari.now.onUpdate((state) =>
+    return window.rachetari.now.onUpdate((state) =>
       setView((prev) =>
         prev
           ? {

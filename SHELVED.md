@@ -23,6 +23,7 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a). It was the most-used skill in the pilot and the flagged line is a mention.
 - **Placeholder:** A row in `skills/INDEX.md` marked shelved; no folder.
 - **Issue:** [#6](https://github.com/arynbht/Rachetari/issues/6)
+- **Taken:** T-0022 (PR #37), option (a)
 
 ## S-03 · T-0005 · Skill playwright-cli (scan needed an allowed line)
 
@@ -32,6 +33,7 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (b). The flagged line is "Never skip hooks or add sleeps as a fix", a rule against it; the unpinned install is worth a parked line.
 - **Placeholder:** A row in `skills/INDEX.md` marked shelved; no folder.
 - **Issue:** [#7](https://github.com/arynbht/Rachetari/issues/7)
+- **Taken:** T-0022 (PR #37), option (b)
 
 ## S-04 · T-0005 · Skill improve-animations (scan needed an allowed line)
 
@@ -158,6 +160,7 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a) for `registered-repos.e2e.ts` and `axe.e2e.ts` at least: they check the fence and accessibility across views, which the new per-view tests cover only in part.
 - **Placeholder:** None in the code: the new e2e tests stand on their own. The dropped tests are listed in EXTRACTED.md under each card.
 - **Issue:** [#22](https://github.com/arynbht/Rachetari/issues/22)
+- **Partly settled:** 2026-11-25 by T-0021, with the owner's (a) for two of the eight: `e2e/registered-repos.e2e.ts` and `e2e/axe.e2e.ts` are salvaged (copied verbatim, then edited; every edit is in EXTRACTED.md under T-0021). The other six stay shelved, so #22 stays open.
 
 ## S-18 · T-0011 · Docs viewer renders task-list checkboxes with no label (axe: critical)
 
@@ -167,3 +170,4 @@ Each entry: what, why, the options, what I'd recommend, the placeholder, and the
 - **Recommend:** (a): a few lines in the existing afterSanitizeAttributes hook, no visual change.
 - **Placeholder:** `apps/desktop/e2e/history.e2e.ts` has a `test.fixme` "History passes axe with the Docs viewer showing a backlog" naming this item; the other History tests run without axe on that page.
 - **Issue:** [#28](https://github.com/arynbht/Rachetari/issues/28)
+- **Settled:** 2026-11-25 by T-0020 (PR #36, merged into `day/2026-11-25`), with the owner's variant of (b): task-list items render as ☑/☐ text with screen-reader "done"/"not done", no inputs (the inputs were never checkboxes: the sanitizer stripped `type`). The fixme test runs again. #28 closes when the day branch reaches `main`.

@@ -40,4 +40,17 @@ describe("listDocs", () => {
       "docs/architecture.md",
     ]);
   });
+
+  it("reads .rachetari/ beside .rivetari/, leaving out both task ledgers", async () => {
+    write(".rachetari/notes.md", "# Notes");
+    write(".rachetari/tasks/T-0003/card.md", "# Card");
+    write(".rivetari/autonomy/ledger.md", "# Autonomy");
+    write(".rivetari/tasks/T-0001/card.md", "# Card");
+
+    const paths = (await listDocs(repo)).map((d) => d.path);
+    expect(paths).toEqual([
+      ".rachetari/notes.md",
+      ".rivetari/autonomy/ledger.md",
+    ]);
+  });
 });

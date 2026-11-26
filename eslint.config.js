@@ -5,6 +5,16 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+// `max-lines` counts code only: blank lines and comments don't count.
+/**
+ * @param {number} max
+ * @returns {import("eslint").Linter.RuleEntry}
+ */
+const maxLines = (max) => [
+  "error",
+  { max, skipBlankLines: true, skipComments: true },
+];
+
 export default tseslint.config(
   {
     ignores: [
@@ -57,5 +67,33 @@ export default tseslint.config(
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
     },
+  },
+  {
+    // Size limits for every linted file (T-0043).
+    rules: {
+      complexity: ["error", 20],
+      "max-lines": maxLines(500),
+    },
+  },
+  {
+    // Tests (unit and e2e): longer files allowed, no complexity limit.
+    files: ["**/*.{test,spec,e2e}.{ts,tsx,js,mjs,cjs}"],
+    rules: {
+      complexity: "off",
+      "max-lines": maxLines(800),
+    },
+  },
+  // Exceptions: code over the limits on the day they were set, each held at its
+  // size then plus room (complexity +2, lines +50) so it can't grow. Each names
+  // the Next up line that will shrink it; delete the block when that lands.
+  {
+    // Shrink Now (Now.tsx) under the lint limits (complexity 28).
+    files: ["apps/desktop/src/renderer/components/Now.tsx"],
+    rules: { complexity: ["error", 30] },
+  },
+  {
+    // Shrink checkOnce (live-shell.mjs) under the lint limits (complexity 26).
+    files: ["apps/desktop/scripts/live-shell.mjs"],
+    rules: { complexity: ["error", 28] },
   },
 );

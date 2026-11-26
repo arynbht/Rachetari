@@ -58,7 +58,16 @@ Appended by the session, one line each, newest last.
 
 ## Questions for me
 
-- [ ] <question the session is blocked on>
+One question per line, in this shape; options are separated by `;`.
+
+- [ ] <question> — Recommended: <answer>. Options: <other>; <other>.
+
+## Parked
+
+Anything noticed that isn't this card. One line each, no fixing. The merger appends these to `BACKLOG.md` on the integration branch.
+Format: `- YYYY-MM-DD [product|tool|checklist] <what> · seen on T-NNNN · <file or command>`
+
+- <line>
 
 ## Done
 

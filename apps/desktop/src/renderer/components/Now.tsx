@@ -9,9 +9,15 @@ import { span, useNow, when } from "@/lib/time";
 import type {
   NeedsYouItem,
   NowHealth,
+  NowQuestionGroup,
   NowRunning,
   NowState,
 } from "../../shared/ipc";
+import { openQuestionsText } from "../../shared/open-questions";
+import { AcceptAll, AnswerQuestion } from "./AnswerControls";
+import { CiBadge } from "./CiBadge";
+import { useCiState } from "./CiLine";
+import { DisplayBranchLine } from "./DisplayBranch";
 
 // The repo as it stands now: what's in progress, everything that waits on the
 // owner, what just happened, and the repo's health. All of it is the main
@@ -84,7 +90,162 @@ function ItemCard({
   );
 }
 
+/** A card's text with its `code` spans set as code. */
+function Inline({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/`([^`]+)`/).map((part, i) =>
+        i % 2 === 1 ? (
+          <code
+            key={i}
+            className="rounded bg-muted px-1 font-mono text-[0.92em]"
+          >
+            {part}
+          </code>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
+/**
+ * Every open question on the live cards, one row each, grouped by card. It
+ * only reads: "Copy all" puts them on the clipboard in the format
+ * docs/open-questions.md uses, and the answers go in each card's CARD.md.
+ */
+function QuestionsPanel({
+  repoPath,
+  groups,
+  held,
+}: {
+  repoPath: string;
+  groups: NowQuestionGroup[];
+  /** Who holds each card, by branch. */
+  held: ReadonlyMap<string, string | null>;
+}) {
+  const [said, setSaid] = useState("");
+  const clear = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(clear.current), []);
+
+  const copyAll = async () => {
+    window.clearTimeout(clear.current);
+    try {
+      await navigator.clipboard.writeText(openQuestionsText(groups));
+      setSaid("Copied");
+      clear.current = window.setTimeout(() => setSaid(""), 4000);
+    } catch (err) {
+      setSaid(`Couldn't copy: ${errorMessage(err)}`);
+    }
+  };
+
+  return (
+    <section aria-labelledby="now-questions" className="space-y-2">
+      <div className="flex items-center gap-3">
+        <h3 id="now-questions" className="text-sm font-semibold">
+          Questions
+        </h3>
+        {groups.length > 0 && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => void copyAll()}
+          >
+            Copy all
+          </Button>
+        )}
+        <span role="status" className="text-xs text-muted-foreground">
+          {said}
+        </span>
+      </div>
+      {groups.length > 0 ? (
+        <div className="space-y-3">
+          {groups.map((g) => {
+            const headingId = `now-questions-${g.branch.replace(/\W/g, "-")}`;
+            return (
+              <Card
+                key={g.branch}
+                role="group"
+                aria-labelledby={headingId}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
+                  <h4 id={headingId} className="text-sm font-medium">
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {g.id}
+                    </span>{" "}
+                    · {g.title}
+                  </h4>
+                  <AcceptAll
+                    repoPath={repoPath}
+                    group={g}
+                    heldBy={held.get(g.branch) ?? null}
+                  />
+                </div>
+                <ol className="divide-y divide-border/60">
+                  {g.questions.map((q) => (
+                    <li key={q.n} className="flex gap-3 px-4 py-2.5">
+                      <span
+                        className="w-4 shrink-0 text-right font-mono text-xs leading-5 text-muted-foreground"
+                        aria-hidden
+                      >
+                        {q.n}.
+                      </span>
+                      <div className="min-w-0 flex-1 space-y-1 break-words">
+                        <p className="text-sm">
+                          <Inline text={q.ask} />
+                        </p>
+                        {q.recommended !== null ? (
+                          <p className="text-xs">
+                            <span className="font-medium text-emerald-400">
+                              Recommended:
+                            </span>{" "}
+                            <Inline text={q.recommended} />
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">
+                            No recommendation written
+                          </p>
+                        )}
+                        {q.options.length > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            Other options:{" "}
+                            {q.options.map((o, i) => (
+                              <span key={i}>
+                                {i > 0 && "; "}
+                                <Inline text={o} />
+                              </span>
+                            ))}
+                          </p>
+                        )}
+                        <AnswerQuestion
+                          repoPath={repoPath}
+                          group={g}
+                          question={q}
+                          heldBy={held.get(g.branch) ?? null}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          No card has an open question.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function RunningRow({ card, now }: { card: NowRunning; now: number }) {
+  const ci = useCiState();
   const parts = [
     card.heldBy ? `held by ${card.heldBy}` : "held by nobody",
     card.lastCommitAt
@@ -98,6 +259,9 @@ function RunningRow({ card, now }: { card: NowRunning; now: number }) {
           {card.id}
         </span>
         <span className="truncate">{card.title}</span>
+        <span className="ml-auto shrink-0">
+          <CiBadge branch={card.branch} state={ci} />
+        </span>
       </p>
       <p className="text-xs text-sky-400">{parts.join(" · ")}</p>
       {card.nextStep && (
@@ -197,10 +361,10 @@ export function Now({
 
   useEffect(() => {
     let active = true;
-    const unsubscribe = window.rivetari.now.onUpdate((next) => {
+    const unsubscribe = window.rachetari.now.onUpdate((next) => {
       if (active && next.repoPath === repoPath) setState(next);
     });
-    window.rivetari.now.get(repoPath).then(
+    window.rachetari.now.get(repoPath).then(
       (first) => active && setState((current) => current ?? first),
       (err: unknown) => active && setError(errorMessage(err)),
     );
@@ -228,6 +392,7 @@ export function Now({
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold">Now</h2>
+        <DisplayBranchLine display={state?.display} />
         <p className="text-xs text-muted-foreground">
           What&apos;s in progress, what waits on you and what just happened,
           read from the repo&apos;s cards and backlog. Each item says what to
@@ -278,6 +443,12 @@ export function Now({
               </p>
             )}
           </section>
+
+          <QuestionsPanel
+            repoPath={repoPath}
+            groups={state?.questions ?? []}
+            held={new Map(state?.cards.map((c) => [c.branch, c.heldBy]))}
+          />
 
           <section aria-labelledby="now-running" className="space-y-2">
             <h3 id="now-running" className="text-sm font-semibold">

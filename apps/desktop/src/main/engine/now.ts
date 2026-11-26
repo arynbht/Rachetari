@@ -7,6 +7,7 @@
 // passed in.
 import { resolve } from "node:path";
 
+import { questionParts } from "../kit/parse";
 import {
   EMPTY_SNAPSHOT,
   type KitSnapshot,
@@ -18,10 +19,38 @@ import type {
   NeedsYouItem,
   NowBadges,
   NowHealth,
+  NowQuestionGroup,
   NowRunning,
   NowState,
   RecentEvent,
 } from "../../shared/ipc";
+
+type Checklist = NonNullable<KitSnapshot["backlog"]>["checklist"];
+
+/**
+ * The section of a CHECKLIST.md checklist with the most gaps (fail +
+ * unchecked lines); ties go to more fails, then A to Z, as the Checklist tab
+ * orders them. Null for BACKLOG.md's checklist, which has no sections.
+ */
+function checklistSections(
+  checklist: Checklist | undefined,
+): NonNullable<NowHealth["sections"]> | null {
+  if (checklist?.source !== "CHECKLIST.md") return null;
+  const gaps = checklist.groups
+    .map((g) => ({
+      name: g.name,
+      fail: g.lines.filter((l) => l.status === "fail").length,
+      unchecked: g.lines.filter((l) => l.status === "unchecked").length,
+    }))
+    .filter((s) => s.fail + s.unchecked > 0)
+    .sort(
+      (a, b) =>
+        b.fail + b.unchecked - (a.fail + a.unchecked) ||
+        b.fail - a.fail ||
+        a.name.localeCompare(b.name),
+    );
+  return { worst: gaps[0] ?? null };
+}
 
 /** What the repo's checklist, skills and last night say. */
 export function nowHealth(snapshot: KitSnapshot): NowHealth {
@@ -60,82 +89,135 @@ export function nowHealth(snapshot: KitSnapshot): NowHealth {
           blocked: night.blocked,
         }
       : null,
+    sections: checklistSections(snapshot.backlog?.checklist),
   };
+}
+
+type LiveCard = KitSnapshot["cards"][number];
+type ReadableCard = NonNullable<LiveCard["card"]>;
+
+/** The item for a branch whose CARD.md can't be read. */
+function unreadableItem(live: LiveCard): NeedsYouItem {
+  return {
+    kind: "unreadable",
+    id: live.branch,
+    title: "CARD.md can't be read",
+    branch: live.branch,
+    why: live.error ?? "unreadable",
+    todo: `Fix CARD.md on ${live.branch}: it needs a "# T-NNNN · title" line and a "Status:" line.`,
+    at: live.lastCommitAt,
+  };
+}
+
+/** The items one readable card adds: approve, question, merge, in that order. */
+function readableCardItems(live: LiveCard, card: ReadableCard): NeedsYouItem[] {
+  const items: NeedsYouItem[] = [];
+  const status = card.status.toLowerCase();
+  const base = {
+    id: card.id,
+    title: card.title,
+    branch: live.branch,
+    at: live.lastCommitAt,
+  };
+  // Only a gated draft waits on the owner; a `low` one its drafter sets ready.
+  if (status === "draft" && card.gate !== null && card.gate !== "low")
+    items.push({
+      ...base,
+      kind: "approve",
+      why: "Drafted and waiting for you to approve it.",
+      todo: `Set Status to ready in CARD.md on ${live.branch}.`,
+    });
+  const open = card.questions.filter((q) => q.open);
+  if (open.length > 0 || status === "blocked")
+    items.push({
+      ...base,
+      kind: "question",
+      why:
+        open.map((q) => q.text).join(" · ") ||
+        "Status is blocked, with no open question written down.",
+      todo: `Answer under "Questions for me" in CARD.md on ${live.branch}${
+        status === "blocked" ? ", then set Status back to ready" : ""
+      }.`,
+    });
+  if (status === "done" && card.pr !== null)
+    items.push({
+      ...base,
+      kind: "merge",
+      why: `PR #${card.pr} waits for you to merge it.`,
+      todo: `Review and merge PR #${card.pr} (from ${live.branch}).`,
+    });
+  return items;
+}
+
+/** The items for the latest night's held rows. */
+function heldNightItems(snapshot: KitSnapshot): NeedsYouItem[] {
+  const night = snapshot.nights[0];
+  if (!night) return [];
+  return night.rows
+    .filter((row) => row.result === "held")
+    .map((row) => ({
+      kind: "held",
+      id: row.card ?? night.date,
+      title:
+        snapshot.cards.find((c) => c.card?.id === row.card)?.card?.title ??
+        "Held overnight",
+      branch: row.card ? `card/${row.card}` : null,
+      why: row.text,
+      todo: `Read ${night.path}, then fix or re-plan ${
+        row.card ? `${row.card} on card/${row.card}` : "the held card"
+      }.`,
+      at: null,
+    }));
+}
+
+/** Oldest first; one with no time goes last. */
+function byOldestFirst(a: NeedsYouItem, b: NeedsYouItem): number {
+  if (a.at === b.at) return 0;
+  if (a.at === null) return 1;
+  if (b.at === null) return -1;
+  return a.at.localeCompare(b.at);
 }
 
 /** Everything that waits on the owner, oldest first, each with what to do. */
 export function needsYouItems(snapshot: KitSnapshot): NeedsYouItem[] {
   const items: NeedsYouItem[] = [];
   for (const live of snapshot.cards) {
-    const card = live.card;
-    const at = live.lastCommitAt;
-    if (!card) {
-      items.push({
-        kind: "unreadable",
-        id: live.branch,
-        title: "CARD.md can't be read",
-        branch: live.branch,
-        why: live.error ?? "unreadable",
-        todo: `Fix CARD.md on ${live.branch}: it needs a "# T-NNNN · title" line and a "Status:" line.`,
-        at,
-      });
-      continue;
-    }
-    const status = card.status.toLowerCase();
-    const base = { id: card.id, title: card.title, branch: live.branch, at };
-    if (status === "draft")
-      items.push({
-        ...base,
-        kind: "approve",
-        why: "Drafted and waiting for you to approve it.",
-        todo: `Set Status to ready in CARD.md on ${live.branch}.`,
-      });
-    const open = card.questions.filter((q) => q.open);
-    if (open.length > 0 || status === "blocked")
-      items.push({
-        ...base,
-        kind: "question",
-        why:
-          open.map((q) => q.text).join(" · ") ||
-          "Status is blocked, with no open question written down.",
-        todo: `Answer under "Questions for me" in CARD.md on ${live.branch}${
-          status === "blocked" ? ", then set Status back to ready" : ""
-        }.`,
-      });
-    if (status === "done" && card.pr !== null)
-      items.push({
-        ...base,
-        kind: "merge",
-        why: `PR #${card.pr} waits for you to merge it.`,
-        todo: `Review and merge PR #${card.pr} (from ${live.branch}).`,
-      });
+    // A branch being drafted waits on nobody yet.
+    if (live.drafting) continue;
+    if (live.card) items.push(...readableCardItems(live, live.card));
+    else items.push(unreadableItem(live));
   }
-  const night = snapshot.nights[0];
-  for (const row of night?.rows ?? [])
-    if (row.result === "held" && night)
-      items.push({
-        kind: "held",
-        id: row.card ?? night.date,
-        title:
-          snapshot.cards.find((c) => c.card?.id === row.card)?.card?.title ??
-          "Held overnight",
-        branch: row.card ? `card/${row.card}` : null,
-        why: row.text,
-        todo: `Read ${night.path}, then fix or re-plan ${
-          row.card ? `${row.card} on card/${row.card}` : "the held card"
-        }.`,
-        at: null,
-      });
-  // Oldest first; one with no time goes last.
-  return items.sort((a, b) =>
-    a.at === b.at
-      ? 0
-      : a.at === null
-        ? 1
-        : b.at === null
-          ? -1
-          : a.at.localeCompare(b.at),
-  );
+  items.push(...heldNightItems(snapshot));
+  return items.sort(byOldestFirst);
+}
+
+/**
+ * Each readable live card's open questions, split into their parts, in
+ * card-id order. A branch being drafted and an unreadable card add none, as
+ * in Needs you; the card's gate doesn't matter.
+ */
+export function questionGroups(snapshot: KitSnapshot): NowQuestionGroup[] {
+  return snapshot.cards
+    .flatMap((live) => {
+      const card = live.drafting ? null : live.card;
+      const open = card?.questions.filter((q) => q.open) ?? [];
+      return card && open.length > 0
+        ? [
+            {
+              id: card.id,
+              title: card.title,
+              branch: live.branch,
+              questions: open.map((q, i) => ({
+                n: i + 1,
+                ...questionParts(q.text),
+              })),
+            },
+          ]
+        : [];
+    })
+    .sort(
+      (a, b) => a.id.localeCompare(b.id) || a.branch.localeCompare(b.branch),
+    );
 }
 
 /** The cards in progress, whoever holds them. */
@@ -172,17 +254,29 @@ export function nowState(
     ready,
     error,
     cardCount: snapshot.cards.length,
-    cards: snapshot.cards.map((c) => ({
-      id: c.card?.id ?? c.branch,
-      title: c.card?.title ?? "CARD.md can't be read",
-      status: c.card?.status ?? "unreadable",
-      heldBy: c.card?.heldBy ?? null,
-      branch: c.branch,
-    })),
+    cards: snapshot.cards.map((c) =>
+      c.drafting
+        ? {
+            id: /T-\d{4,}/.exec(c.branch)?.[0] ?? c.branch,
+            title: "No CARD.md yet",
+            status: "drafting",
+            heldBy: null,
+            branch: c.branch,
+          }
+        : {
+            id: c.card?.id ?? c.branch,
+            title: c.card?.title ?? "CARD.md can't be read",
+            status: c.card?.status ?? "unreadable",
+            heldBy: c.card?.heldBy ?? null,
+            branch: c.branch,
+          },
+    ),
     health: nowHealth(snapshot),
     needsYou: needsYouItems(snapshot),
+    questions: questionGroups(snapshot),
     running: runningCards(snapshot),
     recent: recentEvents(snapshot),
+    display: snapshot.display,
   };
 }
 
@@ -197,7 +291,8 @@ export interface NowHubOptions {
   onBadges: (badges: NowBadges) => void;
   /**
    * Hears an item that entered Needs you while the app was running: never one
-   * that was already waiting when the repo was first read.
+   * that was already waiting when the repo was first read, and never a PR to
+   * merge (the line merges those; it stays listed in Needs you).
    */
   onNew: (repoPath: string, item: NeedsYouItem) => void;
   /**
@@ -407,7 +502,8 @@ export class NowHub {
       const key = itemKey(item);
       if (entry.known.has(key)) continue;
       entry.known.add(key);
-      if (tells) this.options.onNew(entry.repoPath, item);
+      if (tells && item.kind !== "merge")
+        this.options.onNew(entry.repoPath, item);
     }
     for (const key of entry.known)
       if (!keys.has(key)) {

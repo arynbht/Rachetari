@@ -10,8 +10,9 @@
    naming the file and why.
    Read the skills the card names under "Skills" from `skills/`, and no others.
 3. **Park everything else.** Anything you notice that isn't the card (a bug, a refactor, a
-   missing test, a tool problem) gets one line under "Parked" in `BACKLOG.md`, then you
-   carry on with the card. Do not fix it, even if it's small.
+   missing test, a tool problem) gets one line under "Parked" in the card's `CARD.md`
+   (never edit `BACKLOG.md`; the merger appends it there), then you carry on with the
+   card. Do not fix it, even if it's small.
 4. **Stop and ask before:** adding a dependency; changing a schema, contract or public
    type; touching auth, billing or migrations; changing or deleting an existing test;
    changing lint, CI or agent config; or when a criterion looks wrong or impossible.
@@ -22,7 +23,9 @@
 6. **Leave a resume point.** Before the session ends, rewrite the card's "Next step",
    append any decision to "Decisions", then commit and push the card's branch. Unpushed
    work doesn't exist for the other machine. Use `/handoff` to release the card.
-7. **Never merge, never push to the default branch.** Work on a branch, open a draft PR.
+7. **Never merge, never push to the integration branch or the default branch.** The
+   integration branch is `develop` (or its like) when the repo has one, else the default
+   branch. Cut the card's branch from it and open a draft PR against it.
 8. **Tool problems are not this session's work.** If a tool (Rivetari, the shell, CI) gets
    in the way, work around it, park it with `[tool]`, and continue.
 
