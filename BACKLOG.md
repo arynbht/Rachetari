@@ -11,11 +11,10 @@ Ordered. The top line becomes the next `CARD.md`.
 4. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
 5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
 6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-7. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+7. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -189,3 +188,4 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-26 [tool] No test covers `registerCardWrites` or the mark-ready IPC channels end to end; a fake-ipc test would show both stay registered · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
 - 2026-11-26 [product] `answer.ts` copies `parse.ts`'s rule for where a question ends, so the two can drift; one shared helper would keep them together · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
 - 2026-11-26 [tool] The answer path has no failed-commit rollback test of its own; it relies on T-0053's in `card-commit.test.ts` · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.test.ts`
+- 2026-11-26 [tool] T-0061's card put its "### Evidence" block under "## Parked", not "## Done", so the shell reads its Evidence as empty · seen on T-0061 inspection · `cards/done/T-0061.md`
