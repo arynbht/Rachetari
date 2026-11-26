@@ -1,7 +1,7 @@
 # T-0061 · refactor(shell): shrink parseCard under the lint limits
 
-Status: ready
-Branch: card/T-0061 · Held by: nobody
+Status: in progress
+Branch: card/T-0061 · Held by: session-T-0061
 Created: 2026-11-25 · Source: BACKLOG Next up (from T-0043) · Gate: low
 
 ## Why
