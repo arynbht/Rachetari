@@ -1,7 +1,7 @@
 # T-0054 · feat(shell): answer questions from the Questions panel
 
-Status: ready
-Branch: card/T-0054 · Held by: nobody
+Status: in progress
+Branch: card/T-0054 · Held by: builder-T-0054
 Created: 2026-11-25 · Source: `docs/queue-2026-11-25.md` §Questions panel: answers · Gate: needs you (new IPC channels and a write from the shell; owner has not approved)
 
 ## Why
@@ -46,7 +46,7 @@ The Questions panel only reads; to answer, the owner edits `CARD.md` by hand on 
 
 ## Next step
 
-Owner approves the gate; after T-0053 merges, set ready.
+Code and tests written; lint, typecheck, boundaries pass. Waiting for the test lock to run vitest (`pnpm --filter desktop test answer`), then evidence, done check, draft PR.
 
 ## Decisions
 
@@ -77,3 +77,4 @@ Waiting on the owner (wall clock, UTC): 2026-11-25
 ## Parked
 
 - Follow-up UI card: Accept/Accept all/free-text controls and diff dialog in `Now.tsx`, with `e2e/answer.e2e.ts`.
+- 2026-11-25: Decided for the owner: `main/index.ts` was at the 500-line cap, so `answer.ts` exports `registerCardWrites` (mark ready plus answers) and index.ts calls that in place of `registerMarkReady` (alternative: raise the cap).
