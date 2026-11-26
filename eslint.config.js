@@ -87,11 +87,6 @@ export default tseslint.config(
   // size then plus room (complexity +2, lines +50) so it can't grow. Each names
   // the Next up line that will shrink it; delete the block when that lands.
   {
-    // Shrink Checklist (Checklist.tsx) under the lint limits (complexity 31).
-    files: ["apps/desktop/src/renderer/components/Checklist.tsx"],
-    rules: { complexity: ["error", 33] },
-  },
-  {
     // Shrink Now (Now.tsx) under the lint limits (complexity 28).
     files: ["apps/desktop/src/renderer/components/Now.tsx"],
     rules: { complexity: ["error", 30] },
