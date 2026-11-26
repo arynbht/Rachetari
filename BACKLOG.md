@@ -7,15 +7,13 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 2. Shell: the mark-ready button and its diff dialog, on T-0053's write path (`card:markReadyPreview` / `card:markReadyApply`); shows the diff, applies on confirm, shows each refusal
-3. Shell: `card-commit.ts` runs git through T-0060's `git-run.ts` instead of its own runner (follow-up to T-0053, decided for the owner 2026-11-26)
-4. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
-5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
-6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-7. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+3. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
+4. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
+5. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
+6. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+7. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -189,3 +187,7 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-26 [tool] No test covers `registerCardWrites` or the mark-ready IPC channels end to end; a fake-ipc test would show both stay registered · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
 - 2026-11-26 [product] `answer.ts` copies `parse.ts`'s rule for where a question ends, so the two can drift; one shared helper would keep them together · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.ts`
 - 2026-11-26 [tool] The answer path has no failed-commit rollback test of its own; it relies on T-0053's in `card-commit.test.ts` · seen on T-0054 inspection · `apps/desktop/src/main/engine/answer.test.ts`
+- 2026-11-26 [tool] T-0061's card put its "### Evidence" block under "## Parked", not "## Done", so the shell reads its Evidence as empty · seen on T-0061 inspection · `cards/done/T-0061.md`
+- 2026-11-26 [product] `RIVETARI_GIT_FETCH_LIMIT_MS` now also sets the write path's limit (card-commit uses git-run's "fetch" kind); a separate "write" kind would keep the two apart · seen on T-0063 inspection · `apps/desktop/src/main/kit/git-run.ts`
+- 2026-11-26 [product] Write-path refusal reasons now carry the full git command line and a trailing newline; trim them for the dialog · seen on T-0063 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [tool] `git-run.ts`'s header still calls it read-only plumbing, though the write path runs through it now · seen on T-0063 inspection · `apps/desktop/src/main/kit/git-run.ts`
