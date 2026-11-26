@@ -63,21 +63,32 @@ export function killTree(child: ChildProcess): void {
 /** The most stdout a git call may give before it's stopped. */
 const MAX_OUTPUT = 16 * 1024 * 1024;
 
+/** Optional extras for a git call; none changes what a call without them does. */
+export interface GitOptions {
+  /** Text written to git's stdin (stdin is closed and empty without it). */
+  input?: string;
+  /** Env vars set on top of the usual ones. */
+  env?: NodeJS.ProcessEnv;
+  /** Non-zero exit codes that count as success. */
+  okCodes?: number[];
+}
+
 /**
- * Read-only git: no shell, no prompts, no pager, and a time limit. It fails
- * as `execFile` does: `Command failed: git <args>` and git's stderr.
+ * Git: no shell, no prompts, no pager, and a time limit. It fails as
+ * `execFile` does: `Command failed: git <args>` and git's stderr.
  */
 export function git(
   repo: string,
   args: string[],
   kind: keyof typeof LIMITS = "read",
+  opts: GitOptions = {},
 ): Promise<string> {
   const ms = limitMs(kind);
   return new Promise((resolve, reject) => {
     // spawn, not execFile: execFile drops `detached`.
     const child = spawn("git", args, {
       cwd: repo,
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
       // On POSIX, its own process group, so a timeout can kill the whole tree.
       detached: process.platform !== "win32",
@@ -85,6 +96,7 @@ export function git(
         ...process.env,
         GIT_TERMINAL_PROMPT: "0",
         GIT_OPTIONAL_LOCKS: "0",
+        ...opts.env,
       },
     });
     let settled = false;
@@ -114,7 +126,7 @@ export function git(
     child.stderr.on("data", (chunk: Buffer) => errOut.push(chunk));
     child.on("error", (err) => settle(err));
     child.on("close", (code, signal) => {
-      if (code === 0) {
+      if (code === 0 || (code !== null && opts.okCodes?.includes(code))) {
         settle(null, Buffer.concat(out).toString("utf8"));
         return;
       }
@@ -126,6 +138,9 @@ ${stderr}`),
       );
       settle(err);
     });
+    // Closed at once without input, so git never waits on it.
+    child.stdin.on("error", () => undefined);
+    child.stdin.end(opts.input);
     const timer = setTimeout(
       () =>
         stop(new GitTimeout(`git ${args[0]} timed out after ${ms / 1000} s`)),
