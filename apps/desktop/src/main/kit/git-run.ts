@@ -88,7 +88,7 @@ export function git(
     // spawn, not execFile: execFile drops `detached`.
     const child = spawn("git", args, {
       cwd: repo,
-      stdio: [opts.input === undefined ? "ignore" : "pipe", "pipe", "pipe"],
+      stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
       // On POSIX, its own process group, so a timeout can kill the whole tree.
       detached: process.platform !== "win32",
@@ -138,10 +138,9 @@ ${stderr}`),
       );
       settle(err);
     });
-    if (opts.input !== undefined) {
-      child.stdin?.on("error", () => undefined);
-      child.stdin?.end(opts.input);
-    }
+    // Closed at once without input, so git never waits on it.
+    child.stdin.on("error", () => undefined);
+    child.stdin.end(opts.input);
     const timer = setTimeout(
       () =>
         stop(new GitTimeout(`git ${args[0]} timed out after ${ms / 1000} s`)),
