@@ -18,6 +18,7 @@ import type {
   TaskDetail as TaskDetailView,
   TaskItem,
 } from "../../../shared/ipc";
+import { MarkReady } from "./MarkReady";
 import { CardTab, CommitsTab, EvidenceTab } from "./RecordTabs";
 
 /** The PR as the header says it: its number and where it stands. */
@@ -109,7 +110,9 @@ function RecordHeader({
   item,
   stepRef,
   card,
+  repoPath,
 }: {
+  repoPath: string;
   item: TaskItem;
   stepRef: RefObject<HTMLElement>;
   card: TaskCard | null;
@@ -119,12 +122,15 @@ function RecordHeader({
       data-record="header"
       className="shrink-0 space-y-2 border-b border-border/60 px-4 py-3"
     >
-      <h3 className="break-words text-base font-semibold leading-6">
-        <span className="font-mono text-sm text-muted-foreground">
-          {item.id}
-        </span>{" "}
-        {item.title}
-      </h3>
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="min-w-0 break-words text-base font-semibold leading-6">
+          <span className="font-mono text-sm text-muted-foreground">
+            {item.id}
+          </span>{" "}
+          {item.title}
+        </h3>
+        <MarkReady repoPath={repoPath} item={item} />
+      </div>
       <dl className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.5rem_minmax(0,1fr)] gap-x-3 gap-y-0.5 text-xs leading-5">
         <HeaderField label="Status">{item.status}</HeaderField>
         <HeaderField label="Held by">{item.heldBy ?? "nobody"}</HeaderField>
@@ -278,7 +284,12 @@ export function TaskRecord({
           event.stopPropagation();
       }}
     >
-      <RecordHeader item={item} stepRef={stepRef} card={card} />
+      <RecordHeader
+        item={item}
+        stepRef={stepRef}
+        card={card}
+        repoPath={repoPath}
+      />
 
       <div
         data-record="body"

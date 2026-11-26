@@ -6,7 +6,6 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 
 Ordered. The top line becomes the next `CARD.md`.
 
-2. Shell: the mark-ready button and its diff dialog, on T-0053's write path (`card:markReadyPreview` / `card:markReadyApply`); shows the diff, applies on confirm, shows each refusal
 3. Questions panel answers, the UI (T-0064, ready): Accept recommended, Accept all for a card, and a free-text answer, each previewed then applied through T-0054's write path (merged)
 4. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
 5. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
@@ -191,3 +190,6 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-26 [product] `RIVETARI_GIT_FETCH_LIMIT_MS` now also sets the write path's limit (card-commit uses git-run's "fetch" kind); a separate "write" kind would keep the two apart · seen on T-0063 inspection · `apps/desktop/src/main/kit/git-run.ts`
 - 2026-11-26 [product] Write-path refusal reasons now carry the full git command line and a trailing newline; trim them for the dialog · seen on T-0063 inspection · `apps/desktop/src/main/engine/card-commit.ts`
 - 2026-11-26 [tool] `git-run.ts`'s header still calls it read-only plumbing, though the write path runs through it now · seen on T-0063 inspection · `apps/desktop/src/main/kit/git-run.ts`
+- 2026-11-26 [product] In the mark-ready dialog, Shift+Tab can move focus out while apply is running, and focus is lost after a successful commit (it should return to the record) · seen on T-0062 inspection · `apps/desktop/src/renderer/components/tasks/MarkReady.tsx`
+- 2026-11-26 [tool] T-0062's A3 e2e finds "ready" anywhere in the record, not in the Status field itself · seen on T-0062 inspection · `apps/desktop/e2e/mark-ready.e2e.ts`
+- 2026-11-26 [product] A mark-ready button in Now's Needs-you rows, now that T-0062's dialog exists (parked by T-0062's drafter) · seen on T-0062 · `apps/desktop/src/renderer/components/Now.tsx`
