@@ -1,8 +1,73 @@
 # T-0068 · ci: desktop-e2e install step gets a time limit and retries
 
-Status: draft
+Status: ready
 Branch: card/T-0068 · Held by: nobody
+Created: 2026-11-26 · Source: prompt · Gate: needs you (CI change), approved by the owner 2026-11-26
+
+## Why
+
+The desktop-e2e job's step "Install Electron runtime libraries + xvfb" has hung until the job's 15-minute limit four times on 2026-11-26 (develop 66321e8; PR #79 twice; PR #82), before any test ran. Every PR then waits 15 minutes and fails for a reason unrelated to its code. A short limit with retries turns a hang into a quick retry.
+
+## Acceptance criteria
+
+- [ ] A1: Only the "Install Electron runtime libraries + xvfb" step changes in `.github/workflows/ci.yml`; no other job, the `ci` aggregator's needs/conditions, or tests change · check: read `git diff develop...HEAD`
+- [ ] A2: The step has `timeout-minutes: 6` and runs the install (`playwright install-deps`, then `sudo apt-get install -y xvfb`) up to 3 attempts, each under `timeout 300`, and exits non-zero with a clear message if all three fail · check: read the step in the diff
+- [ ] A3: The package filter name stays as on develop · check: the diff does not touch the `--filter` argument
+- [ ] A4: The workflow file is valid · check: `actionlint .github/workflows/ci.yml` if installed locally, else a YAML parse of the file (say which was run)
+- [ ] A5: The PR's own desktop-e2e run passes, its log shows which attempt succeeded, and `ci` is green · check: `gh pr checks` and the step log
+
+## Files in scope
+
+- `.github/workflows/ci.yml` (changed)
+- `CARD.md` (changed)
+
+## Out of scope
+
+- The package filter rename (PR #83 does that).
+- Changing other steps, other jobs or the 15-minute job limit.
+- Caching the apt or Playwright dependencies.
+
+## Constraints
+
+- No new dependencies.
+- The step's retry loop must not hide a final failure.
+
+## Skills
+
+none
+
+## Stop and ask
+
+Besides the standing list in CLAUDE.md:
+
+- None: the owner approved the CI change.
 
 ## Next step
 
-Being drafted.
+Edit the install step in `.github/workflows/ci.yml` as A2 describes, run A4, open a draft PR.
+
+## Decisions
+
+- 2026-11-26: Owner approved this CI change ("Yes: time limit + retry"); gate `needs you (CI change)`, so the card goes ready.
+- 2026-11-26: Decided for the owner: no sleep between attempts (alternative: short backoff).
+
+## Questions for me
+
+none
+
+## Done
+
+- [ ] Every criterion ticked, with the command run and its result pasted below
+- [ ] Tests, lint and typecheck run; output below
+- [ ] No edits outside "Files in scope" (`git diff --stat` below)
+- [ ] Anything not run is marked UNTESTED, never "verified"
+- [ ] Draft PR opened: #
+
+### Evidence
+
+Waiting on the owner (wall clock, UTC): none
+
+```
+```
+
+## Parked
