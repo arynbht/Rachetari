@@ -153,6 +153,40 @@ function questionsOf(lines: string[]): Question[] {
   );
 }
 
+/** One `- [ ] A1: text · check: cmd` line as a criterion; null when it isn't one. */
+function criterionOf(line: string): Criterion | null {
+  const m = /^- \[( |x|X)\] (A\d+): (.*)$/.exec(line);
+  if (!m?.[2] || m[3] === undefined) return null;
+  const [text, check] = m[3].split(" · check: ");
+  return {
+    id: m[2],
+    text: (text ?? "").trim(),
+    check: check
+      ? check
+          .replace(/\s*UNTESTED\s*$/, "")
+          .replace(/^`|`$/g, "")
+          .trim()
+      : null,
+    state: criterionState(m[1], m[3]),
+  };
+}
+
+function criterionState(box: string | undefined, rest: string): CriterionState {
+  if (/\bUNTESTED\b/.test(rest)) return "untested";
+  return box === " " ? "unticked" : "ticked";
+}
+
+/** Who holds the card: null for nobody or the template's placeholder. */
+function heldByOf(held: string | null): string | null {
+  return !held || held === "nobody" || /^<.*>$/.test(held) ? null : held;
+}
+
+/** The evidence block of "Done", without the template's placeholder. */
+function evidenceOf(done: string): string {
+  const e = /```[^\n]*\n([\s\S]*?)\n```/.exec(done)?.[1];
+  return e && e.trim() !== "<commands and results>" ? e : "";
+}
+
 /** Parse a CARD.md; null when it isn't one (no `# T-NNNN · title` and `Status:`). */
 export function parseCard(text: string): Card | null {
   const first = text.split(/\r?\n/, 1)[0] ?? "";
@@ -160,60 +194,31 @@ export function parseCard(text: string): Card | null {
   const status = field(text, "Status");
   if (!header?.[1] || !header[2] || !status) return null;
   const s = sections(text);
-  const held = field(text, "Held by");
   const createdLine = /^Created:.*$/m.exec(text)?.[0] ?? "";
-
-  const criteria: Criterion[] = [];
-  for (const line of s.get("Acceptance criteria") ?? []) {
-    const m = /^- \[( |x|X)\] (A\d+): (.*)$/.exec(line);
-    if (!m?.[2] || m[3] === undefined) continue;
-    const [text, check] = m[3].split(" · check: ");
-    criteria.push({
-      id: m[2],
-      text: (text ?? "").trim(),
-      check: check
-        ? check
-            .replace(/\s*UNTESTED\s*$/, "")
-            .replace(/^`|`$/g, "")
-            .trim()
-        : null,
-      state: /\bUNTESTED\b/.test(m[3])
-        ? "untested"
-        : m[1] === " "
-          ? "unticked"
-          : "ticked",
-    });
-  }
-
-  const questions = questionsOf(s.get("Questions for me") ?? []);
-
-  const pr = /Draft PR opened: #(\d+)/.exec(s.get("Done")?.join("\n") ?? "");
-  const evidence = /```[^\n]*\n([\s\S]*?)\n```/.exec(
-    s.get("Done")?.join("\n") ?? "",
-  );
+  const done = s.get("Done")?.join("\n") ?? "";
+  const pr = /Draft PR opened: #(\d+)/.exec(done)?.[1];
 
   return {
     id: header[1],
     title: header[2].trim(),
     status,
-    heldBy: !held || held === "nobody" || /^<.*>$/.test(held) ? null : held,
+    heldBy: heldByOf(field(text, "Held by")),
     created: field(text, "Created"),
     source: field(text, "Source"),
     gate: field(createdLine, "Gate"),
     why: prose(s.get("Why")),
-    criteria,
+    criteria: (s.get("Acceptance criteria") ?? [])
+      .map(criterionOf)
+      .filter((c): c is Criterion => c !== null),
     filesInScope: bullets(s.get("Files in scope")),
     outOfScope: bullets(s.get("Out of scope")),
     constraints: bullets(s.get("Constraints")),
     skills: bullets(s.get("Skills")),
     nextStep: prose(s.get("Next step")),
     decisions: bullets(s.get("Decisions")),
-    questions,
-    evidence:
-      evidence?.[1] && evidence[1].trim() !== "<commands and results>"
-        ? evidence[1]
-        : "",
-    pr: pr?.[1] ? Number(pr[1]) : null,
+    questions: questionsOf(s.get("Questions for me") ?? []),
+    evidence: evidenceOf(done),
+    pr: pr ? Number(pr) : null,
   };
 }
 
