@@ -1,7 +1,7 @@
 # T-0068 · ci: desktop-e2e install step gets a time limit and retries
 
-Status: in progress
-Branch: card/T-0068 · Held by: builder session T-0068
+Status: blocked
+Branch: card/T-0068 · Held by: nobody
 Created: 2026-11-26 · Source: prompt · Gate: needs you (CI change), approved by the owner 2026-11-26
 
 ## Why
@@ -54,7 +54,7 @@ Step edited, PR #85 open. CI runs on it were cancelled externally ~30s in (3 tim
 
 ## Questions for me
 
-none
+- [ ] Run 45767342692: attempt 1 hung and `timeout 110` killed it (works), but attempts 2 and 3 failed in 2-30 s with apt exit 100 (likely the killed attempt left the apt/dpkg lock held), so desktop-e2e still fails. Add lock handling? � Recommended: pass `-o DPkg::Lock::Timeout=60` and `sudo pkill -9 apt-get dpkg` before each retry, split into two commands. Options: `sudo apt-get update` first on retry; accept as is.
 
 ## Done
 
