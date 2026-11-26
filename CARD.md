@@ -1,7 +1,7 @@
 # T-0063 · refactor(shell): card-commit runs git through git-run.ts
 
-Status: ready
-Branch: card/T-0063 · Held by: nobody
+Status: in progress
+Branch: card/T-0063 · Held by: builder-T-0063
 Created: 2026-11-25 · Source: BACKLOG Next up (decided for the owner in cards/done/T-0053.md) · Gate: low
 
 ## Why
