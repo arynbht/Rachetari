@@ -6,6 +6,7 @@
 //                 { runs: { <branch>: [run] }, allRuns: [run], pulls: [pull] }
 //   FAKE_GH_LOG   a file each call's arguments are appended to, one JSON line
 //   FAKE_GH_PIDS  (hang) a file this process and its child's pids are written to
+//   FAKE_GH_ALL_PIDS  (hang) a file every call's pids are appended to
 import { spawn } from "node:child_process";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { setInterval } from "node:timers";
@@ -60,6 +61,8 @@ if (mode === "signed-out") {
   });
   if (env.FAKE_GH_PIDS)
     writeFileSync(env.FAKE_GH_PIDS, `${process.pid} ${child.pid}`);
+  if (env.FAKE_GH_ALL_PIDS)
+    appendFileSync(env.FAKE_GH_ALL_PIDS, `${process.pid} ${child.pid}\n`);
   setInterval(() => {}, 1000);
 } else {
   process.stdout.write(`${JSON.stringify(answer())}\n`);

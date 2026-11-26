@@ -87,22 +87,6 @@ export default tseslint.config(
   // size then plus room (complexity +2, lines +50) so it can't grow. Each names
   // the Next up line that will shrink it; delete the block when that lands.
   {
-    // Shrink tier2.ts under the lint limits (961 lines).
-    files: ["packages/runtime/src/judge/tier2.ts"],
-    rules: { "max-lines": maxLines(1011) },
-  },
-  {
-    // Shrink runTier2 and renderReview (tier2.ts) under the lint limits
-    // (complexity 41 and 31).
-    files: ["packages/runtime/src/judge/tier2.ts"],
-    rules: { complexity: ["error", 43] },
-  },
-  {
-    // Shrink source.ts under the lint limits (575 lines).
-    files: ["apps/desktop/src/main/kit/source.ts"],
-    rules: { "max-lines": maxLines(625) },
-  },
-  {
     // Shrink parseCard (parse.ts) under the lint limits (complexity 36).
     files: ["apps/desktop/src/main/kit/parse.ts"],
     rules: { complexity: ["error", 38] },

@@ -42,6 +42,11 @@ export const IpcChannel = {
   ShellStatus: "shell:status",
   /** Push channel (main → renderer): the shell's status after a change. */
   ShellStatusUpdate: "shell:statusUpdate",
+  /** Mark ready, step one: the diff of CARD.md (draft to ready); writes nothing. */
+  CardMarkReadyPreview: "card:markReadyPreview",
+  /** Mark ready, step two: commit and push that diff, or refuse and say why. */
+  CardMarkReadyApply: "card:markReadyApply",
+
   /** CI for the repo on show, read through the gh CLI (read-only). */
   CiState: "ci:state",
   /** Push channel (main → renderer): the repo on show's CI after a read. */
@@ -519,6 +524,38 @@ export const ShellStatus = z.object({
     .nullable(),
 });
 export type ShellStatus = z.infer<typeof ShellStatus>;
+
+// Mark ready — a draft card's Status flipped to ready as a plain commit on its
+// branch. The preview shows the diff; the apply writes only that diff.
+export const MarkReadyPreviewRequest = z.object({
+  repoPath: z.string().min(1),
+  /** The card's branch, e.g. card/T-0053. */
+  branch: z.string().min(1),
+});
+export type MarkReadyPreviewRequest = z.infer<typeof MarkReadyPreviewRequest>;
+
+export const MarkReadyApplyRequest = MarkReadyPreviewRequest.extend({
+  /** The diff the person was shown; nothing is written if the card has since changed. */
+  diff: z.string(),
+});
+export type MarkReadyApplyRequest = z.infer<typeof MarkReadyApplyRequest>;
+
+export const MarkReadyPreview = z.discriminatedUnion("ok", [
+  z.object({ ok: z.literal(true), diff: z.string() }),
+  z.object({ ok: z.literal(false), reason: z.string() }),
+]);
+export type MarkReadyPreview = z.infer<typeof MarkReadyPreview>;
+
+export const MarkReadyResult = z.discriminatedUnion("ok", [
+  z.object({
+    ok: z.literal(true),
+    commit: z.string(),
+    where: z.enum(["worktree", "branch"]),
+    pushed: z.boolean(),
+  }),
+  z.object({ ok: z.literal(false), reason: z.string() }),
+]);
+export type MarkReadyResult = z.infer<typeof MarkReadyResult>;
 
 // CI state — the repo on show's CI, read through the gh CLI on the person's own
 // sign-in (no token ever crosses here): its display branch's last run, and the

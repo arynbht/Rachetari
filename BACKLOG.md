@@ -7,19 +7,16 @@ Three lists. I order "Next up". Sessions only ever append to "Parked".
 Ordered. The top line becomes the next `CARD.md`.
 
 1. Windows test hangs and the git read limit: make the real-git and child-process tests reliable on loaded Windows runners, record their timings (low) · from `docs/queue-2026-11-25.md` §Windows test hangs and the git read limit
-2. The fixture cleanup's EBUSY on Windows (T-0059): `kit-fixture.ts` waits for every child process a test started before `remove()`, and `remove()` retries EBUSY and EPERM with a short backoff for up to about 5 s, then reports the path; 20 Windows runs of `gh.test.ts` and the real-git tests (owner-approved test-helper change, ready) · from T-0045's answer in docs/open-questions.md
-3. Shell action: "mark ready" as a plain commit on the card's branch, previewed first (needs you) · from `docs/queue-2026-11-25.md` §Shell action: mark ready
+2. Shell: the mark-ready button and its diff dialog, on T-0053's write path (`card:markReadyPreview` / `card:markReadyApply`); shows the diff, applies on confirm, shows each refusal
+3. Shell: `card-commit.ts` runs git through T-0060's `git-run.ts` instead of its own runner (follow-up to T-0053, decided for the owner 2026-11-26)
 4. Questions panel answers: accept recommended (per question and per card) and a free-text answer, each a previewed plain commit (needs you; after T-0026) · from `docs/queue-2026-11-25.md` §Questions panel: answers
 5. Clean code: add knip as a `package.json` script and in CI, and run it (a dependency: needs you) · from checklist "A dead-code check runs" (T-0039)
 6. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
-7. Shrink tier2.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-8. Shrink runTier2 and renderReview (tier2.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-9. Shrink source.ts under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-10. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-11. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-12. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-13. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
-14. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+7. Shrink parseCard (parse.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+8. Shrink Checklist (Checklist.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+9. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+11. Shrink needsYouItems (now.ts) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 
 ## Parked
 
@@ -174,3 +171,12 @@ The checklist is in [CHECKLIST.md](CHECKLIST.md).
 - 2026-11-25 [tool] The review can't view PNGs, so a screenshot-only card gets "needs-human" from it; the inspector's hash and look are the check · seen on T-0057 inspection · `review --pr 71`
 - 2026-11-25 [product] `kit/setup/SKILL.md` lines 100–103 run past 90 columns (line 103 is 108 after T-0058); rewrap them · seen on T-0058 inspection · `kit/setup/SKILL.md`
 - 2026-11-25 [tool] T-0058's Done box for tests, lint and typecheck is ticked though they were UNTESTED locally (CI ran them) · seen on T-0058 inspection · `cards/done/T-0058.md`
+- 2026-11-26 [tool] The fixture's worst-case cleanup (about 5 s waiting for pids plus about 5 s of EBUSY retries, ~10.5 s) sits just over Vitest's default 10 s hookTimeout, so a run that hits both limits reports a hook timeout · seen on T-0059 inspection · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-26 [tool] Nothing shows T-0059's EBUSY retry path ever ran; its 40 local runs passed without hitting it · seen on T-0059 inspection · `apps/desktop/test/kit-fixture.ts`
+- 2026-11-26 [product] `tier2-prompt.ts` now exports RUBRIC, GATE, the zod schemas, gatePrompt, reviewPrompt and applyTier1 for its siblings; `tier2.ts` doesn't re-export them and the package root only exposes `.`, so nothing public grew, but they read as public · seen on T-0055 inspection · `packages/runtime/src/judge/tier2-prompt.ts`
+- 2026-11-26 [tool] A criterion that greps for `eslint-disable` over the diff matches the card's own text; scope such greps to code paths (`packages/`, `apps/`) · seen on T-0055 inspection · `cards/done/T-0055.md`
+- 2026-11-26 [product] On the no-checkout path, `card-commit.ts` commits without a working tree, so the repo's commit hooks don't run; in a clean worktree they do · seen on T-0053 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [product] A prunable or missing worktree makes `card-commit.ts`'s `plan()` throw instead of refusing · seen on T-0053 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [product] After a refused push, retrying mark ready is refused as "status is ready", though the commit never reached origin; the shell needs a "push the local commit" path · seen on T-0053 inspection · `apps/desktop/src/main/engine/card-commit.ts`
+- 2026-11-26 [tool] `pnpm lint` from the main checkout also lints every `.claude/worktrees/*` copy (844 errors from old worktrees); eslint's ignores should cover `.claude/**` · seen on the line · `eslint.config.js`
+- 2026-11-26 [tool] Card checks name `pnpm --filter desktop test`, which matches no project; the tests run from the root · seen on T-0053, T-0060 · `package.json`
