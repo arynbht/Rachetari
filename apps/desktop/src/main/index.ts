@@ -13,6 +13,8 @@ import {
 } from "electron";
 import type { ZodType } from "zod";
 
+// First: copies the Rivetari userData across before any store is read.
+import "./store/migrate-on-start";
 import {
   ChecklistRequest,
   ChecklistView,
