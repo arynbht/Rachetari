@@ -122,7 +122,7 @@ function useAnswer(repoPath: string, branch: string) {
     setSpec(next);
     setStage({ at: "reading" });
     try {
-      const p = await window.rivetari.card.answerPreview(
+      const p = await window.rachetari.card.answerPreview(
         repoPath,
         branch,
         next,
@@ -141,7 +141,7 @@ function useAnswer(repoPath: string, branch: string) {
     if (stage.at !== "review" || !spec) return;
     setStage({ at: "applying", diff: stage.diff });
     try {
-      const r = await window.rivetari.card.answerApply(
+      const r = await window.rachetari.card.answerApply(
         repoPath,
         branch,
         spec,
