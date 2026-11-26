@@ -48,6 +48,7 @@ import {
   TasksState,
 } from "../shared/ipc";
 import { APP_ID } from "./app-id";
+import { registerMarkReady } from "./engine/card-commit";
 import { readChecklist } from "./engine/checklist";
 import { ciWatchFor } from "./engine/ci";
 import { listDocs, readDoc } from "./engine/docs";
@@ -548,6 +549,8 @@ function registerIpcHandlers(): void {
       await taskDetail(repoPath, nowHub.snapshot(repoPath), key),
     );
   });
+
+  registerMarkReady(ipcMain, registered);
 
   ipcMain.handle(IpcChannel.ChecklistGet, async (_event, raw: unknown) => {
     const { repoPath: asked } = ChecklistRequest.parse(raw);
