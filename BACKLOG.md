@@ -15,6 +15,12 @@ Ordered. The top line becomes the next `CARD.md`.
 7. Clean code: install the kit's `/done` (with `comment-report.mjs`) into `.claude/skills/done/` (agent config: needs you) · from checklist "`/done` runs the comment report" (T-0039)
 8. Shrink Now (Now.tsx) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
 9. Shrink checkOnce (live-shell.mjs) under the lint limits (its override in `eslint.config.js` comes out) · from T-0043
+10. Kit: a `merge-card` runner step that merges, checks, appends the night report with clock times and moves parked lines into BACKLOG.md (T-0069, ready, low) · from the breathband-console pilot
+11. Docs: night-mode rules from the pilot: fix rounds, must-fix blocks, runner scope widening, night-branch draft PR (T-0070, needs you, see docs/open-questions.md)
+12. Kit: park only outside Files in scope; inspectors judge what a fix broke nearby and treat must-fix as blocking (T-0071, needs you: agent config)
+13. Kit: `/card --night` drafts a card from a spec section with no questions, using approvals written before the night (pilot builders drafted their own cards)
+14. Runner: merge-card also merges the base into the card and re-checks before review, drafts follow-up cards from security/flaky/demo review suggestions, and opens the night branch's draft PR (after T-0069 and T-0070)
+15. Shell: fetching survives a corrupt remote-tracking ref (pilot: `refs/remotes/origin/night/2026-11-26` left as NUL bytes broke `git fetch --all --prune`) · `apps/desktop/src/main/kit/source.ts`
 
 ## Parked
 
